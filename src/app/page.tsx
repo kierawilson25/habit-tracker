@@ -1,0 +1,133 @@
+"use client";
+import Image from "next/image";
+import { useState } from "react";
+import Checkbox from "@/app/components/Checkbox";
+import Link from "next/link";
+import { useEffect } from "react";
+
+export default function Home() {
+  const [habits, setHabits] = useState<string[]>([]);
+  const [checkedStates, setCheckedStates] = useState<boolean[]>([]);
+
+  // USE EFFECTS ---------------------------------------------------------------------------
+  useEffect(() => {
+    // Get habits from session storage, or empty array if not found
+    const stored = localStorage.getItem("habits");
+    const habitList = stored ? JSON.parse(stored) : [];
+    setHabits(habitList);
+
+    
+    const storedChecked = localStorage.getItem("checkedStates");
+    console.log("Stored checked states:", storedChecked);
+    if (storedChecked) {
+      console.log("Using stored checked states:", JSON.parse(storedChecked));
+      setCheckedStates(JSON.parse(storedChecked));
+    } else {
+      setCheckedStates(new Array(habitList.length).fill(false));
+    }
+  }, []);
+
+  //Saves the checked states to localStorage whenever they change to persist the stateß
+    useEffect(() => {
+      localStorage.setItem("checkedStates", JSON.stringify(checkedStates));
+    }, [checkedStates]);
+
+  //Keep habits and checkedStates in sync
+  // useEffect(() => {
+  //   setCheckedStates(prev => {
+  //     if (habits.length > prev.length) {
+  //       return [...prev, ...new Array(habits.length - prev.length).fill(false)];
+  //     }
+  //     if (habits.length < prev.length) {
+  //       return prev.slice(0, habits.length);
+  //     }
+  //     return prev;
+  //   });
+  // }, [habits]);
+
+  //HELPER FUNCTIONS ---------------------------------------------------------------------------
+
+  // Function to handle checkbox state changes
+  const handleCheckboxChange = (index: number, checked: boolean) => {
+    setCheckedStates(prev =>
+      prev.map((item, i) => (i === index ? checked : item))
+    );
+  };
+
+
+  return (
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+
+        {/* start check boxes */}
+        <div className="p-8">
+          {habits.length === 0 ? (
+            <p className="text-white-500">No habits found. Add some habits!</p>
+          ) : (
+            habits.map((label, idx) => (
+              <div key={label}>
+                <Checkbox
+                  label={label}
+                  checked={checkedStates[idx]}
+                  onChange={checked => handleCheckboxChange(idx, checked)}
+                />
+              </div>
+            ))
+          )}
+        </div>
+        <Link href="/add-habit" className="text-blue-500 underline mb-4">
+                <button className="bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200">
+                  Add Habit
+                </button>
+        </Link>
+      </main>
+      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/file.svg"
+            alt="File icon"
+            width={16}
+            height={16}
+          />
+          Learn
+        </a>
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/window.svg"
+            alt="Window icon"
+            width={16}
+            height={16}
+          />
+          Examples
+        </a>
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/globe.svg"
+            alt="Globe icon"
+            width={16}
+            height={16}
+          />
+          Go to nextjs.org →
+        </a>
+      </footer>
+    </div>
+  );
+}
