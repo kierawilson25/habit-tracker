@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 //import { PencilIcon } from "@heroicons/react/24/outline";
 import { HiOutlinePencil } from "react-icons/hi2";
-import { FaCircleCheck } from "react-icons/fa6";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 
@@ -60,9 +59,9 @@ export default function AddHabits() {
 
   // handleBlur: Function to handle the blur event -> When the input loses focus, it will be set to disabled
   //not using right now
-  const handleBlur = (idx: number) => {
-    setHabitDisabled((prev) => prev.map((d, i) => (i === idx ? true : d)));
-  };
+  // const handleBlur = (idx: number) => {
+  //   setHabitDisabled((prev) => prev.map((d, i) => (i === idx ? true : d)));
+  // };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
