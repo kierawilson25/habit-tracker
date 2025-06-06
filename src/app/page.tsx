@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { use, useState } from "react";
 import Checkbox from "@/app/components/Checkbox";
 import Link from "next/link";
 import { useEffect } from "react";
@@ -11,41 +11,47 @@ export default function Home() {
 
   // USE EFFECTS ---------------------------------------------------------------------------
   useEffect(() => {
-    // Get habits from session storage, or empty array if not found
-    const stored = localStorage.getItem("habits");
+    // 1. Get habits from session storage, or empty array if not found
+    const stored = getLSHabits();
     const habitList = stored ? JSON.parse(stored) : [];
     setHabits(habitList);
-
-    
-    const storedChecked = localStorage.getItem("checkedStates");
-    console.log("Stored checked states:", storedChecked);
-    if (storedChecked) {
-      console.log("Using stored checked states:", JSON.parse(storedChecked));
-      setCheckedStates(JSON.parse(storedChecked));
-    } else {
-      setCheckedStates(new Array(habitList.length).fill(false));
-    }
   }, []);
 
-  //Saves the checked states to localStorage whenever they change to persist the stateß
-    useEffect(() => {
-      localStorage.setItem("checkedStates", JSON.stringify(checkedStates));
-    }, [checkedStates]);
+  // 2. When habits change, load checkedStates (or initialize)
+  useEffect(() => {
+    const storedChecked = getLSCheckedStates();
+    if (
+      storedChecked &&
+      Array.isArray(JSON.parse(storedChecked)) &&
+      JSON.parse(storedChecked).length === habits.length
+    ) {
+      setCheckedStates(JSON.parse(storedChecked));
+    } else if (storedChecked && JSON.parse(storedChecked).length == 0) {
+      setCheckedStates(new Array(habits.length).fill(false));
+      setLSCheckedStates(new Array(habits.length).fill(false));
+    }
+  }, [habits]);
 
-  //Keep habits and checkedStates in sync
-  // useEffect(() => {
-  //   setCheckedStates(prev => {
-  //     if (habits.length > prev.length) {
-  //       return [...prev, ...new Array(habits.length - prev.length).fill(false)];
-  //     }
-  //     if (habits.length < prev.length) {
-  //       return prev.slice(0, habits.length);
-  //     }
-  //     return prev;
-  //   });
-  // }, [habits]);
+  // When checkedStates change, update local storage
+  useEffect(() => {
+    if (checkedStates.length === 0) return;
+        setLSCheckedStates(checkedStates);
+  }, [checkedStates]);
+
 
   //HELPER FUNCTIONS ---------------------------------------------------------------------------
+
+  //--- Habits ----
+  //Getter: Habits from Local Storage
+  const getLSHabits = () => {return localStorage.getItem("habits")}
+
+  //--- Checked States ----
+  //Getter: Checked states from Local Storage
+  const getLSCheckedStates = () => {return localStorage.getItem("checkedStates")}
+
+  //Setter: Checked states from Local Storage
+  const setLSCheckedStates = (setCheckedStates: boolean[]) => {localStorage.setItem("checkedStates", JSON.stringify(setCheckedStates))}
+
 
   // Function to handle checkbox state changes
   const handleCheckboxChange = (index: number, checked: boolean) => {
@@ -53,6 +59,7 @@ export default function Home() {
       prev.map((item, i) => (i === index ? checked : item))
     );
   };
+
 
 
   return (
@@ -68,7 +75,7 @@ export default function Home() {
               <div key={label}>
                 <Checkbox
                   label={label}
-                  checked={checkedStates[idx]}
+                  checked={checkedStates[idx] ?? false}
                   onChange={checked => handleCheckboxChange(idx, checked)}
                 />
               </div>
@@ -76,9 +83,9 @@ export default function Home() {
           )}
         </div>
         <Link href="/add-habit" className="text-blue-500 underline mb-4">
-                <button className="bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200">
-                  Add Habit
-                </button>
+          <button className="bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200">
+            Add Habit
+          </button>
         </Link>
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
