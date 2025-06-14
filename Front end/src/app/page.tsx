@@ -8,7 +8,7 @@ import { useEffect } from "react";
 export default function Home() {
   const [habits, setHabits] = useState<string[]>([]);
   const [checkedStates, setCheckedStates] = useState<boolean[]>([]);
-
+  const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
   // USE EFFECTS ---------------------------------------------------------------------------
   useEffect(() => {
     // 1. Get habits from session storage, or empty array if not found
@@ -28,7 +28,6 @@ export default function Home() {
       setCheckedStates(JSON.parse(storedChecked));
     } else if (storedChecked && JSON.parse(storedChecked).length == 0) {
       setCheckedStates(new Array(habits.length).fill(false));
-      setLSCheckedStates(new Array(habits.length).fill(false));
     }
   }, [habits]);
 
@@ -83,7 +82,7 @@ export default function Home() {
           )}
         </div>
         <Link href="/add-habit" className="text-blue-500 underline mb-4">
-          <button className="bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200">
+          <button className={activeButtonClass}>
             Add Habit
           </button>
         </Link>
