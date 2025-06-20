@@ -14,7 +14,6 @@ export default function AddHabits() {
   useEffect(() => {
     // Get habits from session storage, or empty array if not found
     const stored = localStorage.getItem("habits");
-    console.log("Stored habits on add habit page:", stored);
     const habitList = stored ? JSON.parse(stored) : [];
     setHabits(habitList);
     setHabitDisabled(habitList.map(() => true)); // All inputs start as disabled
@@ -23,7 +22,6 @@ export default function AddHabits() {
     const storedChecked = localStorage.getItem("checkedStates");
     if (storedChecked && Array.isArray(JSON.parse(storedChecked))) {
       setCheckedStates(JSON.parse(storedChecked));
-      console.log("Stored checked on add habit page:", storedChecked);
     }
   }, []);
 
@@ -60,9 +58,6 @@ export default function AddHabits() {
         input?.blur();
         const filtered = habits.filter((h) => h.trim() !== "");
         setHabits(filtered);
-        //  REMOVE IF THIS WORKS WITH OUT IT 
-        // localStorage.setItem("habits", JSON.stringify(filtered));
-        // localStorage.setItem("checkedStates", JSON.stringify(checkedStates));
       }
     }
     // clicking the edit icon, setting it to enabled
@@ -79,26 +74,12 @@ export default function AddHabits() {
   const handleDelete = (idx: number) => {
     setHabits((prev) => prev.filter((_, i) => i !== idx));
     setCheckedStates((prev) => prev.filter((_, i) => i !== idx));
-    //  REMOVE IF THIS WORKS WITH OUT IT 
-    // console.log("handleDelete called with idx:", idx);
-    // console.log("Checked States after delete:", checkedStates);
-    // localStorage.setItem("habits", JSON.stringify(habits));
-    // localStorage.setItem("checkedStates", JSON.stringify(checkedStates));
   };
 
-  // handleBlur: Function to handle the blur event -> When the input loses focus, it will be set to disabled
-  //not using right now
-  // const handleBlur = (idx: number) => {
-  //   setHabitDisabled((prev) => prev.map((d, i) => (i === idx ? true : d)));
-  // };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const filtered = habits.filter((h) => h.trim() !== "");
-    localStorage.setItem("habits", JSON.stringify(filtered));
-    console.log("Filtered habits on add page:", filtered);
-    localStorage.setItem("checkedStates", JSON.stringify(checkedStates));
-    console.log("Checked States on add page:", filtered);
     router.push("/");
   };
 
