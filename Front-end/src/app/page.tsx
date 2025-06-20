@@ -75,13 +75,14 @@ export default function Home() {
             key={label}
             className="mx-auto w-full max-w-xl px-6 py-4 mb-4 rounded-lg border"
             style={{
-              backgroundColor: "rgba(34, 197, 94, 0.3)",
+              backgroundColor: "rgba(34, 197, 94, 0.2)",
               borderColor: "rgba(34, 197, 94, 1)",
               borderWidth: "2px",
               width: "33vw", // Center third of the viewport width
               minWidth: "300px", // Optional: prevent too small on mobile
               maxWidth: "600px", // Optional: prevent too wide on large screens
             }}
+            onClick={() => handleCheckboxChange(idx, !checkedStates[idx])}
             >
             <Checkbox
               label={label}

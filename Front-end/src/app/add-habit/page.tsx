@@ -5,35 +5,38 @@ import { HiOutlinePencil } from "react-icons/hi2";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 
-
 export default function AddHabits() {
   const router = useRouter();
   const [habits, setHabits] = useState<string[]>([]);
   const [habitDisabled, setHabitDisabled] = useState<boolean[]>([]);
   const [checkedStates, setCheckedStates] = useState<boolean[]>([]);
 
-
   useEffect(() => {
     // Get habits from session storage, or empty array if not found
     const stored = localStorage.getItem("habits");
-    console.log("Stored habits on add habit page:", stored);
     const habitList = stored ? JSON.parse(stored) : [];
     setHabits(habitList);
     setHabitDisabled(habitList.map(() => true)); // All inputs start as disabled
 
     //IF a new habbit is added, the checked State should be added and set to false in local storage
     const storedChecked = localStorage.getItem("checkedStates");
-    if (
-      storedChecked &&
-      Array.isArray(JSON.parse(storedChecked))
-    ) {
+    if (storedChecked && Array.isArray(JSON.parse(storedChecked))) {
       setCheckedStates(JSON.parse(storedChecked));
-      console.log("Stored checked on add habit page:", storedChecked);
-
-      
     }
   }, []);
 
+  // when the checked state changes, change the value in session storage
+  useEffect(() => {
+    if (checkedStates.length != 0) {
+      localStorage.setItem("checkedStates", JSON.stringify(checkedStates));
+      }
+  }, [checkedStates]);
+
+  // when the habit changes, change the value in session storage
+  useEffect(() => {
+    if (habits.length != 0)
+    localStorage.setItem("habits", JSON.stringify(habits));
+  }, [habits]);
 
   const handleChange = (idx: number, value: string) => {
     setHabits((prev) => prev.map((h, i) => (i === idx ? value : h)));
@@ -45,7 +48,7 @@ export default function AddHabits() {
   const handleEdit = (idx: number, enabled: boolean) => {
     // clicking the save icon, setting it to disabled
     if (enabled) {
-      if( habits[idx].trim() === "") {
+      if (habits[idx].trim() === "") {
         alert("Habit cannot be empty. Delte it or add a value.");
       } else {
         setHabitDisabled((prev) => prev.map((d, i) => (i === idx ? true : d)));
@@ -54,8 +57,7 @@ export default function AddHabits() {
           | undefined;
         input?.blur();
         const filtered = habits.filter((h) => h.trim() !== "");
-        localStorage.setItem("habits", JSON.stringify(filtered));
-        localStorage.setItem("checkedStates", JSON.stringify(filtered));
+        setHabits(filtered);
       }
     }
     // clicking the edit icon, setting it to enabled
@@ -71,21 +73,13 @@ export default function AddHabits() {
 
   const handleDelete = (idx: number) => {
     setHabits((prev) => prev.filter((_, i) => i !== idx));
-    setCheckedStates(prev => prev.filter((_, i) => i !== idx));
-  }
+    setCheckedStates((prev) => prev.filter((_, i) => i !== idx));
+  };
 
-  // handleBlur: Function to handle the blur event -> When the input loses focus, it will be set to disabled
-  //not using right now
-  // const handleBlur = (idx: number) => {
-  //   setHabitDisabled((prev) => prev.map((d, i) => (i === idx ? true : d)));
-  // };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const filtered = habits.filter((h) => h.trim() !== "");
-    localStorage.setItem("habits", JSON.stringify(filtered));
-    console.log("Filtered habits on add page:", filtered);
-    localStorage.setItem("checkedStates on add page", JSON.stringify(checkedStates));
     router.push("/");
   };
 
@@ -156,7 +150,7 @@ export default function AddHabits() {
                 if (habits.length < 5) {
                   setHabits([...habits, ""]);
                   setHabitDisabled([...habitDisabled, false]);
-                  setCheckedStates(prev => [...prev, false]);
+                  setCheckedStates((prev) => [...prev, false]);
                 }
               }}
               disabled={habits.length == 5}
