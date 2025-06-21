@@ -40,7 +40,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '400px', margin: 'auto', padding: '2rem' }}>
-      <h1>Login</h1>
+      <h1 className="text-4xl md:text-6xl font-bold text-green-600 text-center mb-8 pb-4">Login</h1>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '1rem' }}>
           <label htmlFor="email">Email</label>
