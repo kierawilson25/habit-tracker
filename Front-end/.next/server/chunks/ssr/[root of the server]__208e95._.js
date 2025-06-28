@@ -21,11 +21,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$canvas$2d$co
 ;
 function launchConfetti() {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$canvas$2d$confetti$2f$dist$2f$confetti$2e$module$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])({
-        particleCount: 100,
-        spread: 70,
+        particleCount: 400,
+        spread: 130,
         origin: {
             y: 0.6
-        }
+        },
+        shapes: [
+            'star'
+        ]
     });
 }
 }}),
