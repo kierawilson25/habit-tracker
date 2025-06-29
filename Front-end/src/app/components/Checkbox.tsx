@@ -32,7 +32,7 @@ const Checkbox: React.FC<CheckboxProps> = ({ label, checked, onChange }) => {
   };
 
   return (
-    <div>
+    <div >
       <label className="inline-flex items-center space-x-2 cursor-pointer">
         <input
           type="checkbox"
