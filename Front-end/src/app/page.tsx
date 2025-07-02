@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { use, useState } from "react";
-import Checkbox from "@/app/components/Checkbox";
+import Checkbox from "@/components/Checkbox";
 import Link from "next/link";
 import { useEffect } from "react";
 

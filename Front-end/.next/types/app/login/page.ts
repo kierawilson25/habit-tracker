@@ -1,8 +1,8 @@
 // File: /Users/kieralynnwilson/Documents/Coding Projects/Habit Tracker/habit web app/habit-tracker/Front-end/src/app/login/page.tsx
-import * as entry from '../../../../src/app/login/page.js'
+import * as entry from '../../../../src/app/login/page.jsx'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
-type TEntry = typeof import('../../../../src/app/login/page.js')
+type TEntry = typeof import('../../../../src/app/login/page.jsx')
 
 type SegmentParams<T extends Object = any> = T extends Record<string, any>
   ? { [K in keyof T]: T[K] extends string ? string | string[] | undefined : never }
