@@ -1,4 +1,4 @@
-// import { signup } from "./actions";
+import { signup } from "./actions";
 
 export default function SignUpPage() {
   const activeButtonClass =
@@ -18,7 +18,7 @@ export default function SignUpPage() {
           Sign Up
         </h1>
 
-        <form>
+        <form action={signup}>
           {/* Email */}
           <div style={{ marginBottom: "1rem" }}>
             <label htmlFor="email">Email</label>
@@ -59,7 +59,6 @@ export default function SignUpPage() {
               type="submit"
               className={activeButtonClass}
               style={{ width: "100%", padding: "0.5rem" }}
-            //   formAction={signup}
             >
               Create Account
             </button>

@@ -3,6 +3,7 @@ import { login, signup } from "./actions";
 export default function LoginPage() {
   const activeButtonClass =
     "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200";
+    console.log("LoginPage rendered");
 
   return (
     <div style={{ maxWidth: "400px", margin: "auto", padding: "2rem" }}>
