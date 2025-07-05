@@ -16,5 +16,5 @@ export async function signup(formData: FormData) {
     redirect('/error') // Or show error another way
   }
 
-  redirect('/account') // After successful sign-up
+  redirect('/') // After successful sign-up
 }
