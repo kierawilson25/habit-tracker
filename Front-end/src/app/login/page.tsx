@@ -1,9 +1,9 @@
-import { login, signup } from "./actions";
+import { login } from "./actions";
+import Link from "next/link";
 
 export default function LoginPage() {
   const activeButtonClass =
     "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200";
-    console.log("LoginPage rendered");
 
   return (
     <div style={{ maxWidth: "400px", margin: "auto", padding: "2rem" }}>
@@ -17,34 +17,39 @@ export default function LoginPage() {
           <label htmlFor="email">Email</label>
           <input
             type="email"
-
+            name="email"
             required
             style={{ width: "100%", padding: "0.5rem" }}
           />
         </div>
-
-        <label htmlFor="email">Password</label>
+        {/* password */}
+        <label htmlFor="password">Password</label>
         <input
           type="password"
+          name="password" 
           id="password"
           required
           style={{ width: "100%", padding: "0.5rem" }}
         />
+        {/* login */}
         <div style={{ display: "flex", gap: "1rem", margin: "1rem 0" }}>
           <button
-            style={{ flex: 1, padding: "0.5rem" }}
+            style={{ width: "100%",flex: 1, padding: "0.5rem" }}
             className={activeButtonClass}
             formAction={login}
           >
             Log in
           </button>
+          {/* sign up */}
+        <Link href="/sign-up" passHref legacyBehavior>
           <button
-            style={{ flex: 1, padding: "0.5rem" }}
+            type="button"
+            style={{ width: "100%", flex: 1, padding: "0.5rem" }}
             className={activeButtonClass}
-            formAction={signup}
           >
             Sign up
           </button>
+        </Link>
         </div>
       </form>
     </div>
