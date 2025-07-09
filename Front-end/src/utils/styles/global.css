@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* styles/globals.css */
+.page-dark {
+  @apply bg-black text-white min-h-screen;
+}

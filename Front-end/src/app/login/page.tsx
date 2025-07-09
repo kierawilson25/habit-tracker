@@ -1,11 +1,15 @@
 import { login } from "./actions";
 import Link from "next/link";
+import "../../utils/styles/global.css"; // Import global styles
 
 export default function LoginPage() {
   const activeButtonClass =
     "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200";
+  //const backgroundStyle = "min-h-screen bg-black text-white flex items-center justify-center"
+
 
   return (
+    <div className="page-dark">
     <div style={{ maxWidth: "400px", margin: "auto", padding: "2rem" }}>
       <h1 className="text-4xl md:text-6xl font-bold text-green-600 text-center mb-8 pb-4">
         Login
@@ -52,6 +56,7 @@ export default function LoginPage() {
         </Link>
         </div>
       </form>
+    </div>
     </div>
   );
 }
