@@ -1,18 +1,13 @@
 import { signup } from "./actions";
+import "../../utils/styles/global.css"; // Import global styles
+
 
 export default function SignUpPage() {
   const activeButtonClass =
     "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200";
 
   return (
-    <div
-      style={{
-        backgroundColor: "black",
-        minHeight: "100vh",
-        paddingTop: "4rem",
-        color: "white",
-      }}
-    >
+    <div className="page-dark">
       <div style={{ maxWidth: "400px", margin: "auto", padding: "2rem" }}>
         <h1 className="text-4xl md:text-6xl font-bold text-green-600 text-center mb-8 pb-4">
           Sign Up
