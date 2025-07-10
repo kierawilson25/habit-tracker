@@ -4,12 +4,17 @@ import { useRouter } from "next/navigation";
 import { HiOutlinePencil } from "react-icons/hi2";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { IoIosCheckmarkCircle } from "react-icons/io";
+import { createClient } from "@/utils/supabase/client"; // Adjust the import path as needed
 
 export default function AddHabits() {
   const router = useRouter();
   const [habits, setHabits] = useState<string[]>([]);
   const [habitDisabled, setHabitDisabled] = useState<boolean[]>([]);
   const [checkedStates, setCheckedStates] = useState<boolean[]>([]);
+
+  const supabase = createClient();
+
+
 
   useEffect(() => {
     // Get habits from session storage, or empty array if not found
@@ -29,13 +34,14 @@ export default function AddHabits() {
   useEffect(() => {
     if (checkedStates.length != 0) {
       localStorage.setItem("checkedStates", JSON.stringify(checkedStates));
-      }
+    }
   }, [checkedStates]);
 
   // when the habit changes, change the value in session storage
   useEffect(() => {
     if (habits.length != 0)
-    localStorage.setItem("habits", JSON.stringify(habits));
+      localStorage.setItem("habits", JSON.stringify(habits));
+
   }, [habits]);
 
   const handleChange = (idx: number, value: string) => {
@@ -76,10 +82,39 @@ export default function AddHabits() {
     setCheckedStates((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  // handleSubmit: Function to handle the form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  const fetchUser = async () => {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
+    if (error || !user) {
+      console.error("Not authenticated:", error?.message);
+      return;
+    }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    const habitData = habits.map((habit, idx) => ({
+      user_id: user.id, // <== this is what you want
+      title: habit,
+      completed: checkedStates[idx] ?? false,
+    }));
+    console.log("Habit data to insert:", habitData);
+
+    const { data, error: insertError } = await supabase
+      .from("habits")
+      .insert(habitData);
+
+    if (insertError) {
+      console.error("Insert failed:", insertError.message);
+    } else {
+      console.log("Habits inserted:", data);
+    }
+  }
+    await fetchUser();
+ 
     router.push("/");
   };
 
