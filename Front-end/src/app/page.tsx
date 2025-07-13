@@ -5,33 +5,93 @@ import Checkbox from "@/app/components/Checkbox";
 import Link from "next/link";
 import { useEffect } from "react";
 import "../utils/styles/global.css"; // Import global styles
+import { createClient } from "@/utils/supabase/client";
 
+interface Habit {
+  id: string;
+  title: string;
+  completed: boolean;
+  created_at: string;
+  last_completed?: string | null; // Can be undefined, null, or string
+}
 
 export default function Home() {
   const [habits, setHabits] = useState<string[]>([]);
   const [checkedStates, setCheckedStates] = useState<boolean[]>([]);
+  const [habitIds, setHabitIds] = useState<string[]>([]); // Track database IDs
+
+  const [loading, setLoading] = useState(true);
+
   const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
+  
+  const supabase = createClient();
+
+  // Function to fetch habits from database
+  const fetchHabitsFromDB = async () => {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.error("Not authenticated:", userError?.message);
+      setLoading(false);
+      return;
+    }
+
+    const { data: habitData, error: fetchError } = await supabase
+      .from("habits")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("is_archived", false)  // Only fetch non-archived habits
+      .order("created_at", { ascending: true });
+
+    if (fetchError) {
+      console.error("Failed to fetch habits:", fetchError.message);
+      setLoading(false);
+      return;
+    }
+
+    if (habitData && habitData.length > 0) {
+      // Set state with fetched/updated data
+      setHabits(habitData.map((habit: Habit) => habit.title));
+      setHabitIds(habitData.map((habit: Habit) => habit.id));
+      setCheckedStates(habitData.map((habit: Habit) => habit.completed));
+    } else {
+      // No habits found, start with empty arrays
+      setHabits([]);
+      setHabitIds([]);
+      setCheckedStates([]);
+    }
+
+    setLoading(false);
+  };
   // USE EFFECTS ---------------------------------------------------------------------------
   useEffect(() => {
-    // 1. Get habits from session storage, or empty array if not found
-    const stored = getLSHabits();
-    const habitList = stored ? JSON.parse(stored) : [];
-    setHabits(habitList);
+    fetchHabitsFromDB();
   }, []);
 
+
+  // useEffect(() => {
+  //   // 1. Get habits from session storage, or empty array if not found
+  //   const stored = getLSHabits();
+  //   const habitList = stored ? JSON.parse(stored) : [];
+  //   setHabits(habitList);
+  // }, []);
+
   // 2. When habits change, load checkedStates (or initialize)
-  useEffect(() => {
-    const storedChecked = getLSCheckedStates();
-    if (
-      storedChecked &&
-      Array.isArray(JSON.parse(storedChecked)) &&
-      JSON.parse(storedChecked).length === habits.length
-    ) {
-      setCheckedStates(JSON.parse(storedChecked));
-    } else if (storedChecked && JSON.parse(storedChecked).length == 0) {
-      setCheckedStates(new Array(habits.length).fill(false));
-    }
-  }, [habits]);
+  // useEffect(() => {
+  //   const storedChecked = getLSCheckedStates();
+  //   if (
+  //     storedChecked &&
+  //     Array.isArray(JSON.parse(storedChecked)) &&
+  //     JSON.parse(storedChecked).length === habits.length
+  //   ) {
+  //     setCheckedStates(JSON.parse(storedChecked));
+  //   } else if (storedChecked && JSON.parse(storedChecked).length == 0) {
+  //     setCheckedStates(new Array(habits.length).fill(false));
+  //   }
+  // }, [habits]);
 
   // When checkedStates change, update local storage
   useEffect(() => {
@@ -55,9 +115,26 @@ export default function Home() {
 
 
   // Function to handle checkbox state changes
-  const handleCheckboxChange = (index: number, checked: boolean) => {
+  const handleCheckboxChange = async (index: number, checked: boolean) => {
     setCheckedStates(prev =>
       prev.map((item, i) => (i === index ? checked : item))
+    );
+    if (habitIds[index]){
+      const { error } = await supabase
+      .from("habits")
+      .update({ completed: checked })
+      .eq("id", habitIds[index]);
+      if (error) {
+        console.error("Failed to update habit:", error.message);
+      }
+    }
+  }
+
+    if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-lg">Loading habits...</div>
+      </div>
     );
   }
 
