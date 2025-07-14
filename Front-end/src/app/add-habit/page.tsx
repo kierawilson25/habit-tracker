@@ -52,7 +52,6 @@ export default function AddHabits() {
       .from("habits")
       .select("*")
       .eq("user_id", user.id)
-      .eq("is_archived", false)  // Only fetch non-archived habits
       .order("created_at", { ascending: true });
 
     if (fetchError) {
@@ -155,7 +154,7 @@ export default function AddHabits() {
     if (habitIds[idx]) {
       const { error } = await supabase
         .from("habits")
-        .update({ is_archived: true })  // Set to archived instead of deleting
+        .delete()
         .eq("id", habitIds[idx]);
 
       if (error) {
@@ -254,16 +253,6 @@ export default function AddHabits() {
 
         {habits.map((habit, idx) => (
           <div key={idx} className="flex items-center gap-2">
-            {/* Add checkbox for existing habits */}
-            {habitIds[idx] && (
-              <input
-                type="checkbox"
-                checked={checkedStates[idx]}
-                onChange={() => handleCheck(idx)}
-                className="h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-              />
-            )}
-            
             <input
               type="text"
               value={habit}
@@ -279,14 +268,24 @@ export default function AddHabits() {
             />
             {/* return either edit icon or save icon based on the state of habitDisabled */}
             {habit != "" && habitDisabled[idx] ? (
-              <button
-                type="button"
-                className="p-1 text-gray-500 hover:text-green-600"
-                onClick={() => handleEdit(idx, false)}
-                aria-label="Edit habit"
-              >
-                <HiOutlinePencil className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  className="p-1 text-gray-500 hover:text-green-600"
+                  onClick={() => handleEdit(idx, false)}
+                  aria-label="Edit habit"
+                >
+                  <HiOutlinePencil className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  className="p-1 text-gray-500 hover:text-red-600"
+                  onClick={() => handleDelete(idx)}
+                  aria-label="Delete habit"
+                >
+                  <IoIosCloseCircleOutline className="h-6 w-6" />
+                </button>
+              </div>
             ) : (
               <div>
                 <button
@@ -299,11 +298,11 @@ export default function AddHabits() {
                 </button>
                 <button
                   type="button"
-                  className="p-1 text-gray-500 hover:text-blue-600"
+                  className="p-1 text-gray-500 hover:text-red-600"
                   onClick={() => handleDelete(idx)}
                   aria-label="Delete habit"
                 >
-                  <IoIosCloseCircleOutline className="h-6 w-6 hover:text-red-500" />
+                  <IoIosCloseCircleOutline className="h-6 w-6" />
                 </button>
               </div>
             )}
