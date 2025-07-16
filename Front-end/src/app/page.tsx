@@ -141,26 +141,23 @@ export default function Home() {
 
   return (
     <div className="page-dark min-h-screen">
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] w-full">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <h1 className="w-full flex justify-center text-6xl font-bold mb-4 text-green-500">Habits</h1>
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center px-4 pb-20 gap-8 sm:p-20 sm:gap-16 font-[family-name:var(--font-geist-sans)] w-full">
+      <main className="flex flex-col gap-8 row-start-2 items-center w-full max-w-4xl">
+        <h1 className="w-full flex justify-center text-4xl sm:text-6xl font-bold mb-4 text-green-500">Habits</h1>
 
       {/* start check boxes */}
-      <div className="p-8 flex flex-col gap-2">
+      <div className="w-full flex justify-center px-4">
+        <div className="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl flex flex-col gap-2">
         {habits.length === 0 ? (
-        <p className="text-white-500">No habits found. Add some habits!</p>
+        <p className="text-white-500 text-center">No habits found. Add some habits!</p>
         ) : (
         habits.map((label, idx) => (
             <div
             key={label}
-            className="mx-auto w-full max-w-xl px-6 py-4 mb-4 rounded-lg border"
+            className="w-full px-4 py-4 mb-4 rounded-lg border-2 cursor-pointer hover:scale-105 transition-transform duration-200"
             style={{
               backgroundColor: "rgba(34, 197, 94, 0.2)",
               borderColor: "rgba(34, 197, 94, 1)",
-              borderWidth: "2px",
-              width: "33vw", // Center third of the viewport width
-              minWidth: "300px", // Optional: prevent too small on mobile
-              maxWidth: "600px", // Optional: prevent too wide on large screens
             }}
             onClick={() => handleCheckboxChange(idx, !checkedStates[idx])}
             >
@@ -172,6 +169,7 @@ export default function Home() {
             </div>
         ))
         )}
+        </div>
       </div>
       </main>
       {/* Centered Add Habit button at the bottom */}
@@ -182,7 +180,7 @@ export default function Home() {
           </button>
         </Link>
       </div>
-      <footer className="row-start-4 flex gap-6 flex-wrap items-center justify-center">
+      <footer className="row-start-4 flex gap-6 flex-wrap items-center justify-center px-4">
       <a
         className="flex items-center gap-2 hover:underline hover:underline-offset-4"
         href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
