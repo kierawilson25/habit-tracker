@@ -23,7 +23,8 @@ export default function LoginPage() {
             type="email"
             name="email"
             required
-            style={{ width: "100%", padding: "0.5rem" }}
+            style={{ width: "100%", padding: "0.5rem" } }
+            className="text-black"
           />
         </div>
         {/* password */}
@@ -34,6 +35,7 @@ export default function LoginPage() {
           id="password"
           required
           style={{ width: "100%", padding: "0.5rem" }}
+          className="text-black"
         />
         {/* login */}
         <div style={{ display: "flex", gap: "1rem", margin: "1rem 0" }}>
