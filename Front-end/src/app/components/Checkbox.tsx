@@ -1,9 +1,6 @@
-// components/Checkbox.tsx
-'use client'
 'use client';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { launchConfetti } from '@/utils/confetti';
-
 
 type CheckboxProps = {
   label: string;
@@ -12,28 +9,18 @@ type CheckboxProps = {
 };
 
 const Checkbox: React.FC<CheckboxProps> = ({ label, checked, onChange }) => {
-  const [hasShownConfetti, setHasShownConfetti] = useState(false);
-
-  useEffect(() => {
-    const key = `confetti_shown_${label}`;
-    const wasShown = localStorage.getItem(key);
-    setHasShownConfetti(!!wasShown);
-  }, [label]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = e.target.checked;
     onChange(isChecked);
 
-    if (isChecked && !hasShownConfetti) {
+    if (isChecked) {
       launchConfetti();
-      localStorage.setItem(`confetti_shown_${label}`, 'true');
-      setHasShownConfetti(true);
     }
   };
 
   return (
-    <div >
-      <label className="inline-flex items-center space-x-2 cursor-pointer">
+    <div className="w-full">
+      <label className="inline-flex items-center space-x-2 cursor-pointer w-full">
         <input
           type="checkbox"
           checked={checked}
@@ -42,10 +29,8 @@ const Checkbox: React.FC<CheckboxProps> = ({ label, checked, onChange }) => {
         />
         <span className="text-white">{label}</span>
       </label>
-
     </div>
   );
 };
 
 export default Checkbox;
-
