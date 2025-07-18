@@ -28,6 +28,7 @@ export default function SignUpPage() {
                 border: "1px solid #ccc",
                 marginTop: "0.25rem",
               }}
+              className="text-black"
             />
           </div>
 
@@ -45,6 +46,7 @@ export default function SignUpPage() {
                 border: "1px solid #ccc",
                 marginTop: "0.25rem",
               }}
+              className="text-black"
             />
           </div>
 
