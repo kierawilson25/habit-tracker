@@ -72,27 +72,6 @@ export default function Home() {
   }, []);
 
 
-  // useEffect(() => {
-  //   // 1. Get habits from session storage, or empty array if not found
-  //   const stored = getLSHabits();
-  //   const habitList = stored ? JSON.parse(stored) : [];
-  //   setHabits(habitList);
-  // }, []);
-
-  // 2. When habits change, load checkedStates (or initialize)
-  // useEffect(() => {
-  //   const storedChecked = getLSCheckedStates();
-  //   if (
-  //     storedChecked &&
-  //     Array.isArray(JSON.parse(storedChecked)) &&
-  //     JSON.parse(storedChecked).length === habits.length
-  //   ) {
-  //     setCheckedStates(JSON.parse(storedChecked));
-  //   } else if (storedChecked && JSON.parse(storedChecked).length == 0) {
-  //     setCheckedStates(new Array(habits.length).fill(false));
-  //   }
-  // }, [habits]);
-
   // When checkedStates change, update local storage
   useEffect(() => {
     if (checkedStates.length === 0) return;
@@ -102,13 +81,7 @@ export default function Home() {
 
   //HELPER FUNCTIONS ---------------------------------------------------------------------------
 
-  //--- Habits ----
-  //Getter: Habits from Local Storage
-  const getLSHabits = () => {return localStorage.getItem("habits")}
 
-  //--- Checked States ----
-  //Getter: Checked states from Local Storage
-  const getLSCheckedStates = () => {return localStorage.getItem("checkedStates")}
 
   //Setter: Checked states from Local Storage
   const setLSCheckedStates = (setCheckedStates: boolean[]) => {localStorage.setItem("checkedStates", JSON.stringify(setCheckedStates))}
@@ -154,12 +127,11 @@ export default function Home() {
         habits.map((label, idx) => (
             <div
             key={label}
-            className="w-full px-4 py-4 mb-4 rounded-lg border-2 cursor-pointer hover:scale-105 transition-transform duration-200"
+            className="w-full px-4 py-4 mb-4 rounded-lg border-2 hover:scale-105 transition-transform duration-200"
             style={{
               backgroundColor: "rgba(34, 197, 94, 0.2)",
               borderColor: "rgba(34, 197, 94, 1)",
             }}
-            onClick={() => handleCheckboxChange(idx, !checkedStates[idx])}
             >
             <Checkbox
               label={label}
