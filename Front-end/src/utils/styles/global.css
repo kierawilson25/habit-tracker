@@ -4,5 +4,5 @@
 
 /* styles/globals.css */
 .page-dark {
-  @apply bg-black text-white min-h-screen;
+  @apply bg-black text-white min-h-screen !important;
 }

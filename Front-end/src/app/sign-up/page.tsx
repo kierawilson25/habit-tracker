@@ -3,8 +3,9 @@ import "../../utils/styles/global.css"; // Import global styles
 
 
 export default function SignUpPage() {
-  const activeButtonClass =
-    "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200";
+    const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
+    const secondaryButtonClass = "border-2 border-green-600 text-green-600 rounded px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200"
+
 
   return (
     <div className="page-dark">
