@@ -43,7 +43,7 @@ export default function HomePage() {
                     <p className="text-green-300 mb-4 text-sm">
                       Welcome back, {user.email}
                     </p>
-                    <Link href="/dashboard">
+                    <Link href="/habits">
                       <button className={activeButtonClass}>
                         Go to Dashboard
                       </button>
