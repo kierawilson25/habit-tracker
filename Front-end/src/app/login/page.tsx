@@ -3,13 +3,11 @@ import Link from "next/link";
 import "../../utils/styles/global.css"; // Import global styles
 
 export default function LoginPage() {
-  const activeButtonClass =
-    "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200";
-  //const backgroundStyle = "min-h-screen bg-black text-white flex items-center justify-center"
-
+  const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
+  const secondaryButtonClass = "border-2 border-green-600 text-green-600 rounded px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200"
 
   return (
-    <div className="page-dark">
+    <div className="page-dark min-h-screen">
     <div style={{ maxWidth: "400px", margin: "auto", padding: "2rem" }}>
       <h1 className="text-4xl md:text-6xl font-bold text-green-600 text-center mb-8 pb-4">
         Login
@@ -51,7 +49,7 @@ export default function LoginPage() {
           <button
             type="button"
             style={{ width: "100%", flex: 1, padding: "0.5rem" }}
-            className={activeButtonClass}
+            className={secondaryButtonClass}
           >
             Sign up
           </button>

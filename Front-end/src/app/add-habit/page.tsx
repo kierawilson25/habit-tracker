@@ -43,7 +43,9 @@ export default function AddHabits() {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      console.error("Not authenticated:", userError?.message);
+      //console.error("Not authenticated:", userError?.message);
+      console.log("Not authenticated, redirecting to login");
+      router.push("/");
       setLoading(false);
       return;
     }
