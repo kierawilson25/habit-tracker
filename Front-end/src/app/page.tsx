@@ -1,14 +1,20 @@
 'use client'
 import { useAuth } from '../context/AuthContext'
 import Link from 'next/link'
+import { useEffect, useState } from "react";
 
 export default function HomePage() {
   const { user, loading } = useAuth()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
   const secondaryButtonClass = "border-2 border-green-600 text-green-600 rounded px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200"
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="page-dark min-h-screen flex justify-center items-center">
         <div className="text-lg text-white">Loading...</div>
