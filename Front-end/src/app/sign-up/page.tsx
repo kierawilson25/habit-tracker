@@ -1,11 +1,11 @@
 import { signup } from "./actions";
 import "../../utils/styles/global.css"; // Import global styles
 
-
 export default function SignUpPage() {
-    const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
-    const secondaryButtonClass = "border-2 border-green-600 text-green-600 rounded px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200"
-
+  const activeButtonClass =
+    "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200";
+  const secondaryButtonClass =
+    "border-2 border-green-600 text-green-600 rounded px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200";
 
   return (
     <div className="page-dark">
@@ -15,6 +15,24 @@ export default function SignUpPage() {
         </h1>
 
         <form action={signup}>
+          {/* Username */}
+          <div style={{ marginBottom: "1rem" }}>
+            <label htmlFor="username">Choose a username</label>
+            <input
+              type="username"
+              name="username"
+              required
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                borderRadius: "4px",
+                border: "1px solid #ccc",
+                marginTop: "0.25rem",
+              }}
+              className="text-black"
+            />
+          </div>
+
           {/* Email */}
           <div style={{ marginBottom: "1rem" }}>
             <label htmlFor="email">Email</label>
