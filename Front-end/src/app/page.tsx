@@ -62,7 +62,7 @@ export default function HomePage() {
                         Login
                       </button>
                     </Link>
-                    <Link href="/signup">
+                    <Link href="/sign-up">
                       <button className={secondaryButtonClass}>
                         Sign Up
                       </button>
