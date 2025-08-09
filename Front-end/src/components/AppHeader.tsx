@@ -83,7 +83,7 @@ export default function AppHeader() {
                 <button
                   onClick={handleSignOut}
                   disabled={loading}
-                  className="bg-red-600 text-white px-4 py-2 rounded text-base hover:bg-red-700 disabled:opacity-50 transition-colors duration-200"
+                  className="bg-green-600 text-white px-4 py-2 rounded text-base hover:bg-red-700 disabled:opacity-50 transition-colors duration-200"
                 >
                   {loading ? 'Signing out...' : 'Sign Out'}
                 </button>
