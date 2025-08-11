@@ -32,6 +32,8 @@ export default function AddHabits() {
     const today = new Date();
     
     // Reset if last completed date is not today
+        console.log("Checking reset for:", lastCompleted, "Needs reset:", !lastCompleted || lastCompletedDate.toDateString() !== today.toDateString());
+
     return lastCompletedDate.toDateString() !== today.toDateString();
   };
 
@@ -66,6 +68,7 @@ export default function AddHabits() {
       // Check if any habits need to be reset
       const habitsToUpdate: string[] = [];
       const updatedHabits = habitData.map((habit: Habit) => {
+        console.log("Habit:", habit);
         if (habit.completed && needsReset(habit.last_completed)) {
           habitsToUpdate.push(habit.id);
           return { ...habit, completed: false };
