@@ -57,8 +57,13 @@ export default function HomePage() {
                   </div>
                 ) : (
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                    <Link href="/sign-up">
+                    <Link href="/login">
                       <button className={activeButtonClass}>
+                        Login
+                      </button>
+                    </Link>
+                    <Link href="/get-started">
+                      <button className={secondaryButtonClass}>
                         Get Started
                       </button>
                     </Link>

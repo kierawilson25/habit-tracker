@@ -22,6 +22,7 @@ export default function AppHeader() {
     { href: '/habits', label: 'My Habits', authRequired: true },
     { href: '/add-habit', label: 'Add Habit', authRequired: true },
     { href: '/about', label: 'About' },
+    { href: '/get-started', label: 'Get Started' },
   ]
 
   // Filter nav items based on auth status
