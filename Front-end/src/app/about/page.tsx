@@ -38,7 +38,7 @@ const About = () => {
         </div>
       </section>
             <div className="w-full flex justify-center mb-8 row-start-3">
-        <Link href="/add-habit">
+        <Link href="/sign-up">
             <button
             className={activeButtonClass + " fixed left-1/2 transform -translate-x-1/2 bottom-8 z-50"}
             style={{ minWidth: "100px" }}
