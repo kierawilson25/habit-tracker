@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useAuth } from '../context/AuthContext'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 // Type definitions
@@ -14,6 +14,7 @@ interface NavItem {
 export default function AppHeader() {
   const { user, signOut, loading } = useAuth()
   const pathname = usePathname()
+  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Define your navigation structure
@@ -33,6 +34,8 @@ export default function AppHeader() {
   const handleSignOut = async () => {
     try {
       await signOut()
+      // Redirect to home page after successful sign out
+      router.push('/')
     } catch (error) {
       console.error('Sign out failed:', error)
     }
@@ -85,7 +88,7 @@ export default function AppHeader() {
                   onClick={handleSignOut}
                   disabled={loading}
                   className="bg-green-600 text-white px-4 py-2 rounded text-base hover:bg-red-700 disabled:opacity-50 transition-colors duration-200"
-                >
+                >   
                   {loading ? 'Signing out...' : 'Sign Out'}
                 </button>
               </div>
