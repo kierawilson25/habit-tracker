@@ -1,51 +1,54 @@
-'use client'
-import Link from 'next/link'
-import { useAuth } from '../context/AuthContext'
-import { usePathname, useRouter } from 'next/navigation'
-import { useState } from 'react'
+"use client";
+import Link from "next/link";
+import { useAuth } from "../context/AuthContext";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 // Type definitions
 interface NavItem {
-  href: string
-  label: string
-  authRequired?: boolean
+  href: string;
+  label: string;
+  authRequired?: boolean;
 }
 
 export default function AppHeader() {
-  const { user, signOut, loading } = useAuth()
-  const pathname = usePathname()
-  const router = useRouter()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { user, signOut, loading } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Define your navigation structure
   const navItems: NavItem[] = [
-    { href: '/', label: 'Home' },
-    { href: '/habits', label: 'My Habits', authRequired: true },
-    { href: '/add-habit', label: 'Add Habit', authRequired: true },
-    { href: '/about', label: 'About' },
-    { href: '/get-started', label: 'Get Started' },
-  ]
+    { href: "/", label: "Home" },
+    { href: "/habits", label: "My Habits", authRequired: true },
+    { href: "/add-habit", label: "Add Habit", authRequired: true },
+    { href: "/about", label: "About" },
+    { href: "/get-started", label: "Get Started", authRequired: false },
+  ];
 
   // Filter nav items based on auth status
-  const visibleNavItems = navItems.filter(item => 
-    !item.authRequired || (item.authRequired && user)
-  )
+  const visibleNavItems = navItems.filter((item) => {
+    if (item.authRequired === undefined) return true;
+    if (item.authRequired === true) return !!user;
+    if (item.authRequired === false) return !user;
+
+    return false; // or throw an error
+  });
 
   const handleSignOut = async () => {
     try {
-      await signOut()
+      await signOut();
       // Redirect to home page after successful sign out
-      router.push('/')
+      router.push("/");
     } catch (error) {
-      console.error('Sign out failed:', error)
+      console.error("Sign out failed:", error);
     }
-  }
+  };
 
   return (
     <header className="bg-black border-b border-black-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center h-20">
-          
           {/* Logo/Brand Section */}
           <div className="flex items-center flex-1">
             <Link href="/" className="flex items-center space-x-3">
@@ -67,8 +70,8 @@ export default function AppHeader() {
                   href={item.href}
                   className={`text-lg font-medium transition-colors ${
                     pathname === item.href
-                      ? 'text-green-400 border-b-2 border-green-400 pb-1'
-                      : 'text-gray-300 hover:text-white'
+                      ? "text-green-400 border-b-2 border-green-400 pb-1"
+                      : "text-gray-300 hover:text-white"
                   }`}
                 >
                   {item.label}
@@ -88,8 +91,8 @@ export default function AppHeader() {
                   onClick={handleSignOut}
                   disabled={loading}
                   className="bg-green-600 text-white px-4 py-2 rounded text-base hover:bg-red-700 disabled:opacity-50 transition-colors duration-200"
-                >   
-                  {loading ? 'Signing out...' : 'Sign Out'}
+                >
+                  {loading ? "Signing out..." : "Sign Out"}
                 </button>
               </div>
             ) : (
@@ -115,8 +118,18 @@ export default function AppHeader() {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden text-gray-300 hover:text-white"
           >
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg
+              className="w-7 h-7"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           </button>
         </div>
@@ -130,8 +143,8 @@ export default function AppHeader() {
                 href={item.href}
                 className={`block px-4 py-3 text-base ${
                   pathname === item.href
-                    ? 'text-green-400 bg-black-800'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                    ? "text-green-400 bg-black-800"
+                    : "text-gray-300 hover:text-white hover:bg-gray-800"
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -142,5 +155,5 @@ export default function AppHeader() {
         )}
       </div>
     </header>
-  )
+  );
 }
