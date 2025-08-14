@@ -12,9 +12,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200";
-  const secondaryButtonClass = "border-2 border-green-600 text-green-600 rounded px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200";
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -57,7 +54,7 @@ export default function LoginPage() {
           </div>
           
           {/* password */}
-          <div style={{ marginBottom: "1rem" }}>
+          <div style={{ marginBottom: "2rem" }}>
             <label htmlFor="password" className="text-white">Password</label>
             <input
               type="password"
@@ -71,28 +68,28 @@ export default function LoginPage() {
             />
           </div>
           
-          {/* buttons */}
-          <div style={{ display: "flex", gap: "1rem", margin: "1rem 0" }}>
-            <button
-              type="submit"
-              disabled={loading}
-              style={{ width: "100%", flex: 1, padding: "0.5rem" }}
-              className={activeButtonClass}
-            >
-              {loading ? "Logging in..." : "Log in"}
-            </button>
-            
-            <Link href="/sign-up" passHref legacyBehavior>
-              <button
-                type="button"
-                style={{ width: "100%", flex: 1, padding: "0.5rem" }}
-                className={secondaryButtonClass}
-              >
-                Sign up
-              </button>
-            </Link>
-          </div>
+          {/* Large prominent login button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200 mb-4"
+          >
+            {loading ? "Logging in..." : "Log in"}
+          </button>
         </form>
+
+        {/* Secondary sign up link */}
+        <div className="text-center">
+          <p className="text-gray-400 text-sm">
+            Don't have an account?{" "}
+            <Link 
+              href="/sign-up" 
+              className="text-green-400 hover:text-green-300 underline transition-colors duration-200"
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
