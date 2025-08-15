@@ -1,5 +1,6 @@
 import { signup } from "./actions";
 import "../../utils/styles/global.css"; // Import global styles
+import Link from "next/link";
 
 export default function SignUpPage() {
   const activeButtonClass =
@@ -70,7 +71,7 @@ export default function SignUpPage() {
           </div>
 
           {/* Submit */}
-          <div style={{ marginTop: "1.5rem" }}>
+          <div style={{ marginTop: "1.5rem", marginBottom: "1rem" }}>
             <button
               type="submit"
               className={activeButtonClass}
@@ -80,6 +81,18 @@ export default function SignUpPage() {
             </button>
           </div>
         </form>
+        {/* Secondary sign up link */}
+        <div className="text-center">
+          <p className="text-gray-400 text-sm">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="text-green-400 hover:text-green-300 underline transition-colors duration-200"
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
