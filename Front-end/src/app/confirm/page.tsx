@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createClient as createSupabaseClient } from '../../utils/supabase/client'; // Adjust path to your supabase client
+import { createClient as createSupabaseClient } from '../../utils/supabase/client';
 
-export default function ConfirmPage() {
+// Move the component that uses useSearchParams into a separate component
+function ConfirmContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const supabase = createSupabaseClient(); // Create client instance
+  const searchParams = useSearchParams(); // Now this is wrapped in Suspense
+  const supabase = createSupabaseClient();
   const [loading, setLoading] = useState(true);
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +65,6 @@ export default function ConfirmPage() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="max-w-md w-full px-6 text-center">
-          {/* Logo/Icon */}
           <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <span className="text-white text-2xl font-bold">H</span>
           </div>
@@ -73,7 +73,6 @@ export default function ConfirmPage() {
             Habit Tracker
           </h1>
           
-          {/* Loading Spinner */}
           <div className="w-12 h-12 border-3 border-gray-700 border-t-green-500 rounded-full animate-spin mx-auto mb-6"></div>
           
           <h2 className="text-green-500 text-2xl font-medium mb-4">
@@ -92,7 +91,6 @@ export default function ConfirmPage() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="max-w-md w-full px-6 text-center">
-          {/* Logo/Icon */}
           <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <span className="text-white text-2xl font-bold">H</span>
           </div>
@@ -101,7 +99,6 @@ export default function ConfirmPage() {
             Habit Tracker
           </h1>
           
-          {/* Success Icon */}
           <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
             <span className="text-white text-2xl font-bold">✓</span>
           </div>
@@ -133,7 +130,6 @@ export default function ConfirmPage() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="max-w-md w-full px-6 text-center">
-        {/* Logo/Icon */}
         <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
           <span className="text-white text-2xl font-bold">H</span>
         </div>
@@ -142,7 +138,6 @@ export default function ConfirmPage() {
           Habit Tracker
         </h1>
         
-        {/* Error Icon */}
         <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
           <span className="text-white text-2xl font-bold">✗</span>
         </div>
@@ -172,5 +167,27 @@ export default function ConfirmPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component that provides the Suspense boundary
+export default function ConfirmPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="max-w-md w-full px-6 text-center">
+          <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <span className="text-white text-2xl font-bold">H</span>
+          </div>
+          <h1 className="text-green-500 text-4xl font-semibold mb-4">
+            Habit Tracker
+          </h1>
+          <div className="w-12 h-12 border-3 border-gray-700 border-t-green-500 rounded-full animate-spin mx-auto mb-6"></div>
+          <p className="text-white text-lg">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ConfirmContent />
+    </Suspense>
   );
 }
