@@ -7,42 +7,62 @@ import { createClient as createSupabaseClient } from '../../utils/supabase/clien
 // Move the component that uses useSearchParams into a separate component
 function ConfirmContent() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // Now this is wrapped in Suspense
+  const searchParams = useSearchParams();
   const supabase = createSupabaseClient();
   const [loading, setLoading] = useState(true);
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(5);
 
+  // Function to check confirmation status in database
+  const checkConfirmationStatus = async () => {
+    try {
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        throw new Error('Unable to get user information');
+      }
+
+      // Query the auth.users table to check confirmed_at status
+      const { data, error } = await supabase
+        .from('auth.users')
+        .select('confirmed_at, email_confirmed_at')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        // If we can't access auth.users directly, check user metadata
+        // Supabase user object should have email_confirmed_at in user_metadata or directly
+        const isConfirmed = user.email_confirmed_at !== null || 
+                           user.confirmed_at !== null ||
+                           user.user_metadata?.email_verified === true;
+        
+        return isConfirmed;
+      }
+
+      // Check if either confirmed_at or email_confirmed_at is not null
+      return data.confirmed_at !== null || data.email_confirmed_at !== null;
+      
+    } catch (err) {
+      console.error('Error checking confirmation status:', err);
+      return false;
+    }
+  };
+
   useEffect(() => {
     const handleEmailConfirmation = async () => {
       try {
-        const token_hash = searchParams.get('token_hash');
+        // Since Supabase redirects here after processing the token,
+        // we just need to check if the user's email is confirmed in the database
+        const isConfirmed = await checkConfirmationStatus();
         
-        if (!token_hash) {
-          throw new Error('No confirmation token found in URL.');
+        if (isConfirmed) {
+          setConfirmed(true);
+          startCountdown();
+        } else {
+          throw new Error('Email confirmation was not successful. Please try again or resend the confirmation email.');
         }
-
-        const { data, error } = await supabase.auth.verifyOtp({
-          token_hash: token_hash,
-          type: 'email'
-        });
-        
-        if (error) throw error;
-        
-        setConfirmed(true);
-        
-        // Start countdown for redirect
-        const timer = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev <= 1) {
-              clearInterval(timer);
-              router.push('/dashboard');
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
         
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unexpected error occurred');
@@ -51,15 +71,24 @@ function ConfirmContent() {
       }
     };
 
-    // Check if we have the token parameter
-    const token_hash = searchParams.get('token_hash');
-    if (token_hash) {
-      handleEmailConfirmation();
-    } else {
-      setError('No confirmation token found in URL.');
-      setLoading(false);
-    }
-  }, [searchParams, supabase, router]);
+    const startCountdown = () => {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            // Use setTimeout to push the navigation outside of the render cycle
+            setTimeout(() => {
+              router.push('/');
+            }, 0);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    };
+
+    handleEmailConfirmation();
+  }, [supabase, router]);
 
   if (loading) {
     return (
@@ -112,15 +141,15 @@ function ConfirmContent() {
           </p>
           
           <p className="text-white text-base mb-6">
-            You'll be redirected to your dashboard in{' '}
+            You'll be redirected to your home page in{' '}
             <span className="text-green-500 font-semibold">{countdown}</span> seconds.
           </p>
           
           <button
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/')}
             className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
           >
-            Go to Dashboard
+            Go to Home
           </button>
         </div>
       </div>
