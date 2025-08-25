@@ -205,6 +205,13 @@ export default function Home() {
     }
   }
 
+  // TODO: Replace with actual streak calculation from database
+  const getStreakForHabit = (index: number) => {
+    // Placeholder - return random streak values for now
+    const placeholderStreaks = [15, 7, 12, 3, 0];
+    return placeholderStreaks[index] || 0;
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -222,28 +229,70 @@ export default function Home() {
 
           {/* start check boxes */}
           <div className="w-full flex justify-center px-4">
-            <div className="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl flex flex-col gap-2">
-              {habits.length === 0 ? (
+            {habits.length === 0 ? (
+              <div className="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl">
                 <p className="text-white-500 text-center">No habits found. Add some habits!</p>
-              ) : (
-                habits.map((label, idx) => (
-                  <div
-                    key={label}
-                    className="w-full px-4 py-4 mb-4 rounded-lg border-2 hover:scale-105 transition-transform duration-200"
-                    style={{
-                      backgroundColor: "rgba(34, 197, 94, 0.2)",
-                      borderColor: "rgba(34, 197, 94, 1)",
-                    }}
-                  >
-                    <Checkbox
-                      label={label}
-                      checked={checkedStates[idx] ?? false}
-                      onChange={checked => handleCheckboxChange(idx, checked)}
-                    />
+              </div>
+            ) : (
+              <div className="w-full max-w-4xl">
+                {/* Header Row - Only show when there are habits */}
+                <div className="flex gap-8 mb-6">
+                  <div className="flex-1">
+                    {/* Invisible header for alignment */}
+                    <div className="text-xl font-semibold text-green-500 invisible">
+                      Habits
+                    </div>
                   </div>
-                ))
-              )}
-            </div>
+                  <div className="w-36">
+                    <div className="text-xl font-semibold text-green-500 text-center">
+                      Streak
+                    </div>
+                  </div>
+                </div>
+
+                {/* Habit Rows */}
+                <div className="flex flex-col gap-2">
+                  {habits.map((label, idx) => (
+                    <div key={label} className="flex items-center gap-8">
+                      {/* Habit Cell */}
+                      <div className="flex-1">
+                        <div
+                          className="w-full px-4 py-4 rounded-lg border-2 hover:scale-105 transition-transform duration-200"
+                          style={{
+                            backgroundColor: "rgba(34, 197, 94, 0.2)",
+                            borderColor: "rgba(34, 197, 94, 1)",
+                          }}
+                        >
+                          <Checkbox
+                            label={label}
+                            checked={checkedStates[idx] ?? false}
+                            onChange={checked => handleCheckboxChange(idx, checked)}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Streak Cell */}
+                      <div className="w-36">
+                        <div 
+                          className="border-2 rounded-lg p-4 flex items-center justify-center h-[72px] transition-transform duration-200"
+                          style={{
+                            backgroundColor: "rgba(34, 197, 94, 0.05)",
+                            borderColor: "rgba(34, 197, 94, 1)",
+                          }}
+                        >
+                          <div className="flex items-center justify-center">
+                            <span className="text-lg font-bold text-white">
+                              {/* TODO: Replace getStreakForHabit with actual streak calculation */}
+                              {getStreakForHabit(idx)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </main>
         {/* Centered Add Habit button at the bottom */}
@@ -258,3 +307,57 @@ export default function Home() {
     </div>
   );
 }
+
+/*
+TODO: Implement Actual Streak Calculation
+
+1. Add streak fields to your Habit interface:
+   interface Habit {
+     id: string;
+     title: string;
+     completed: boolean;
+     created_at: string;
+     last_completed?: string | null;
+     current_streak?: number;  // Add this
+     best_streak?: number;     // Add this
+   }
+
+2. Update your database schema to include streak tracking:
+   - Add columns: current_streak (integer), best_streak (integer)
+   - OR create a separate table for habit_completions to track daily completions
+
+3. Calculate streaks in fetchHabitsFromDB():
+   - Either retrieve calculated streaks from database
+   - Or calculate them from completion history
+
+4. Update streaks when habits are completed in handleCheckboxChange():
+   - Increment current_streak when habit is completed
+   - Update best_streak if current exceeds it
+   - Reset current_streak to 0 when habit is not completed
+
+5. Replace getStreakForHabit() with actual data from your habits state
+
+Example streak calculation logic:
+```javascript
+const calculateCurrentStreak = (completionDates: string[]) => {
+  const today = new Date();
+  let streak = 0;
+  let checkDate = new Date(today);
+  
+  const sortedDates = completionDates
+    .map(date => new Date(date))
+    .sort((a, b) => b.getTime() - a.getTime()); // Most recent first
+  
+  for (let date of sortedDates) {
+    if (isSameDay(date, checkDate)) {
+      streak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    } else if (date < checkDate) {
+      break; // Gap found, streak broken
+    }
+  }
+  
+  return streak;
+};
+```
+*/
