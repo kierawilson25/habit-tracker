@@ -235,7 +235,7 @@ export default function AddHabits() {
       }
     }
 
-    router.push("/");
+    router.push("/habits");
   };
 
   if (loading) {
