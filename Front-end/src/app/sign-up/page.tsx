@@ -89,7 +89,7 @@ export default function SignUpPage() {
               href="/login"
               className="text-green-400 hover:text-green-300 underline transition-colors duration-200"
             >
-              Sign up
+              Log in
             </Link>
           </p>
         </div>
