@@ -14,35 +14,23 @@ function ConfirmContent() {
   const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(5);
 
-  // Function to check confirmation status in database
+  // Function to check confirmation status
   const checkConfirmationStatus = async () => {
     try {
-      // Get current user
+      // Get current user - this will have email_confirmed_at if verified
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (userError || !user) {
         throw new Error('Unable to get user information');
       }
 
-      // Query the auth.users table to check confirmed_at status
-      const { data, error } = await supabase
-        .from('auth.users')
-        .select('confirmed_at, email_confirmed_at')
-        .eq('id', user.id)
-        .single();
+      console.log('User object:', user); // Debug log
+      console.log('Email confirmed at:', user.email_confirmed_at); // Debug log
 
-      if (error) {
-        // If we can't access auth.users directly, check user metadata
-        // Supabase user object should have email_confirmed_at in user_metadata or directly
-        const isConfirmed = user.email_confirmed_at !== null || 
-                           user.confirmed_at !== null ||
-                           user.user_metadata?.email_verified === true;
-        
-        return isConfirmed;
-      }
-
-      // Check if either confirmed_at or email_confirmed_at is not null
-      return data.confirmed_at !== null || data.email_confirmed_at !== null;
+      // Check if email is confirmed
+      const isConfirmed = user.email_confirmed_at !== null;
+      
+      return isConfirmed;
       
     } catch (err) {
       console.error('Error checking confirmation status:', err);
@@ -53,8 +41,10 @@ function ConfirmContent() {
   useEffect(() => {
     const handleEmailConfirmation = async () => {
       try {
-        // Since Supabase redirects here after processing the token,
-        // we just need to check if the user's email is confirmed in the database
+        // Refresh the session to get the latest user data
+        await supabase.auth.refreshSession();
+        
+        // Check if the user's email is confirmed
         const isConfirmed = await checkConfirmationStatus();
         
         if (isConfirmed) {
