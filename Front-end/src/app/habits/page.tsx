@@ -14,12 +14,12 @@ interface Habit {
   completed: boolean;
   created_at: string;
   last_completed?: string | null;
-  current_streak?: number;  // Now we'll use the real streak data
+  current_streak?: number;
   longest_streak?: number;
 }
 
 export default function Home() {
-  const [habits, setHabits] = useState<Habit[]>([]); // Changed to store full habit objects
+  const [habits, setHabits] = useState<Habit[]>([]);
   const [checkedStates, setCheckedStates] = useState<boolean[]>([]);
   const [habitIds, setHabitIds] = useState<string[]>([]);
   const router = useRouter();
@@ -29,10 +29,73 @@ export default function Home() {
   
   const supabase = createClient();
 
+  // ONE-TIME FIX: Function to repair all last_completed values
+  const repairLastCompletedDates = async () => {
+    console.log("🔧 REPAIR FUNCTION: Starting to fix all last_completed dates...");
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    const { data: habits } = await supabase
+      .from("habits")
+      .select("*")
+      .eq("user_id", user.id);
+    
+    if (!habits) return;
+    
+    for (const habit of habits) {
+      console.log(`🔧 Checking habit: "${habit.title}"`);
+      
+      // Get the most recent completion
+      const { data: lastCompletion } = await supabase
+        .from('habit_completions')
+        .select('completion_date')
+        .eq('habit_id', habit.id)
+        .order('completion_date', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (lastCompletion) {
+        console.log(`  📅 Found last completion: ${lastCompletion.completion_date}`);
+        
+        if (habit.last_completed !== lastCompletion.completion_date) {
+          console.log(`  ⚠️ Updating from ${habit.last_completed} to ${lastCompletion.completion_date}`);
+          
+          const { error } = await supabase
+            .from("habits")
+            .update({ last_completed: lastCompletion.completion_date })
+            .eq("id", habit.id);
+          
+          if (!error) {
+            console.log(`  ✅ Updated successfully`);
+          } else {
+            console.log(`  ❌ Error updating:`, error);
+          }
+        } else {
+          console.log(`  ✅ Already correct`);
+        }
+      } else {
+        console.log(`  ⚠️ No completions found`);
+        
+        if (habit.last_completed) {
+          console.log(`  🔧 Clearing incorrect last_completed date`);
+          await supabase
+            .from("habits")
+            .update({ last_completed: null })
+            .eq("id", habit.id);
+        }
+      }
+    }
+    
+    console.log("🔧 REPAIR FUNCTION: Completed!");
+  };
+
   // STREAK CALCULATION FUNCTIONS
   
   // Calculate current streak for a habit - FIXED VERSION
   const calculateStreak = async (habitId: string) => {
+    console.log(`📊 calculateStreak called for habitId: ${habitId}`);
+    
     const { data: completions, error } = await supabase
       .from('habit_completions')
       .select('completion_date')
@@ -40,8 +103,12 @@ export default function Home() {
       .order('completion_date', { ascending: false });
       
     if (error || !completions?.length) {
+      console.log(`❌ No completions found for habit ${habitId}`);
       return { current: 0, longest: 0 };
     }
+    
+    console.log(`📅 Found ${completions.length} completions for habit ${habitId}`);
+    console.log(`📅 First 5 completions:`, completions.slice(0, 5).map(c => c.completion_date));
     
     let currentStreak = 0;
     let longestStreak = 0;
@@ -50,72 +117,82 @@ export default function Home() {
     const completionDates = completions.map(c => new Date(c.completion_date).toISOString().split('T')[0]);
     const today = new Date().toISOString().split('T')[0];
     
-    // Calculate current streak - check if the most recent completion leads to today or is recent
+    console.log(`📅 Today's date: ${today}`);
+    console.log(`📅 Most recent completion: ${completionDates[0]}`);
+    
+    // Calculate current streak
     if (completionDates.length > 0) {
       const mostRecentCompletion = completionDates[0];
       const mostRecentDate = new Date(mostRecentCompletion);
       const todayDate = new Date(today);
       
-      // Current streak is the most recent consecutive sequence that either:
-      // 1. Includes today, OR 
-      // 2. Ended yesterday (allowing for "unchecking today" scenario)
-      let checkDate = new Date(mostRecentDate);
-      currentStreak = 1; // Start with the most recent completion
-      
-      // Go backwards from the most recent completion
-      for (let i = 1; i < completionDates.length; i++) {
-        const expectedPrevDay = new Date(checkDate);
-        expectedPrevDay.setDate(expectedPrevDay.getDate() - 1);
-        const expectedDateStr = expectedPrevDay.toISOString().split('T')[0];
-        
-        if (completionDates[i] === expectedDateStr) {
-          currentStreak++;
-          checkDate = expectedPrevDay;
-        } else {
-          // Gap found, stop current streak calculation
-          break;
-        }
-      }
-      
-      // If the most recent completion is more than 1 day old, reset current streak
+      // Calculate days difference
       const daysDiff = Math.floor((todayDate.getTime() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24));
+      console.log(`📅 Days since last completion: ${daysDiff}`);
+      
+      // If last completion was more than 1 day ago, streak is broken
       if (daysDiff > 1) {
+        console.log(`❌ Streak broken - last completion was ${daysDiff} days ago`);
         currentStreak = 0;
+      } else {
+        // Count consecutive days backwards from most recent
+        currentStreak = 1;
+        console.log(`✅ Starting streak count from most recent completion`);
+        
+        for (let i = 1; i < completionDates.length; i++) {
+          const currentCompDate = new Date(completionDates[i - 1]);
+          const nextCompDate = new Date(completionDates[i]);
+          const daysDifference = Math.floor((currentCompDate.getTime() - nextCompDate.getTime()) / (1000 * 60 * 60 * 24));
+          
+          console.log(`  Comparing ${completionDates[i-1]} to ${completionDates[i]}: ${daysDifference} days apart`);
+          
+          if (daysDifference === 1) {
+            currentStreak++;
+            console.log(`  ✅ Consecutive! Streak now: ${currentStreak}`);
+          } else {
+            console.log(`  ❌ Gap found! Final current streak: ${currentStreak}`);
+            break;
+          }
+        }
       }
     }
     
-    // Calculate longest streak by finding all consecutive sequences
+    // Calculate longest streak
+    console.log(`📊 Calculating longest streak...`);
     let i = 0;
     while (i < completionDates.length) {
       let tempStreak = 1;
-      let currentDate = new Date(completionDates[i]);
+      let j = i;
       
-      // Look for consecutive days
-      for (let j = i + 1; j < completionDates.length; j++) {
-        const nextDate = new Date(completionDates[j]);
-        const expectedPrevDay = new Date(currentDate);
-        expectedPrevDay.setDate(expectedPrevDay.getDate() - 1);
+      while (j < completionDates.length - 1) {
+        const currentDate = new Date(completionDates[j]);
+        const nextDate = new Date(completionDates[j + 1]);
+        const daysDiff = Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24));
         
-        if (nextDate.toISOString().split('T')[0] === expectedPrevDay.toISOString().split('T')[0]) {
+        if (daysDiff === 1) {
           tempStreak++;
-          currentDate = nextDate;
+          j++;
         } else {
           break;
         }
       }
       
-      longestStreak = Math.max(longestStreak, tempStreak);
+      if (tempStreak > longestStreak) {
+        console.log(`  New longest streak found: ${tempStreak} (starting from ${completionDates[i]})`);
+        longestStreak = tempStreak;
+      }
       
-      // Move to the next non-consecutive date
-      i += tempStreak;
+      i = j + 1;
     }
     
+    console.log(`📊 Final streaks - Current: ${currentStreak}, Longest: ${longestStreak}`);
     return { current: currentStreak, longest: longestStreak };
   };
 
   // Check if habit was completed today
   const isHabitCompletedToday = async (habitId: string) => {
     const today = new Date().toISOString().split('T')[0];
+    console.log(`🔍 Checking if habit ${habitId} was completed today (${today})`);
     
     const { data, error } = await supabase
       .from('habit_completions')
@@ -123,13 +200,16 @@ export default function Home() {
       .eq('habit_id', habitId)
       .eq('completion_date', today)
       .single();
-      
-    return !!data && !error;
+    
+    const result = !!data && !error;
+    console.log(`🔍 Habit ${habitId} completed today: ${result}`);
+    return result;
   };
 
   // Complete habit and update streak
   const completeHabit = async (habitId: string, userId: string) => {
     const today = new Date().toISOString().split('T')[0];
+    console.log(`✅ completeHabit called for habitId: ${habitId} on ${today}`);
     
     try {
       // Insert completion record
@@ -143,13 +223,18 @@ export default function Home() {
         
       if (insertError) {
         if (insertError.code === '23505') {
+          console.log(`⚠️ Habit ${habitId} already completed today`);
           return { error: 'Habit already completed today' };
         }
         throw insertError;
       }
       
+      console.log(`✅ Completion record inserted for habit ${habitId}`);
+      
       // Calculate and update streaks
       const streaks = await calculateStreak(habitId);
+      
+      console.log(`📤 Updating habit ${habitId} with streaks:`, streaks);
       
       await supabase
         .from('habits')
@@ -160,11 +245,12 @@ export default function Home() {
           completed: true
         })
         .eq('id', habitId);
-        
+      
+      console.log(`✅ Habit ${habitId} updated successfully`);
       return { success: true, streaks };
       
     } catch (error) {
-      console.error('Error completing habit:', error);
+      console.error('❌ Error completing habit:', error);
       return { error: error instanceof Error ? error.message : 'An unexpected error occurred' };
     }
   };
@@ -172,6 +258,7 @@ export default function Home() {
   // Uncomplete habit (remove today's completion)
   const uncompleteHabit = async (habitId: string) => {
     const today = new Date().toISOString().split('T')[0];
+    console.log(`❌ uncompleteHabit called for habitId: ${habitId} on ${today}`);
     
     try {
       // Remove today's completion
@@ -182,6 +269,8 @@ export default function Home() {
         .eq('completion_date', today);
         
       if (deleteError) throw deleteError;
+      
+      console.log(`✅ Today's completion removed for habit ${habitId}`);
       
       // Recalculate streaks
       const streaks = await calculateStreak(habitId);
@@ -195,6 +284,8 @@ export default function Home() {
         .limit(1)
         .single();
       
+      console.log(`📅 New last completion for habit ${habitId}:`, lastCompletion?.completion_date || 'none');
+      
       await supabase
         .from('habits')
         .update({
@@ -204,29 +295,38 @@ export default function Home() {
           last_completed: lastCompletion?.completion_date || null
         })
         .eq('id', habitId);
-        
+      
+      console.log(`✅ Habit ${habitId} uncompleted successfully`);
       return { success: true, streaks };
       
     } catch (error) {
-      console.error('Error uncompleting habit:', error);
+      console.error('❌ Error uncompleting habit:', error);
       return { error: error instanceof Error ? error.message : 'An unexpected error occurred' };
     }
   };
 
-  // FIXED: Function to check if habits need to be reset (daily reset at midnight)
+  // Function to check if habits need to be reset (daily reset at midnight)
   const needsReset = (lastCompleted: string | null | undefined, completed: boolean) => {
     console.log("🔍 needsReset called with:", { lastCompleted, completed });
     
+    // If habit is marked as completed but has no last_completed date, it MUST be reset
+    if (completed && !lastCompleted) {
+      console.log("⚠️ Habit marked as completed but no last_completed date - NEEDS RESET");
+      return true;
+    }
+    
+    // If not completed, no reset needed
     if (!completed) {
       console.log("❌ Habit not completed - no reset needed");
       return false;
     }
-    
+
     if (!lastCompleted) {
-      console.log("⚠️ Habit completed but no last_completed date - needs reset");
-      return true; // If completed but no timestamp, definitely needs reset
+      console.log("❌ lastCompleted is null/undefined and not completed - no reset needed");
+      return false;
     }
     
+    // If we have a last_completed date, check if it's from today
     const lastCompletedDate = new Date(lastCompleted);
     const today = new Date();
     
@@ -251,6 +351,7 @@ export default function Home() {
   // Function to fetch habits from database
   const fetchHabitsFromDB = async () => {
     console.log("🚀 fetchHabitsFromDB started on HOME page");
+    console.log("📅 Current date/time:", new Date().toISOString());
     
     const {
       data: { user },
@@ -281,6 +382,10 @@ export default function Home() {
     }
 
     console.log("📊 Raw habit data from DB:", habitData);
+    console.log("🔍 Checking last_completed values:");
+    habitData?.forEach(h => {
+      console.log(`  - "${h.title}": last_completed=${h.last_completed}, completed=${h.completed}, current_streak=${h.current_streak}`);
+    });
 
     if (habitData && habitData.length > 0) {
       console.log(`📝 Processing ${habitData.length} habits`);
@@ -289,26 +394,75 @@ export default function Home() {
       const habitsToUpdate: Array<{id: string, updates: any}> = [];
       const updatedHabits = await Promise.all(
         habitData.map(async (habit: Habit, index: number) => {
-          console.log(`\n--- Processing habit ${index + 1}: "${habit.title}" ---`);
+          console.log(`\n========== Processing habit ${index + 1}: "${habit.title}" ==========`);
+          console.log(`📊 Initial state:`, {
+            completed: habit.completed,
+            last_completed: habit.last_completed,
+            current_streak: habit.current_streak,
+            longest_streak: habit.longest_streak
+          });
           
           // Check if habit was actually completed today
           const completedToday = await isHabitCompletedToday(habit.id);
           
           let updatedHabit = { ...habit };
           
+          // First priority: Fix missing last_completed if habit has completions
+          if (!habit.last_completed && habit.current_streak && (habit.current_streak > 0 || completedToday)) {
+            console.log("⚠️ FIXING: Habit has streak/completion but no last_completed date!");
+            
+            // Get the most recent completion date
+            const { data: lastCompletion } = await supabase
+              .from('habit_completions')
+              .select('completion_date')
+              .eq('habit_id', habit.id)
+              .order('completion_date', { ascending: false })
+              .limit(1)
+              .single();
+            
+            if (lastCompletion) {
+              console.log(`📅 Found last completion: ${lastCompletion.completion_date}`);
+              habit.last_completed = lastCompletion.completion_date;
+            }
+          }
+          
+          // Now check if needs reset based on last_completed date
           if (needsReset(habit.last_completed, habit.completed)) {
-            console.log("🔄 This habit will be reset!");
+            console.log("🔄 RESETTING: This habit needs to be reset!");
+            
+            // Also recalculate streaks when resetting
+            const streaks = await calculateStreak(habit.id);
+            
+            // Get the actual last completion date (not today)
+            const { data: lastCompletion } = await supabase
+              .from('habit_completions')
+              .select('completion_date')
+              .eq('habit_id', habit.id)
+              .order('completion_date', { ascending: false })
+              .limit(1)
+              .single();
+            
             habitsToUpdate.push({
               id: habit.id,
               updates: {
                 completed: false,
-                last_completed: null
+                current_streak: streaks.current,
+                longest_streak: streaks.longest,
+                last_completed: lastCompletion?.completion_date || null
               }
             });
-            updatedHabit = { ...habit, completed: false };
-          } else if (completedToday && !habit.completed) {
+            updatedHabit = { 
+              ...habit, 
+              completed: false,
+              current_streak: streaks.current,
+              longest_streak: streaks.longest,
+              last_completed: lastCompletion?.completion_date || null
+            };
+          } 
+          // If it passed needsReset but there's a mismatch between completed status and actual completion
+          else if (completedToday && !habit.completed) {
             // Habit was completed today but not marked as completed in habits table
-            console.log("✅ Habit was completed today, updating status");
+            console.log("✅ SYNCING: Habit was completed today but not marked, updating status");
             const streaks = await calculateStreak(habit.id);
             const updates = {
               completed: true,
@@ -319,8 +473,8 @@ export default function Home() {
             habitsToUpdate.push({ id: habit.id, updates });
             updatedHabit = { ...habit, ...updates };
           } else if (!completedToday && habit.completed) {
-            // Habit is marked completed but no completion record for today
-            console.log("❌ No completion record for today, marking as incomplete and recalculating");
+            // This shouldn't happen if needsReset works correctly, but as a safety check
+            console.log("❌ FIXING: No completion record for today but marked as completed");
             const streaks = await calculateStreak(habit.id);
             
             // Get the most recent completion date
@@ -340,7 +494,47 @@ export default function Home() {
             };
             habitsToUpdate.push({ id: habit.id, updates });
             updatedHabit = { ...habit, ...updates };
+          } else {
+            console.log("✅ NO CHANGES NEEDED for this habit");
+            // Even if no changes needed, ensure streak data is accurate
+            const streaks = await calculateStreak(habit.id);
+            
+            // Also check if last_completed needs updating
+            let needsUpdate = false;
+            const updates: any = {};
+            
+            if (streaks.current !== habit.current_streak || streaks.longest !== habit.longest_streak) {
+              console.log("📊 STREAK UPDATE: Streak data out of sync, updating");
+              updates.current_streak = streaks.current;
+              updates.longest_streak = streaks.longest;
+              needsUpdate = true;
+            }
+            
+            // If habit is completed today but last_completed isn't today, fix it
+            if (completedToday && habit.completed) {
+              const today = new Date().toISOString();
+              const lastCompletedDate = habit.last_completed ? new Date(habit.last_completed).toDateString() : null;
+              const todayDateString = new Date().toDateString();
+              
+              if (lastCompletedDate !== todayDateString) {
+                console.log("📅 FIXING: Updating last_completed to today");
+                updates.last_completed = today;
+                needsUpdate = true;
+              }
+            }
+            
+            if (needsUpdate) {
+              habitsToUpdate.push({ id: habit.id, updates });
+              updatedHabit = { ...habit, ...updates };
+            }
           }
+          
+          console.log(`📊 Final state for "${habit.title}":`, {
+            completed: updatedHabit.completed,
+            current_streak: updatedHabit.current_streak,
+            longest_streak: updatedHabit.longest_streak
+          });
+          console.log(`========== End processing "${habit.title}" ==========\n`);
           
           return updatedHabit;
         })
@@ -348,10 +542,13 @@ export default function Home() {
 
       // Update database if any habits need updates
       if (habitsToUpdate.length > 0) {
-        console.log("📤 Updating database for", habitsToUpdate.length, "habits...");
+        console.log(`\n📤 UPDATING DATABASE for ${habitsToUpdate.length} habits...`);
         
         // Update each habit individually to handle different update sets
         for (const { id, updates } of habitsToUpdate) {
+          const habitName = habitData.find(h => h.id === id)?.title || 'Unknown';
+          console.log(`📤 Updating "${habitName}" (${id}) with:`, updates);
+          
           const { error: updateError } = await supabase
             .from("habits")
             .update(updates)
@@ -360,18 +557,25 @@ export default function Home() {
           if (updateError) {
             console.error(`❌ Failed to update habit ${id}:`, updateError.message);
           } else {
-            console.log(`✅ Successfully updated habit ${id}`);
+            console.log(`✅ Successfully updated habit "${habitName}"`);
           }
         }
+      } else {
+        console.log("\n✅ No habits needed updating");
       }
 
       // Set state with fetched/updated data
-      console.log("📋 Setting component state...");
+      console.log("\n📋 Setting component state...");
+      console.log("Final habit states:", updatedHabits.map((h: Habit) => ({
+        title: h.title,
+        completed: h.completed,
+        current_streak: h.current_streak,
+        last_completed: h.last_completed
+      })));
+      
       setHabits(updatedHabits);
       setHabitIds(updatedHabits.map((habit: Habit) => habit.id));
       setCheckedStates(updatedHabits.map((habit: Habit) => habit.completed));
-      
-      console.log("Final checked states:", updatedHabits.map((habit: Habit) => habit.completed));
     } else {
       console.log("📝 No habits found, initializing empty arrays");
       setHabits([]);
@@ -385,27 +589,25 @@ export default function Home() {
 
   // USE EFFECTS
   useEffect(() => {
+    // Uncomment the next line to run the repair function ONCE
+    // repairLastCompletedDates().then(() => fetchHabitsFromDB());
+    
+    // Normal flow
     fetchHabitsFromDB();
   }, []);
 
-  useEffect(() => {
-    if (checkedStates.length === 0) return;
-    setLSCheckedStates(checkedStates);
-  }, [checkedStates]);
-
-  // HELPER FUNCTIONS
-
-  const setLSCheckedStates = (setCheckedStates: boolean[]) => {
-    localStorage.setItem("checkedStates", JSON.stringify(setCheckedStates))
-  }
-
   // Updated function to handle checkbox state changes with streak tracking
   const handleCheckboxChange = async (index: number, checked: boolean) => {
-    console.log(`📝 Checkbox changed for habit ${index}: ${checked}`);
+    const habitName = habits[index]?.title || 'Unknown';
+    console.log(`\n📝 CHECKBOX CHANGE: "${habitName}" changed to ${checked ? 'CHECKED' : 'UNCHECKED'}`);
+    console.log(`📊 Current streak before change: ${habits[index]?.current_streak}`);
     
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      console.log("❌ No user found, aborting");
+      return;
+    }
     
     // Optimistically update UI
     setCheckedStates(prev =>
@@ -417,20 +619,24 @@ export default function Home() {
       
       if (checked) {
         // Complete the habit
+        console.log(`✅ Completing habit "${habitName}"...`);
         result = await completeHabit(habitIds[index], user.id);
       } else {
         // Uncomplete the habit
+        console.log(`❌ Uncompleting habit "${habitName}"...`);
         result = await uncompleteHabit(habitIds[index]);
       }
       
       if (result.error) {
-        console.error("❌ Failed to update habit:", result.error);
+        console.error(`❌ Failed to update habit "${habitName}":`, result.error);
         // Revert the optimistic update
         setCheckedStates(prev =>
           prev.map((item, i) => (i === index ? !checked : item))
         );
       } else {
-        console.log("✅ Successfully updated habit completion");
+        console.log(`✅ Successfully updated habit "${habitName}" completion`);
+        console.log(`📊 New streaks:`, result.streaks);
+        
         // Update the habit in state with new streak data
         setHabits(prev => 
           prev.map((habit, i) => 
@@ -439,18 +645,23 @@ export default function Home() {
                   ...habit, 
                   completed: checked,
                   current_streak: result.streaks?.current || 0,
-                  longest_streak: result.streaks?.longest || habit.longest_streak || 0
+                  longest_streak: result.streaks?.longest || habit.longest_streak || 0,
+                  last_completed: checked ? new Date().toISOString() : habit.last_completed
                 }
               : habit
           )
         );
+        
+        console.log(`📊 Updated state - New current streak: ${result.streaks?.current}`);
       }
     }
   }
 
-  // Get actual streak for habit (no longer a placeholder)
+  // Get actual streak for habit
   const getStreakForHabit = (index: number) => {
-    return habits[index]?.current_streak || 0;
+    const streak = habits[index]?.current_streak || 0;
+    console.log(`📊 getStreakForHabit(${index}): "${habits[index]?.title}" = ${streak}`);
+    return streak;
   };
 
   if (loading) {
@@ -506,7 +717,7 @@ export default function Home() {
                         >
                           <Checkbox
                             label={habit.title}
-                            checked={checkedStates[idx] ?? false}
+                            checked={habit.completed}
                             onChange={checked => handleCheckboxChange(idx, checked)}
                           />
                         </div>
@@ -523,7 +734,7 @@ export default function Home() {
                         >
                           <div className="flex items-center justify-center">
                             <span className="text-lg font-bold text-white">
-                              {getStreakForHabit(idx)}
+                              {habit.current_streak || 0}
                             </span>
                           </div>
                         </div>
