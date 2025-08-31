@@ -18,10 +18,11 @@ export default function SignUpPage() {
         <form action={signup}>
           {/* Username */}
           <div style={{ marginBottom: "1rem" }}>
-            <label htmlFor="username">Choose a username</label>
+            <label htmlFor="display_name">Choose a Display Name</label>
             <input
-              type="username"
-              name="username"
+              id="display_name"
+              type="display_name"
+              name="display_name"
               required
               style={{
                 width: "100%",

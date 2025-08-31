@@ -11,6 +11,9 @@ export default function HomePage() {
     setMounted(true)
   }, [])
 
+  console.log('Full user object:', user);
+  console.log('Display name:', user?.user_metadata.display_name);
+  console.log('User metadata:', user?.user_metadata);
   const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
   const secondaryButtonClass = "border-2 border-green-600 text-green-600 rounded px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200"
 
@@ -47,7 +50,7 @@ export default function HomePage() {
                 {user ? (
                   <div>
                     <p className="text-green-300 mb-4 text-sm">
-                      Welcome back, {user.email}
+                      Welcome back, {user?.user_metadata.display_name || user.email}!
                     </p>
                     <Link href="/habits">
                       <button className={activeButtonClass}>
