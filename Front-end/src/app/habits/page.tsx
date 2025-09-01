@@ -750,7 +750,7 @@ export default function Home() {
         <div className="w-full flex justify-center mb-8 row-start-3">
           <Link href="/add-habit">
             <button className={activeButtonClass}>
-              Add Habit
+              {habits.length > 0 ? "Edit Habits": "Add Habits"}
             </button>
             </Link>
         </div>
