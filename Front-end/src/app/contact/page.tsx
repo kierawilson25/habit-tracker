@@ -64,7 +64,7 @@ export default function Contact() {
                     <HiOutlineMail className="text-green-600 text-xl" />
                     <div>
                       <h3 className="font-semibold text-green-800">Email</h3>
-                      <p className="text-black">kiea.wilson025@gmail.com</p>
+                      <p className="text-black">kiera.wilson025@gmail.com</p>
                     </div>
                   </div>
                   <button
