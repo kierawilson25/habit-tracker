@@ -91,6 +91,12 @@ export default function HomePage() {
           >
             Contact
           </a>
+          <a
+            className="flex items-center gap-2 hover:underline hover:underline-offset-4 text-white"
+            href="/report-bug"
+          >
+            Report a Bug
+          </a>
         </footer>
       </div>
     </div>
