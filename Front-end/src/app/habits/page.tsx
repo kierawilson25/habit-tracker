@@ -115,7 +115,7 @@ export default function Home() {
     
     // Convert completions to date strings for easier comparison
     const completionDates = completions.map(c => new Date(c.completion_date).toISOString().split('T')[0]);
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
     
     console.log(`📅 Today's date: ${today}`);
     console.log(`📅 Most recent completion: ${completionDates[0]}`);
@@ -191,7 +191,7 @@ export default function Home() {
 
   // Check if habit was completed today
   const isHabitCompletedToday = async (habitId: string) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
     console.log(`🔍 Checking if habit ${habitId} was completed today (${today})`);
     
     const { data, error } = await supabase
@@ -208,7 +208,7 @@ export default function Home() {
 
   // Complete habit and update streak
   const completeHabit = async (habitId: string, userId: string) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
     console.log(`✅ completeHabit called for habitId: ${habitId} on ${today}`);
     
     try {
@@ -241,7 +241,7 @@ export default function Home() {
         .update({
           current_streak: streaks.current,
           longest_streak: Math.max(streaks.longest, streaks.current),
-          last_completed: new Date().toISOString(),
+          last_completed: new Date().toLocaleDateString('en-CA'), // Local timezone date
           completed: true
         })
         .eq('id', habitId);
@@ -257,7 +257,7 @@ export default function Home() {
 
   // Uncomplete habit (remove today's completion)
   const uncompleteHabit = async (habitId: string) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
     console.log(`❌ uncompleteHabit called for habitId: ${habitId} on ${today}`);
     
     try {
@@ -351,7 +351,7 @@ export default function Home() {
   // Function to fetch habits from database
   const fetchHabitsFromDB = async () => {
     console.log("🚀 fetchHabitsFromDB started on HOME page");
-    console.log("📅 Current date/time:", new Date().toISOString());
+    console.log("📅 Current date/time:", new Date().toLocaleDateString('en-CA'), "Local timezone");
     
     const {
       data: { user },
@@ -512,7 +512,7 @@ export default function Home() {
             
             // If habit is completed today but last_completed isn't today, fix it
             if (completedToday && habit.completed) {
-              const today = new Date().toISOString();
+              const today = new Date().toLocaleDateString('en-CA'); // Local timezone date
               const lastCompletedDate = habit.last_completed ? new Date(habit.last_completed).toDateString() : null;
               const todayDateString = new Date().toDateString();
               
@@ -646,7 +646,7 @@ export default function Home() {
                   completed: checked,
                   current_streak: result.streaks?.current || 0,
                   longest_streak: result.streaks?.longest || habit.longest_streak || 0,
-                  last_completed: checked ? new Date().toISOString() : habit.last_completed
+                  last_completed: checked ? new Date().toLocaleDateString('en-CA') : habit.last_completed
                 }
               : habit
           )
