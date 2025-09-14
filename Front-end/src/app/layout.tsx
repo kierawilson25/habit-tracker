@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from '../context/AuthContext'
 import AppHeader from "../components/AppHeader";
+import Footer from "../components/Footer";
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css";
 
@@ -35,6 +36,7 @@ export default function RootLayout({
           <main className="pt-16"> 
             {children}
             <Analytics />
+            <Footer />
           </main>
         </AuthProvider>
       </body>
