@@ -77,27 +77,6 @@ export default function HomePage() {
             </div>
           </div>
         </main>
-        
-        <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center px-4">
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4 text-white"
-            href="/about"
-          >
-            About
-          </a>
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4 text-white"
-            href="/contact"
-          >
-            Contact
-          </a>
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4 text-white"
-            href="/report-bug"
-          >
-            Report a Bug
-          </a>
-        </footer>
       </div>
     </div>
   )
