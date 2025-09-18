@@ -22,7 +22,6 @@ export default function AppHeader() {
     { href: "/", label: "Home" },
     { href: "/habits", label: "My Habits", authRequired: true },
     { href: "/add-habit", label: "Edit Habits", authRequired: true },
-    { href: "/about", label: "About" },
     { href: "/get-started", label: "Get Started", authRequired: false },
   ];
 
