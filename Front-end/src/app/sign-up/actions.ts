@@ -29,11 +29,11 @@ export async function signup(formData: FormData) {
         display_name: displayName,
         email: data.user.email
       })
-    
+
     if (updateError) {
       console.error('Error updating display name in users table:', updateError.message)
     }
   }
 
-  redirect('/') // After successful sign-up
+  redirect('/welcome') // After successful sign-up
 }
