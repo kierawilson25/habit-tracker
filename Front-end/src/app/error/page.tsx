@@ -1,10 +1,10 @@
 'use client'
 
-import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import Link from 'next/link'
 
-export default function ErrorPage() {
+function ErrorPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [returnPath, setReturnPath] = useState('/login')
@@ -17,7 +17,7 @@ export default function ErrorPage() {
     const from = searchParams.get('from')
     
     if (from === 'signup') {
-      setReturnPath('/sign-up')
+      setReturnPath('/signup')
       setReturnLabel('Return to Sign Up')
     } else if (from === 'login') {
       setReturnPath('/login')
@@ -26,7 +26,7 @@ export default function ErrorPage() {
       // Default fallback - you can also check document.referrer
       const referrer = typeof window !== 'undefined' ? document.referrer : ''
       if (referrer.includes('/signup')) {
-        setReturnPath('/sign-up')
+        setReturnPath('/signup')
         setReturnLabel('Return to Sign Up')
       } else {
         setReturnPath('/login')
@@ -91,15 +91,27 @@ export default function ErrorPage() {
         </div>
 
         {/* Additional Help */}
-      <div className="text-center mt-8">
+        <div className="text-center mt-8">
           <p className="text-sm text-gray-400">
             If the problem persists, please{' '}
-            <Link href="/contact" className="text-gray-400 hover:text-green-400 underline">
+            <Link href="/contact" className="text-green-500 hover:text-green-400 underline">
               contact support
             </Link>
           </p>
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ErrorPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-lg text-white">Loading...</div>
+      </div>
+    }>
+      <ErrorPageContent />
+    </Suspense>
   )
 }
