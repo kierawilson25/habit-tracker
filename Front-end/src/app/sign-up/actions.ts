@@ -17,7 +17,7 @@ export async function signup(formData: FormData) {
 
   if (error) {
     console.error('Signup error:', error.message)
-    redirect('/error')
+    redirect('/error?from=signup')
   }
 
   // Insert/update the user's display_name in the users table
