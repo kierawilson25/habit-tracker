@@ -83,26 +83,39 @@ export default function HomePage() {
            }} />
 
       <div className="relative z-10">
-
-
         {/* Hero Section */}
         <div className="max-w-6xl mx-auto px-4 py-24">
-          <div className="text-center mb-16">
-            {/* ASCII Art Logo */}
-            <div className="mb-8 text-green-400 text-sm leading-tight">
-              <pre className="whitespace-pre">
+          <div className="text-center mb-1">
+            {/* ASCII Art Logo - Mobile Friendly */}
+            <div className="mb-8 text-green-400 leading-tight overflow-x-auto">
+              {/* Large screens - full ASCII art */}
+              <div className="hidden md:block text-sm">
+                <pre className="whitespace-pre inline-block">
 {`   ██████╗ ██████╗  █████╗ ██╗███╗   ██╗███████╗
   ██╔════╝ ██╔══██╗██╔══██╗██║████╗  ██║██╔════╝
   ██║  ███╗██████╔╝███████║██║██╔██╗ ██║███████╗
   ██║   ██║██╔══██╗██╔══██║██║██║╚██╗██║╚════██║
   ╚██████╔╝██║  ██║██║  ██║██║██║ ╚████║███████║
    ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝`}
-              </pre>
+                </pre>
+              </div>
+              
+              {/* Mobile screens - smaller ASCII art that fits */}
+              <div className="block md:hidden text-xs">
+                <pre className="whitespace-pre inline-block">
+{`██████╗ ██████╗  █████╗ ██╗███╗   ██╗███████╗
+██╔════╝██╔══██╗██╔══██╗██║████╗  ██║██╔════╝
+██║  ███╗██████╔╝███████║██║██╔██╗ ██║███████╗
+██║   ██║██╔══██╗██╔══██║██║██║╚██╗██║╚════██║
+╚██████╔╝██║  ██║██║  ██║██║██║ ╚████║███████║
+ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝`}
+                </pre>
+              </div>
             </div>
             
-            <div className="mb-6">
-              <h1 className="text-3xl md:text-5xl font-bold mb-6 text-green-400">
-                Grains of Sand
+            <div className="mb-15">
+              <h1 className="text-3xl md:text-5xl font-bold mb-10 text-green-400">
+                of Sand
               </h1>
             </div>
             
@@ -268,9 +281,9 @@ export default function HomePage() {
 
           <div className="space-y-4">
             {[
-              { user: "Sarah M.", message: "Finally, a habit tracker that doesn't overwhelm me. Just 5 simple habits changed everything." },
-              { user: "Mike R.", message: "The daily reset keeps me motivated. No more guilt about yesterday's missed habits." },
-              { user: "Alex K.", message: "I love the philosophy - small grains of sand really do build towers!" }
+              { user: "Sammi T.", message: "Finally, a habit tracker that doesn't overwhelm me. Just 5 simple habits changed everything." },
+              { user: "Matt H.", message: "The daily reset keeps me motivated. No more guilt about yesterday's missed habits." },
+              { user: "Gagan N.", message: "I love the philosophy - small grains of sand really do build towers!" }
             ].map((testimonial, index) => (
               <div key={index} className="bg-green-500/5 border border-green-500/30 rounded p-4">
                 <div className="text-green-100 text-sm mb-2">
