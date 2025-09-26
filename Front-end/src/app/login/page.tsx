@@ -18,7 +18,7 @@ export default function LoginPage() {
     
     try {
       await signIn(email, password);
-      router.push("/"); // Navigate back to home page
+      router.push("/home"); // Navigate back to home page
     } catch (error: any) {
       setError(error.message || "Login failed");
     }

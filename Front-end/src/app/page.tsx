@@ -1,7 +1,10 @@
 "use client"
 import { useEffect, useState } from "react";
+import { useRouter } from 'next/navigation'
 
 export default function HomePage() {
+  const router = useRouter()
+  
   const [user, setUser] = useState<any>(null) // Mock user state for demo
   const [loading, setLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -12,6 +15,7 @@ export default function HomePage() {
     setMounted(true)
     
     // Create animated stars that encourage scrolling
+    // Only generate random values on the client side to prevent hydration mismatch
     const stars = Array.from({ length: 30 }, (_, i) => ({
       id: i,
       left: Math.random() * 100,
@@ -20,8 +24,8 @@ export default function HomePage() {
       animationDuration: 8 + Math.random() * 12,
       delay: Math.random() * 5,
       opacity: 0.2 + Math.random() * 0.6,
-      direction: Math.random() > 0.5 ? 1 : -1, // Some move left, some right
-      verticalSpeed: 0.3 + Math.random() * 0.7 // Different vertical speeds
+      direction: Math.random() > 0.5 ? 1 : -1,
+      verticalSpeed: 0.3 + Math.random() * 0.7
     }))
     setMatrixLines(stars)
   }, [])
@@ -43,6 +47,7 @@ export default function HomePage() {
     setCheckedHabits(newChecked)
   }
 
+  // Show loading or empty state until mounted to prevent hydration issues
   if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-black flex justify-center items-center">
@@ -56,25 +61,27 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-black text-green-500 relative overflow-hidden font-[family-name:var(--font-geist-sans)]">
-      {/* Dynamic floating stars that guide downward */}
-      <div className="fixed inset-0 pointer-events-none">
-        {matrixLines.map((star) => (
-          <div
-            key={star.id}
-            className="absolute bg-green-500 rounded-full"
-            style={{
-              left: `${star.left}%`,
-              top: `${star.top}%`,
-              width: `${star.size}px`,
-              height: `${star.size}px`,
-              opacity: star.opacity,
-              animation: `floatDown ${star.animationDuration}s linear infinite, pulse ${star.animationDuration * 0.6}s ease-in-out infinite`,
-              animationDelay: `${star.delay}s`,
-              transform: `translateX(${star.direction * 20}px)`
-            }}
-          />
-        ))}
-      </div>
+      {/* Dynamic floating stars that guide downward - only render when mounted */}
+      {mounted && (
+        <div className="fixed inset-0 pointer-events-none">
+          {matrixLines.map((star) => (
+            <div
+              key={star.id}
+              className="absolute bg-green-500 rounded-full"
+              style={{
+                left: `${star.left}%`,
+                top: `${star.top}%`,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                opacity: star.opacity,
+                animation: `floatDown ${star.animationDuration}s linear infinite, pulse ${star.animationDuration * 0.6}s ease-in-out infinite`,
+                animationDelay: `${star.delay}s`,
+                transform: `translateX(${star.direction * 20}px)`
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Scanlines effect */}
       <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-transparent via-green-500/5 to-transparent opacity-30" 
@@ -329,7 +336,7 @@ export default function HomePage() {
                 </button>
                 <button 
                   className={secondaryButtonClass + " px-6 py-3"}
-                  onClick={() => window.location.href = '/login'}
+                  onClick={() => router.push('/login')}
                 >
                   Login
                 </button>
