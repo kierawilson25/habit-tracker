@@ -168,7 +168,7 @@ const fetchUserData = async () => {
           {/* Welcome Section */}
           <div className="bg-green-950/20 rounded-lg p-6 border border-green-600/30">
             <h1 className="text-2xl font-bold text-center mb-2">
-              Hi, {userName}! 👋
+              Hi, {userName}! 
             </h1>
             <p className="text-gray-400 text-center">
               Welcome back to your habit journey
