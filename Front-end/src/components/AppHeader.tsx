@@ -19,7 +19,8 @@ export default function AppHeader() {
 
   // Define your navigation structure
   const navItems: NavItem[] = [
-    { href: "/", label: "Home" },
+    { href: "/", label: "Home", authRequired: false},
+    { href: "/home", label: "Home", authRequired: true },
     { href: "/habits", label: "My Habits", authRequired: true },
     { href: "/add-habit", label: "Edit Habits", authRequired: true },
     { href: "/get-started", label: "Get Started", authRequired: false },

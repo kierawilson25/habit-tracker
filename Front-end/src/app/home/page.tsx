@@ -1,0 +1,310 @@
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+
+export default function HomePage() {
+  const router = useRouter();
+  const supabase = createClient();
+  // State for user data and stats
+  const [userName, setUserName] = useState("");
+  const [completedHabits, setCompletedHabits] = useState(0);
+  const [totalHabits, setTotalHabits] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [weeklyProgress, setWeeklyProgress] = useState(0);
+  const [avgHabitsPerDay, setAvgHabitsPerDay] = useState(0);
+  const [encouragingMessage, setEncouragingMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const encouragingMessages = [
+    "Every small step counts towards your goals! 🌟",
+    "Consistency is the key to lasting change. Keep going! 💪",
+    "You're building the future you want, one habit at a time! 🚀",
+    "Progress, not perfection. You're doing amazing! ✨",
+    "Today is a new opportunity to grow stronger! 🌱",
+    "Your dedication today shapes tomorrow's success! 🎯",
+    "Small habits, big results. You've got this! 🔥",
+    "Every habit completed is a promise kept to yourself! 💚"
+  ];
+
+  // Function to load data (replace with real database calls in your app)
+const fetchUserData = async () => {
+  try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.log("Not authenticated, redirecting to login");
+      router.push("/");
+      return;
+    }
+
+    // Get user name from metadata or use email as fallback
+    const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || "User";
+    setUserName(displayName);
+
+    // Fetch today's habits
+    const { data: todayHabits, error: habitsError } = await supabase
+      .from("habits")
+      .select("id, completed, current_streak")
+      .eq("user_id", user.id);
+
+    if (habitsError) {
+      console.error("Failed to fetch habits:", habitsError.message);
+    } else if (todayHabits) {
+      const completed = todayHabits.filter((habit: any) => habit.completed).length;
+      const total = todayHabits.length;
+      const streaks = todayHabits.map((habit: any) => habit.current_streak || 0);
+      const maxStreak = streaks.length > 0 ? Math.max(...streaks) : 0;
+      
+      setCompletedHabits(completed);
+      setTotalHabits(total);
+      setCurrentStreak(maxStreak);
+    }
+
+    // Calculate weekly progress from habit_completions table
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const { data: weeklyCompletions, error: weeklyError } = await supabase
+      .from("habit_completions")
+      .select("completion_date, habit_id")
+      .eq("user_id", user.id)
+      .gte("completion_date", sevenDaysAgo.toISOString().split('T')[0]);
+
+    if (weeklyError) {
+      console.error("Failed to fetch weekly data:", weeklyError.message);
+    } else if (weeklyCompletions && todayHabits) {
+      // Group completions by date and count unique habits completed each day
+      const completionsByDate = weeklyCompletions.reduce((acc: any, completion: any) => {
+        const date = completion.completion_date;
+        if (!acc[date]) acc[date] = new Set();
+        acc[date].add(completion.habit_id);
+        return acc;
+      }, {});
+
+      // Calculate average daily completion rate for the week
+      const daysWithData = Object.keys(completionsByDate);
+      const totalHabitsCount = todayHabits.length;
+      
+      if (daysWithData.length > 0 && totalHabitsCount > 0) {
+        const totalCompletionRate = daysWithData.reduce((sum: number, date: string) => {
+          const habitsCompletedThatDay = completionsByDate[date].size;
+          return sum + (habitsCompletedThatDay / totalHabitsCount);
+        }, 0);
+        
+        const avgCompletionRate = (totalCompletionRate / daysWithData.length) * 100;
+        setWeeklyProgress(Math.round(avgCompletionRate));
+      } else {
+        setWeeklyProgress(0);
+      }
+    }
+
+    // Calculate average habits completed per day from all historical data
+    const { data: allCompletions, error: avgError } = await supabase
+      .from("habit_completions")
+      .select("completion_date, habit_id")
+      .eq("user_id", user.id);
+
+    if (avgError) {
+      console.error("Failed to fetch completion data:", avgError.message);
+    } else if (allCompletions && allCompletions.length > 0) {
+      // Group by date and count unique habits per day
+      const completionsByDate = allCompletions.reduce((acc: any, completion: any) => {
+        const date = completion.completion_date;
+        if (!acc[date]) acc[date] = new Set();
+        acc[date].add(completion.habit_id);
+        return acc;
+      }, {});
+
+      const daysWithCompletions = Object.keys(completionsByDate);
+      const totalHabitsCompleted = daysWithCompletions.reduce((sum: number, date: string) => {
+        return sum + completionsByDate[date].size;
+      }, 0);
+
+      const avgPerDay = totalHabitsCompleted / daysWithCompletions.length;
+      setAvgHabitsPerDay(Math.round(avgPerDay * 10) / 10);
+    } else {
+      setAvgHabitsPerDay(0);
+    }
+
+    setLoading(false);
+  } catch (error) {
+    console.error("Error in fetchUserData:", error);
+    setLoading(false);
+  }
+};
+
+  useEffect(() => {
+    // Set random encouraging message
+    const randomIndex = Math.floor(Math.random() * encouragingMessages.length);
+    setEncouragingMessage(encouragingMessages[randomIndex]);
+    
+    // Load data
+    fetchUserData();
+  }, []);
+
+  // Calculate percentage for the progress circle
+  const percentage = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0;
+  const circumference = 2 * Math.PI * 45; // radius is 45
+  const strokeDasharray = circumference;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex justify-center items-center">
+        <div className="text-lg">Loading your dashboard...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <div className="flex justify-center px-4 py-8">
+        <div className="w-full max-w-2xl space-y-6">
+          
+          {/* Welcome Section */}
+          <div className="bg-green-950/20 rounded-lg p-6 border border-green-600/30">
+            <h1 className="text-2xl font-bold text-center mb-2">
+              Hi, {userName}! 
+            </h1>
+            <p className="text-gray-400 text-center">
+              Welcome back to your habit journey
+            </p>
+          </div>
+
+          {/* Encouraging Message Section */}
+          <div className="bg-green-950/20 rounded-lg p-6 border border-green-600/30">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-green-600 rounded-full mb-4">
+                <span className="text-xl">💡</span>
+              </div>
+              <p className="text-lg text-green-400 font-medium">
+                {encouragingMessage}
+              </p>
+            </div>
+          </div>
+
+          {/* Habits Progress Widget */}
+          <div className="bg-green-950/20 rounded-lg p-6 border border-green-600/30">
+            <h2 className="text-xl font-bold text-center mb-6">Today's Progress</h2>
+            
+            <div className="flex flex-col items-center space-y-4">
+              {/* Circular Progress Chart */}
+              <div className="relative w-32 h-32">
+                <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 100 100">
+                  {/* Background circle */}
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    stroke="#374151"
+                    strokeWidth="8"
+                    fill="transparent"
+                  />
+                  {/* Progress circle */}
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    stroke="#16a34a"
+                    strokeWidth="8"
+                    fill="transparent"
+                    strokeDasharray={strokeDasharray}
+                    strokeDashoffset={strokeDashoffset}
+                    strokeLinecap="round"
+                    className="transition-all duration-700 ease-in-out"
+                  />
+                </svg>
+                {/* Center text */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-400">
+                      {completedHabits}
+                    </div>
+                    <div className="text-sm text-gray-400">
+                      of {totalHabits}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress Stats */}
+              <div className="text-center space-y-2">
+                <p className="text-lg font-medium">
+                  {completedHabits} out of {totalHabits} habits completed
+                </p>
+                <p className="text-green-400 font-bold text-xl">
+                  {Math.round(percentage)}% Complete
+                </p>
+              </div>
+
+              {/* Progress Bar Alternative */}
+              <div className="w-full max-w-xs">
+                <div className="bg-gray-700 rounded-full h-3">
+                  <div 
+                    className="bg-green-600 h-3 rounded-full transition-all duration-700 ease-in-out"
+                    style={{ width: `${percentage}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Motivational Text */}
+              <div className="text-center mt-4">
+                {percentage === 100 ? (
+                  <p className="text-green-400 font-bold text-lg">
+                    🎉 Perfect day! All habits completed! 
+                  </p>
+                ) : percentage >= 60 ? (
+                  <p className="text-green-400 font-medium">
+                    Great progress! Keep up the momentum! 
+                  </p>
+                ) : percentage > 0 ? (
+                  <p className="text-yellow-400 font-medium">
+                    Good start! You can do more! 
+                  </p>
+                ) : (
+                  <p className="text-gray-400 font-medium">
+                    Ready to begin your day? 
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-2 gap-4">
+            <button className="bg-green-600 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
+                onClick={() => router.push('/habits') }
+                >
+              View Habits
+            </button>
+            <button className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 border border-gray-600"
+                onClick={() => router.push('/add-habit')}
+                >
+              Edit Habits
+            </button>
+          </div>
+
+          {/* Quick Stats Cards */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
+              <div className="text-2xl font-bold text-green-400">{currentStreak}</div>
+              <div className="text-sm text-gray-400">Day Streak</div>
+            </div>
+            <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
+              <div className="text-2xl font-bold text-blue-400">{weeklyProgress}%</div>
+              <div className="text-sm text-gray-400">This Week</div>
+            </div>
+            <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
+              <div className="text-2xl font-bold text-purple-400">{avgHabitsPerDay}</div>
+              <div className="text-sm text-gray-400">Avg Per Day</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
