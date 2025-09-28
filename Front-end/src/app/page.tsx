@@ -144,7 +144,7 @@ export default function HomePage() {
                 <>
                   <button 
                     className={activeButtonClass}
-                    onClick={() => window.location.href = '/get-started'}
+                    onClick={() => window.location.href = '/sign-up'}
                   >
                     Get Started
                   </button>
@@ -329,7 +329,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 
                   className={activeButtonClass + " px-6 py-3"}
-                  onClick={() => window.location.href = '/get-started'}
+                  onClick={() => window.location.href = '/sign-up'}
                 >
                   Get Started
                 </button>
