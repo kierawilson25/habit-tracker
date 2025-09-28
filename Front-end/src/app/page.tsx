@@ -1,12 +1,11 @@
 "use client"
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation'
+import { useAuth } from '../context/AuthContext'
 
 export default function HomePage() {
   const router = useRouter()
-  
-  const [user, setUser] = useState<any>(null) // Mock user state for demo
-  const [loading, setLoading] = useState(false)
+  const { user, loading } = useAuth()
   const [mounted, setMounted] = useState(false)
   const [checkedHabits, setCheckedHabits] = useState([false, false, false, false, false])
   const [matrixLines, setMatrixLines] = useState<any[]>([])
@@ -317,7 +316,7 @@ export default function HomePage() {
             {user ? (
               <div>
                 <p className="text-green-300 mb-6">
-                  Welcome back, {user?.user_metadata?.display_name || user.email}
+                  Welcome back, {user?.user_metadata?.display_name || user?.email}
                 </p>
                 <button 
                   className={activeButtonClass + " px-6 py-3"}
