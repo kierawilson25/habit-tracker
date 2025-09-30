@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Checkbox from "@/app/components/Checkbox";
 import Link from "next/link";
 import { useEffect } from "react";
-import "../../utils/styles/global.css"; // Import global styles
+import "../../utils/styles/global.css";
 import { createClient } from "@/utils/supabase/client";
 
 interface Habit {
@@ -46,7 +46,6 @@ export default function Home() {
     for (const habit of habits) {
       console.log(`🔧 Checking habit: "${habit.title}"`);
       
-      // Get the most recent completion
       const { data: lastCompletion } = await supabase
         .from('habit_completions')
         .select('completion_date')
@@ -92,7 +91,6 @@ export default function Home() {
 
   // STREAK CALCULATION FUNCTIONS
   
-  // Calculate current streak for a habit - FIXED VERSION
   const calculateStreak = async (habitId: string) => {
     console.log(`📊 calculateStreak called for habitId: ${habitId}`);
     
@@ -113,29 +111,24 @@ export default function Home() {
     let currentStreak = 0;
     let longestStreak = 0;
     
-    // Convert completions to date strings for easier comparison
     const completionDates = completions.map(c => new Date(c.completion_date).toISOString().split('T')[0]);
-    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+    const today = new Date().toLocaleDateString('en-CA');
     
     console.log(`📅 Today's date: ${today}`);
     console.log(`📅 Most recent completion: ${completionDates[0]}`);
     
-    // Calculate current streak
     if (completionDates.length > 0) {
       const mostRecentCompletion = completionDates[0];
       const mostRecentDate = new Date(mostRecentCompletion);
       const todayDate = new Date(today);
       
-      // Calculate days difference
       const daysDiff = Math.floor((todayDate.getTime() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24));
       console.log(`📅 Days since last completion: ${daysDiff}`);
       
-      // If last completion was more than 1 day ago, streak is broken
       if (daysDiff > 1) {
         console.log(`❌ Streak broken - last completion was ${daysDiff} days ago`);
         currentStreak = 0;
       } else {
-        // Count consecutive days backwards from most recent
         currentStreak = 1;
         console.log(`✅ Starting streak count from most recent completion`);
         
@@ -157,7 +150,6 @@ export default function Home() {
       }
     }
     
-    // Calculate longest streak
     console.log(`📊 Calculating longest streak...`);
     let i = 0;
     while (i < completionDates.length) {
@@ -189,9 +181,8 @@ export default function Home() {
     return { current: currentStreak, longest: longestStreak };
   };
 
-  // Check if habit was completed today
   const isHabitCompletedToday = async (habitId: string) => {
-    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+    const today = new Date().toLocaleDateString('en-CA');
     console.log(`🔍 Checking if habit ${habitId} was completed today (${today})`);
     
     const { data, error } = await supabase
@@ -206,13 +197,11 @@ export default function Home() {
     return result;
   };
 
-  // Complete habit and update streak
   const completeHabit = async (habitId: string, userId: string) => {
-    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+    const today = new Date().toLocaleDateString('en-CA');
     console.log(`✅ completeHabit called for habitId: ${habitId} on ${today}`);
     
     try {
-      // Insert completion record
       const { error: insertError } = await supabase
         .from('habit_completions')
         .insert({
@@ -231,7 +220,6 @@ export default function Home() {
       
       console.log(`✅ Completion record inserted for habit ${habitId}`);
       
-      // Calculate and update streaks
       const streaks = await calculateStreak(habitId);
       
       console.log(`📤 Updating habit ${habitId} with streaks:`, streaks);
@@ -241,7 +229,7 @@ export default function Home() {
         .update({
           current_streak: streaks.current,
           longest_streak: Math.max(streaks.longest, streaks.current),
-          last_completed: new Date().toLocaleDateString('en-CA'), // Local timezone date
+          last_completed: new Date().toLocaleDateString('en-CA'),
           completed: true
         })
         .eq('id', habitId);
@@ -255,13 +243,11 @@ export default function Home() {
     }
   };
 
-  // Uncomplete habit (remove today's completion)
   const uncompleteHabit = async (habitId: string) => {
-    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+    const today = new Date().toLocaleDateString('en-CA');
     console.log(`❌ uncompleteHabit called for habitId: ${habitId} on ${today}`);
     
     try {
-      // Remove today's completion
       const { error: deleteError } = await supabase
         .from('habit_completions')
         .delete()
@@ -272,10 +258,8 @@ export default function Home() {
       
       console.log(`✅ Today's completion removed for habit ${habitId}`);
       
-      // Recalculate streaks
       const streaks = await calculateStreak(habitId);
       
-      // Update last_completed to the most recent completion date (if any)
       const { data: lastCompletion } = await supabase
         .from('habit_completions')
         .select('completion_date')
@@ -305,17 +289,14 @@ export default function Home() {
     }
   };
 
-  // Function to check if habits need to be reset (daily reset at midnight)
   const needsReset = (lastCompleted: string | null | undefined, completed: boolean) => {
     console.log("🔍 needsReset called with:", { lastCompleted, completed });
     
-    // If habit is marked as completed but has no last_completed date, it MUST be reset
     if (completed && !lastCompleted) {
       console.log("⚠️ Habit marked as completed but no last_completed date - NEEDS RESET");
       return true;
     }
     
-    // If not completed, no reset needed
     if (!completed) {
       console.log("❌ Habit not completed - no reset needed");
       return false;
@@ -326,19 +307,17 @@ export default function Home() {
       return false;
     }
     
-    // If we have a last_completed date, check if it's from today
     const lastCompletedDate = new Date(lastCompleted);
     const today = new Date();
     
     if (isNaN(lastCompletedDate.getTime())) {
       console.log("❌ Invalid date format - needs reset");
-      return true; // If invalid date, reset to be safe
+      return true;
     }
     
     const lastCompletedString = lastCompletedDate.toDateString();
     const todayString = today.toDateString();
     
-    // Reset if last completed was NOT today (i.e., yesterday or earlier)
     const shouldReset = lastCompletedString !== todayString;
     
     console.log("📅 Last completed:", lastCompletedString);
@@ -348,7 +327,6 @@ export default function Home() {
     return shouldReset;
   };
 
-  // Function to fetch habits from database
   const fetchHabitsFromDB = async () => {
     console.log("🚀 fetchHabitsFromDB started on HOME page");
     console.log("📅 Current date/time:", new Date().toLocaleDateString('en-CA'), "Local timezone");
@@ -367,7 +345,6 @@ export default function Home() {
 
     console.log("✅ User authenticated:", user.id);
 
-    // Fetch habits with streak data
     const { data: habitData, error: fetchError } = await supabase
       .from("habits")
       .select("*")
@@ -390,7 +367,6 @@ export default function Home() {
     if (habitData && habitData.length > 0) {
       console.log(`📝 Processing ${habitData.length} habits`);
       
-      // Check if any habits need to be reset and verify completion status
       const habitsToUpdate: Array<{id: string, updates: any}> = [];
       const updatedHabits = await Promise.all(
         habitData.map(async (habit: Habit, index: number) => {
@@ -402,16 +378,13 @@ export default function Home() {
             longest_streak: habit.longest_streak
           });
           
-          // Check if habit was actually completed today
           const completedToday = await isHabitCompletedToday(habit.id);
           
           let updatedHabit = { ...habit };
           
-          // First priority: Fix missing last_completed if habit has completions
           if (!habit.last_completed && habit.current_streak && (habit.current_streak > 0 || completedToday)) {
             console.log("⚠️ FIXING: Habit has streak/completion but no last_completed date!");
             
-            // Get the most recent completion date
             const { data: lastCompletion } = await supabase
               .from('habit_completions')
               .select('completion_date')
@@ -426,14 +399,11 @@ export default function Home() {
             }
           }
           
-          // Now check if needs reset based on last_completed date
           if (needsReset(habit.last_completed, habit.completed)) {
             console.log("🔄 RESETTING: This habit needs to be reset!");
             
-            // Also recalculate streaks when resetting
             const streaks = await calculateStreak(habit.id);
             
-            // Get the actual last completion date (not today)
             const { data: lastCompletion } = await supabase
               .from('habit_completions')
               .select('completion_date')
@@ -459,9 +429,7 @@ export default function Home() {
               last_completed: lastCompletion?.completion_date || null
             };
           } 
-          // If it passed needsReset but there's a mismatch between completed status and actual completion
           else if (completedToday && !habit.completed) {
-            // Habit was completed today but not marked as completed in habits table
             console.log("✅ SYNCING: Habit was completed today but not marked, updating status");
             const streaks = await calculateStreak(habit.id);
             const updates = {
@@ -473,11 +441,9 @@ export default function Home() {
             habitsToUpdate.push({ id: habit.id, updates });
             updatedHabit = { ...habit, ...updates };
           } else if (!completedToday && habit.completed) {
-            // This shouldn't happen if needsReset works correctly, but as a safety check
             console.log("❌ FIXING: No completion record for today but marked as completed");
             const streaks = await calculateStreak(habit.id);
             
-            // Get the most recent completion date
             const { data: lastCompletion } = await supabase
               .from('habit_completions')
               .select('completion_date')
@@ -496,10 +462,8 @@ export default function Home() {
             updatedHabit = { ...habit, ...updates };
           } else {
             console.log("✅ NO CHANGES NEEDED for this habit");
-            // Even if no changes needed, ensure streak data is accurate
             const streaks = await calculateStreak(habit.id);
             
-            // Also check if last_completed needs updating
             let needsUpdate = false;
             const updates: any = {};
             
@@ -510,9 +474,8 @@ export default function Home() {
               needsUpdate = true;
             }
             
-            // If habit is completed today but last_completed isn't today, fix it
             if (completedToday && habit.completed) {
-              const today = new Date().toLocaleDateString('en-CA'); // Local timezone date
+              const today = new Date().toLocaleDateString('en-CA');
               const lastCompletedDate = habit.last_completed ? new Date(habit.last_completed).toDateString() : null;
               const todayDateString = new Date().toDateString();
               
@@ -540,11 +503,9 @@ export default function Home() {
         })
       );
 
-      // Update database if any habits need updates
       if (habitsToUpdate.length > 0) {
         console.log(`\n📤 UPDATING DATABASE for ${habitsToUpdate.length} habits...`);
         
-        // Update each habit individually to handle different update sets
         for (const { id, updates } of habitsToUpdate) {
           const habitName = habitData.find(h => h.id === id)?.title || 'Unknown';
           console.log(`📤 Updating "${habitName}" (${id}) with:`, updates);
@@ -564,7 +525,6 @@ export default function Home() {
         console.log("\n✅ No habits needed updating");
       }
 
-      // Set state with fetched/updated data
       console.log("\n📋 Setting component state...");
       console.log("Final habit states:", updatedHabits.map((h: Habit) => ({
         title: h.title,
@@ -587,29 +547,21 @@ export default function Home() {
     setLoading(false);
   };
 
-  // USE EFFECTS
   useEffect(() => {
-    // Uncomment the next line to run the repair function ONCE
-    // repairLastCompletedDates().then(() => fetchHabitsFromDB());
-    
-    // Normal flow
     fetchHabitsFromDB();
   }, []);
 
-  // Updated function to handle checkbox state changes with streak tracking
   const handleCheckboxChange = async (index: number, checked: boolean) => {
     const habitName = habits[index]?.title || 'Unknown';
     console.log(`\n📝 CHECKBOX CHANGE: "${habitName}" changed to ${checked ? 'CHECKED' : 'UNCHECKED'}`);
     console.log(`📊 Current streak before change: ${habits[index]?.current_streak}`);
     
-    // Get current user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       console.log("❌ No user found, aborting");
       return;
     }
     
-    // Optimistically update UI
     setCheckedStates(prev =>
       prev.map((item, i) => (i === index ? checked : item))
     );
@@ -618,18 +570,15 @@ export default function Home() {
       let result;
       
       if (checked) {
-        // Complete the habit
         console.log(`✅ Completing habit "${habitName}"...`);
         result = await completeHabit(habitIds[index], user.id);
       } else {
-        // Uncomplete the habit
         console.log(`❌ Uncompleting habit "${habitName}"...`);
         result = await uncompleteHabit(habitIds[index]);
       }
       
       if (result.error) {
         console.error(`❌ Failed to update habit "${habitName}":`, result.error);
-        // Revert the optimistic update
         setCheckedStates(prev =>
           prev.map((item, i) => (i === index ? !checked : item))
         );
@@ -637,7 +586,6 @@ export default function Home() {
         console.log(`✅ Successfully updated habit "${habitName}" completion`);
         console.log(`📊 New streaks:`, result.streaks);
         
-        // Update the habit in state with new streak data
         setHabits(prev => 
           prev.map((habit, i) => 
             i === index 
@@ -657,12 +605,16 @@ export default function Home() {
     }
   }
 
-  // Get actual streak for habit
   const getStreakForHabit = (index: number) => {
     const streak = habits[index]?.current_streak || 0;
     console.log(`📊 getStreakForHabit(${index}): "${habits[index]?.title}" = ${streak}`);
     return streak;
   };
+
+  // Calculate completion statistics
+  const completedCount = habits.filter(h => h.completed).length;
+  const totalCount = habits.length;
+  const completionPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   if (loading) {
     return (
@@ -674,29 +626,27 @@ export default function Home() {
 
   return (
     <div className="page-dark min-h-screen">
-      
       <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center px-4 pb-20 gap-8 sm:p-20 sm:gap-16 font-[family-name:var(--font-geist-sans)] w-full">
         <main className="flex flex-col gap-8 row-start-2 items-center w-full max-w-4xl">
           <h1 className="w-full flex justify-center text-4xl sm:text-6xl font-bold mb-4 text-green-500">Habits</h1>
 
-          {/* start check boxes */}
-          <div className="w-full flex justify-center px-4">
+          {/* Habits List */}
+          <div className="w-full flex justify-center px-2 sm:px-4">
             {habits.length === 0 ? (
               <div className="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl">
                 <p className="text-white-500 text-center">No habits found. Add some habits!</p>
               </div>
             ) : (
               <div className="w-full max-w-4xl">
-                {/* Header Row - Only show when there are habits */}
-                <div className="flex gap-8 mb-6">
+                {/* Header Row */}
+                <div className="flex gap-2 sm:gap-4 mb-6">
                   <div className="flex-1">
-                    {/* Invisible header for alignment */}
                     <div className="text-xl font-semibold text-green-500 invisible">
                       Habits
                     </div>
                   </div>
-                  <div className="w-36">
-                    <div className="text-xl font-semibold text-green-500 text-center">
+                  <div className="w-16 sm:w-20">
+                    <div className="text-lg sm:text-xl font-semibold text-green-500 text-center">
                       Streak
                     </div>
                   </div>
@@ -705,11 +655,11 @@ export default function Home() {
                 {/* Habit Rows */}
                 <div className="flex flex-col gap-2">
                   {habits.map((habit, idx) => (
-                    <div key={habit.id} className="flex items-center gap-8">
-                      {/* Habit Cell */}
-                      <div className="flex-1">
+                    <div key={habit.id} className="flex items-center gap-2 sm:gap-4">
+                      {/* Habit Cell - Takes up most of the space */}
+                      <div className="flex-1 min-w-0">
                         <div
-                          className="w-full px-4 py-4 rounded-lg border-2 hover:scale-105 transition-transform duration-200"
+                          className="w-full px-3 py-3 sm:px-4 sm:py-4 rounded-lg border-2 hover:scale-105 transition-transform duration-200"
                           style={{
                             backgroundColor: "rgba(34, 197, 94, 0.2)",
                             borderColor: "rgba(34, 197, 94, 1)",
@@ -723,17 +673,17 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Streak Cell */}
-                      <div className="w-36">
+                      {/* Streak Cell - Compact size */}
+                      <div className="w-16 sm:w-20 flex-shrink-0">
                         <div 
-                          className="border-2 rounded-lg p-4 flex items-center justify-center h-[72px] transition-transform duration-200"
+                          className="border-2 rounded-lg p-2 sm:p-3 flex items-center justify-center h-[56px] sm:h-[64px] transition-transform duration-200"
                           style={{
                             backgroundColor: "rgba(34, 197, 94, 0.05)",
                             borderColor: "rgba(34, 197, 94, 1)",
                           }}
                         >
                           <div className="flex items-center justify-center">
-                            <span className="text-lg font-bold text-white">
+                            <span className="text-base sm:text-lg font-bold text-white">
                               {habit.current_streak || 0}
                             </span>
                           </div>
@@ -742,17 +692,33 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
+
+                {/* Progress Bar */}
+                <div className="mt-8 w-full">
+                  <div className="mb-3">
+                    <div className="text-center text-sm sm:text-base text-white font-medium">
+                      Status: {completedCount}/{totalCount} habits completed
+                    </div>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-3 sm:h-4 overflow-hidden border-2 border-green-600 mb-10">
+                    <div 
+                      className="bg-green-500 h-full transition-all duration-500 ease-out rounded-full"
+                      style={{ width: `${completionPercentage}%` }}
+                    />
+                  </div>
+                </div>
               </div>
             )}
           </div>
         </main>
-        {/* Centered Add Habit button at the bottom */}
+        
+        {/* Edit/Add Habits button */}
         <div className="w-full flex justify-center mb-8 row-start-3">
           <Link href="/add-habit">
             <button className={activeButtonClass}>
               {habits.length > 0 ? "Edit Habits": "Add Habits"}
             </button>
-            </Link>
+          </Link>
         </div>
       </div>
     </div>
