@@ -9,6 +9,7 @@ interface NavItem {
   href: string;
   label: string;
   authRequired?: boolean;
+  isNew?: boolean;
 }
 
 export default function AppHeader() {
@@ -22,7 +23,7 @@ export default function AppHeader() {
     { href: "/", label: "Home", authRequired: false},
     { href: "/home", label: "Home", authRequired: true },
     { href: "/habits", label: "My Habits", authRequired: true },
-    { href: "/add-habit", label: "Edit Habits", authRequired: true },
+    { href: "/stats", label: "My Stats", authRequired: true, isNew: true },
     { href: "/sign-up", label: "Get Started", authRequired: false },
   ];
 
@@ -68,13 +69,18 @@ export default function AppHeader() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`text-lg font-medium transition-colors ${
+                  className={`text-lg font-medium transition-colors relative ${
                     pathname === item.href
                       ? "text-green-400 border-b-2 border-green-400 pb-1"
                       : "text-gray-300 hover:text-white"
                   }`}
                 >
                   {item.label}
+                  {item.isNew && (
+                    <span className="absolute -top-2 -right-7 bg-yellow-500 text-black text-[8px] font-bold px-1 py-0.5 rounded uppercase">
+                      New
+                    </span>
+                  )}
                 </Link>
               ))}
             </div>
@@ -141,7 +147,7 @@ export default function AppHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`block px-4 py-3 text-base ${
+                className={`block px-4 py-3 text-base relative ${
                   pathname === item.href
                     ? "text-green-400 bg-black-800"
                     : "text-gray-300 hover:text-white hover:bg-gray-800"
@@ -149,6 +155,11 @@ export default function AppHeader() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {item.label}
+                {item.isNew && (
+                  <span className="ml-2 bg-yellow-500 text-black text-[8px] font-bold px-1 py-0.5 rounded uppercase">
+                    New
+                  </span>
+                )}
               </Link>
             ))}
           </div>
