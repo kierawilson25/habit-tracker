@@ -206,7 +206,7 @@ export default function StatsPage() {
   }
 
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const days = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -310,13 +310,14 @@ export default function StatsPage() {
                 <div className="flex">
                   {/* Day labels */}
                   <div className="flex flex-col justify-between mr-2 text-xs text-gray-400" style={{ height: '112px' }}>
+                    <div>Sat</div>
                     <div>Sun</div>
                     <div>Mon</div>
                     <div>Tue</div>
                     <div>Wed</div>
                     <div>Thu</div>
                     <div>Fri</div>
-                    <div>Sat</div>
+                    
                   </div>
 
                   {/* Contribution squares */}
