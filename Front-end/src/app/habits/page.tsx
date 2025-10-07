@@ -24,10 +24,48 @@ export default function Home() {
   const [habitIds, setHabitIds] = useState<string[]>([]);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationAnimating, setCelebrationAnimating] = useState(false);
+  const [confetti, setConfetti] = useState<Array<{ id: number; left: number; delay: number; duration: number }>>([]);
 
   const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
   
   const supabase = createClient();
+
+  // Celebration effect
+  useEffect(() => {
+    const completedCount = habits.filter(h => h.completed).length;
+    const totalCount = habits.length;
+    
+    if (totalCount > 0 && completedCount === totalCount && !showCelebration && !celebrationAnimating) {
+      setShowCelebration(true);
+      setCelebrationAnimating(true);
+      
+      // Generate confetti
+      const newConfetti = Array.from({ length: 50 }, (_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        delay: Math.random() * 0.5,
+        duration: 2 + Math.random() * 1
+      }));
+      setConfetti(newConfetti);
+      
+      // Start slide up animation after 3 seconds
+      setTimeout(() => {
+        setShowCelebration(false);
+      }, 3000);
+      
+      // Fully hide after slide up animation completes (3s + 1s animation)
+      setTimeout(() => {
+        setConfetti([]);
+        setCelebrationAnimating(false);
+      }, 4000);
+    } else if (completedCount < totalCount && (showCelebration || celebrationAnimating)) {
+      setShowCelebration(false);
+      setConfetti([]);
+      setCelebrationAnimating(false);
+    }
+  }, [habits]);
 
   // ONE-TIME FIX: Function to repair all last_completed values
   const repairLastCompletedDates = async () => {
@@ -625,10 +663,94 @@ export default function Home() {
   }
 
   return (
-    <div className="page-dark min-h-screen">
+    <div className="page-dark min-h-screen relative overflow-hidden">
+      {/* Confetti Animation */}
+      {showCelebration && (
+        <>
+          <div className="fixed inset-0 pointer-events-none z-50">
+            {confetti.map((piece) => (
+              <div
+                key={piece.id}
+                className="absolute w-2 h-2 rounded-full animate-confetti"
+                style={{
+                  left: `${piece.left}%`,
+                  top: '-10px',
+                  backgroundColor: ['#22c55e', '#fbbf24', '#3b82f6', '#ef4444', '#a855f7'][piece.id % 5],
+                  animationDelay: `${piece.delay}s`,
+                  animationDuration: `${piece.duration}s`
+                }}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      <style jsx>{`
+        @keyframes confetti-fall {
+          0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+          }
+        }
+        
+        @keyframes slide-down {
+          0% {
+            transform: translateY(-100%);
+            opacity: 0;
+          }
+          100% {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes slide-up {
+          0% {
+            transform: translateY(0);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(-100%);
+            opacity: 0;
+          }
+        }
+        
+        .animate-confetti {
+          animation: confetti-fall linear forwards;
+        }
+        
+        .animate-slide-down {
+          animation: slide-down 1s ease-out forwards;
+        }
+        
+        .animate-slide-up {
+          animation: slide-up 1s ease-in forwards;
+        }
+      `}</style>
+
       <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center px-4 pb-20 gap-8 sm:p-20 sm:gap-16 font-[family-name:var(--font-geist-sans)] w-full">
         <main className="flex flex-col gap-8 row-start-2 items-center w-full max-w-4xl">
           <h1 className="w-full flex justify-center text-4xl sm:text-6xl font-bold mb-4 text-green-500">Habits</h1>
+
+          {/* Celebration Banner */}
+          {(showCelebration || celebrationAnimating) && (
+            <div className={`w-full px-4 ${showCelebration ? 'animate-slide-down' : 'animate-slide-up'}`}>
+              <div className="bg-gradient-to-r from-yellow-400 via-green-500 to-green-600 text-white px-4 py-4 rounded-xl shadow-lg text-center border-2 border-yellow-300">
+                <div className="text-3xl mb-1">⭐</div>
+                <div className="text-lg sm:text-xl font-bold">Congratulations!</div>
+                <div className="text-sm sm:text-base">
+                  You completed all {totalCount} habit{totalCount !== 1 ? 's' : ''}!
+                </div>
+                <div className="text-base sm:text-lg font-bold text-yellow-200">
+                  Gold Star Day! ⭐
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Habits List */}
           <div className="w-full flex justify-center px-2 sm:px-4">
