@@ -52,7 +52,7 @@ export default function AppHeader() {
         <div className="flex items-center h-20">
           {/* Logo/Brand Section */}
           <div className="flex items-center flex-1">
-            <Link href="/" className="flex items-center space-x-3">
+            <Link href={user ? "/home" :"/"} className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">G</span>
               </div>
