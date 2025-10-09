@@ -67,65 +67,6 @@ export default function Home() {
     }
   }, [habits]);
 
-  // ONE-TIME FIX: Function to repair all last_completed values
-  const repairLastCompletedDates = async () => {
-    console.log("🔧 REPAIR FUNCTION: Starting to fix all last_completed dates...");
-    
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    
-    const { data: habits } = await supabase
-      .from("habits")
-      .select("*")
-      .eq("user_id", user.id);
-    
-    if (!habits) return;
-    
-    for (const habit of habits) {
-      console.log(`🔧 Checking habit: "${habit.title}"`);
-      
-      const { data: lastCompletion } = await supabase
-        .from('habit_completions')
-        .select('completion_date')
-        .eq('habit_id', habit.id)
-        .order('completion_date', { ascending: false })
-        .limit(1)
-        .single();
-      
-      if (lastCompletion) {
-        console.log(`  📅 Found last completion: ${lastCompletion.completion_date}`);
-        
-        if (habit.last_completed !== lastCompletion.completion_date) {
-          console.log(`  ⚠️ Updating from ${habit.last_completed} to ${lastCompletion.completion_date}`);
-          
-          const { error } = await supabase
-            .from("habits")
-            .update({ last_completed: lastCompletion.completion_date })
-            .eq("id", habit.id);
-          
-          if (!error) {
-            console.log(`  ✅ Updated successfully`);
-          } else {
-            console.log(`  ❌ Error updating:`, error);
-          }
-        } else {
-          console.log(`  ✅ Already correct`);
-        }
-      } else {
-        console.log(`  ⚠️ No completions found`);
-        
-        if (habit.last_completed) {
-          console.log(`  🔧 Clearing incorrect last_completed date`);
-          await supabase
-            .from("habits")
-            .update({ last_completed: null })
-            .eq("id", habit.id);
-        }
-      }
-    }
-    
-    console.log("🔧 REPAIR FUNCTION: Completed!");
-  };
 
   // STREAK CALCULATION FUNCTIONS
   
@@ -570,10 +511,18 @@ export default function Home() {
         current_streak: h.current_streak,
         last_completed: h.last_completed
       })));
-      
-      setHabits(updatedHabits);
-      setHabitIds(updatedHabits.map((habit: Habit) => habit.id));
-      setCheckedStates(updatedHabits.map((habit: Habit) => habit.completed));
+
+      const { data: freshHabitData } = await supabase
+        .from("habits")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("is_archived", false)
+        .order("created_at", { ascending: true });
+      if (freshHabitData && freshHabitData.length > 0) {
+          setHabits(freshHabitData);
+          setHabitIds(freshHabitData.map((habit: Habit) => habit.id));
+          setCheckedStates(freshHabitData.map((habit: Habit) => habit.completed));
+      }
     } else {
       console.log("📝 No habits found, initializing empty arrays");
       setHabits([]);
