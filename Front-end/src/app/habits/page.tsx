@@ -528,6 +528,7 @@ export default function Home() {
       setHabits([]);
       setHabitIds([]);
       setCheckedStates([]);
+      //Maevey
     }
 
     console.log("✅ fetchHabitsFromDB completed on HOME page");

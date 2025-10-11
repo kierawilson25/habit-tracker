@@ -33,7 +33,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <AppHeader />
-          <main className="pt-16"> 
+          <main className="pt-16  bg-black"> 
             {children}
             <Analytics />
             <Footer />
