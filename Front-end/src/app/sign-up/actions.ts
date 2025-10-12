@@ -10,9 +10,15 @@ export async function signup(formData: FormData) {
   const password = formData.get('password') as string
   const displayName = formData.get('display_name') as string
 
+  // Sign up the user
   const { data, error } = await supabase.auth.signUp({ 
     email, 
-    password
+    password,
+    options: {
+      data: {
+        display_name: displayName // Store in auth.users metadata as backup
+      }
+    }
   })
 
   if (error) {
@@ -20,20 +26,27 @@ export async function signup(formData: FormData) {
     redirect('/error?from=signup')
   }
 
-  // Insert/update the user's display_name in the users table
-  if (data.user && displayName) {
-    const { error: updateError } = await supabase
+  // Wait a moment for auth user to be fully created
+  await new Promise(resolve => setTimeout(resolve, 500))
+
+  // Insert the user's data in the users table
+  if (data.user) {
+    console.log('User signed up:', data.user)
+    const { error: insertError } = await supabase
       .from('users')
-      .upsert({
+      .insert({
         id: data.user.id,
         display_name: displayName,
-        email: data.user.email
+        email: data.user.email,
+        profile_picture: null
       })
 
-    if (updateError) {
-      console.error('Error updating display name in users table:', updateError.message)
+    if (insertError) {
+      console.error('Error inserting into users table:', insertError)
+      console.error('Error details:', JSON.stringify(insertError, null, 2))
+      // Don't redirect on this error - user is signed up, just missing profile
     }
   }
 
-  redirect('/welcome') // After successful sign-up
+  redirect('/welcome')
 }
