@@ -49,24 +49,19 @@ export default function Welcome() {
             </div>
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 text-white break-words">
-              Congratulations!
+              One more step..
             </h1>
 
             <div className="space-y-4 sm:space-y-6 text-white">
               <p className="text-lg sm:text-xl leading-relaxed">
-                Welcome to Grains of Sand! Your account has been created successfully.
+                Verify your email to start tracking your habits!
               </p>
 
               <p className="text-base sm:text-lg leading-relaxed">
                 Think of your habits as grains of sand — each one seems small, but you can build a tower with grains of sand.
               </p>
 
-              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 sm:p-6 mt-6 sm:mt-8">
-                <h3 className="text-lg sm:text-xl font-semibold text-green-800 mb-3 sm:mb-4">Ready to Start Building?</h3>
-                <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-                  Login to start tracking your habits, or learn how the app works first.
-                </p>
-              </div>
+
             </div>
           </div>
 
@@ -76,7 +71,7 @@ export default function Welcome() {
               onClick={handleGetStarted}
               className={secondaryButtonClass + " w-full sm:w-auto px-6 py-3 font-semibold text-sm sm:text-base"}
             >
-              Visit Getting Started
+              Learn how to track
             </button>
 
             <button
