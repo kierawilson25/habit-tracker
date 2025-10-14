@@ -54,7 +54,7 @@ export default function Welcome() {
 
             <div className="space-y-4 sm:space-y-6 text-white">
               <p className="text-lg sm:text-xl leading-relaxed">
-                Verify your email to start tracking your habits!
+                Verify your email to start tracaking your habits!
               </p>
 
               <p className="text-base sm:text-lg leading-relaxed">
