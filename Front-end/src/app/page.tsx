@@ -127,7 +127,7 @@ export default function HomePage() {
             
             <div className="bg-green-500/10 border border-green-500/30 rounded p-6 max-w-2xl mx-auto mb-8">
               <p className="text-green-100 text-lg leading-relaxed">
-                A simple tool designed to help you build trust in yourself to create consistent change.
+                A simple habit tracker designed to help you build trust in yourself to create consistent change.
                 Focus on small, sustained habits that become second nature over time.
               </p>
             </div>
