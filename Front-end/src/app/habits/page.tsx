@@ -689,7 +689,7 @@ export default function Home() {
           {/* Celebration Banner */}
           {(showCelebration || celebrationAnimating) && (
             <div className={`w-full px-4 ${showCelebration ? 'animate-slide-down' : 'animate-slide-up'}`}>
-              <div className="bg-gradient-to-r from-yellow-400 via-green-500 to-green-600 text-white px-4 py-4 rounded-xl shadow-lg text-center border-2 border-yellow-300">
+              <div className="bg-gradient-to-r from-green-200 via-green-500 to-green-600 text-white px-4 py-4 rounded-xl shadow-lg text-center border-2 border-yellow-300">
                 <div className="text-3xl mb-1">⭐</div>
                 <div className="text-lg sm:text-xl font-bold">Congratulations!</div>
                 <div className="text-sm sm:text-base">
@@ -731,7 +731,7 @@ export default function Home() {
                       {/* Habit Cell - Takes up most of the space */}
                       <div className="flex-1 min-w-0">
                         <div
-                          className="w-full px-3 py-3 sm:px-4 sm:py-4 rounded-lg border-2 hover:scale-105 transition-transform duration-200"
+                          className="w-full px-3 py-3 sm:px-4 sm:py-4 rounded-lg border-2 transition-transform duration-200"
                           style={{
                             backgroundColor: "rgba(34, 197, 94, 0.2)",
                             borderColor: "rgba(34, 197, 94, 1)",
