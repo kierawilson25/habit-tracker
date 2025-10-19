@@ -27,7 +27,7 @@ export default function Home() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationAnimating, setCelebrationAnimating] = useState(false);
   const [confetti, setConfetti] = useState<Array<{ id: number; left: number; delay: number; duration: number }>>([]);
-
+  const [fetchedHabits, setFetchedHabits] = useState(false);
   const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
   
   const supabase = createClient();
@@ -345,6 +345,7 @@ export default function Home() {
 
     if (habitData && habitData.length > 0) {
       console.log(`📝 Processing ${habitData.length} habits`);
+
       
       const habitsToUpdate: Array<{id: string, updates: any}> = [];
       const updatedHabits = await Promise.all(
@@ -522,22 +523,29 @@ export default function Home() {
           setHabits(freshHabitData);
           setHabitIds(freshHabitData.map((habit: Habit) => habit.id));
           setCheckedStates(freshHabitData.map((habit: Habit) => habit.completed));
+          setFetchedHabits(true);
       }
     } else {
       console.log("📝 No habits found, initializing empty arrays");
       setHabits([]);
       setHabitIds([]);
       setCheckedStates([]);
+      setFetchedHabits(true);
       //Maevey
     }
 
     console.log("✅ fetchHabitsFromDB completed on HOME page");
-    setLoading(false);
+
+
   };
 
   useEffect(() => {
     fetchHabitsFromDB();
   }, []);
+
+  useEffect(() => {
+      setLoading(false);
+}, [fetchedHabits]);
 
   const handleCheckboxChange = async (index: number, checked: boolean) => {
     const habitName = habits[index]?.title || 'Unknown';
