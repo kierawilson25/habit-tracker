@@ -306,6 +306,7 @@ export default function Home() {
     return shouldReset;
   };
 
+
   const fetchHabitsFromDB = async () => {
     console.log("🚀 fetchHabitsFromDB started on HOME page");
     console.log("📅 Current date/time:", new Date().toLocaleDateString('en-CA'), "Local timezone");
@@ -531,11 +532,11 @@ export default function Home() {
       setHabitIds([]);
       setCheckedStates([]);
       setFetchedHabits(true);
-      //Maevey
+
     }
 
     console.log("✅ fetchHabitsFromDB completed on HOME page");
-
+    setLoading(false);
 
   };
 
@@ -543,9 +544,9 @@ export default function Home() {
     fetchHabitsFromDB();
   }, []);
 
-  useEffect(() => {
-      setLoading(false);
-}, [fetchedHabits]);
+//   useEffect(() => {
+//       setLoading(false);
+// }, [fetchedHabits]);
 
   const handleCheckboxChange = async (index: number, checked: boolean) => {
     const habitName = habits[index]?.title || 'Unknown';
@@ -573,20 +574,25 @@ export default function Home() {
         result = await uncompleteHabit(habitIds[index]);
       }
       
-      if (result.error) {
-        console.error(`❌ Failed to update habit "${habitName}":`, result.error);
+      console.log(`📤 Operation result:`, result);
+      
+      if (result?.error) {
+        console.error(`❌ Error: ${result.error}`);
         setCheckedStates(prev =>
           prev.map((item, i) => (i === index ? !checked : item))
         );
       } else {
-        console.log(`✅ Successfully updated habit "${habitName}" completion`);
-        console.log(`📊 New streaks:`, result.streaks);
+        console.log(`✅ Successfully ${checked ? 'completed' : 'uncompleted'} habit`);
         
-        setHabits(prev => 
-          prev.map((habit, i) => 
-            i === index 
-              ? { 
-                  ...habit, 
+        const habit = habits[index];
+        console.log(`📊 Before state update - habit streak: ${habit.current_streak}`);
+        console.log(`📊 Result streaks:`, result.streaks);
+        
+        setHabits(prevHabits =>
+          prevHabits.map((habit, i) =>
+            i === index
+              ? {
+                  ...habit,
                   completed: checked,
                   current_streak: result.streaks?.current || 0,
                   longest_streak: result.streaks?.longest || habit.longest_streak || 0,
