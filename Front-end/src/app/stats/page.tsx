@@ -382,7 +382,7 @@ export default function StatsPage() {
                 </div>
 
                 {/* Legend */}
-                <div className="flex items-center justify-end mt-4 text-xs text-gray-400">
+                <div className="flex items-center justify-start mt-4 text-xs text-gray-400">
                   <span className="mr-2">Less</span>
                   <div className="flex items-center gap-1">
                     <div className="flex flex-col items-center">
