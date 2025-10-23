@@ -188,22 +188,26 @@ export default function StatsPage() {
 
   const last365Days = generateLast365Days();
   
-  // Group days by week
+  // Group days by week - FIXED: End weeks on Saturday (day 6) so weeks run Sun-Sat
   const weeks: (Date | null)[][] = [];
   let currentWeek: (Date | null)[] = [];
   
   last365Days.forEach((date, index) => {
     currentWeek.push(date);
+    // End week on Saturday (day 6)
     if (date.getDay() === 6 || index === last365Days.length - 1) {
       weeks.push([...currentWeek]);
       currentWeek = [];
     }
   });
 
-  // Ensure first week starts on Sunday
+  // Ensure first week starts on Sunday (day 0)
   while (weeks[0] && weeks[0][0] && weeks[0][0].getDay() !== 0) {
     weeks[0].unshift(null);
   }
+
+  // FIXED: Reverse the weeks array so today appears on the LEFT
+  const reversedWeeks = [...weeks].reverse();
 
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const days = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
@@ -233,6 +237,10 @@ export default function StatsPage() {
             <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
               <div className="text-3xl font-bold text-blue-400">{totalDays}</div>
               <div className="text-sm text-gray-400 mt-1">Active Days</div>
+            </div>
+            <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
+              <div className="text-3xl font-bold text-purple-400">{currentStreak}</div>
+              <div className="text-sm text-gray-400 mt-1">Current Streak</div>
             </div>
             <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
               <div className="text-3xl font-bold text-yellow-400">{goldStarDays}</div>
@@ -290,12 +298,12 @@ export default function StatsPage() {
               <div className="inline-block min-w-full">
                 {/* Month labels */}
                 <div className="flex mb-2" style={{ paddingLeft: '32px' }}>
-                  {weeks.map((week, weekIndex) => {
+                  {reversedWeeks.map((week, weekIndex) => {
                     const firstDay = week.find(d => d !== null);
                     if (!firstDay) return <div key={weekIndex} className="w-3 mr-1"></div>;
                     
                     const isFirstOfMonth = firstDay.getDate() <= 7;
-                    const prevWeekFirstDay = weeks[weekIndex - 1]?.find(d => d !== null);
+                    const prevWeekFirstDay = reversedWeeks[weekIndex - 1]?.find(d => d !== null);
                     const showMonth = isFirstOfMonth && (weekIndex === 0 || prevWeekFirstDay?.getMonth() !== firstDay.getMonth());
                     
                     return (
@@ -310,19 +318,18 @@ export default function StatsPage() {
                 <div className="flex">
                   {/* Day labels */}
                   <div className="flex flex-col justify-between mr-2 text-xs text-gray-400" style={{ height: '112px' }}>
-                    <div>Sat</div>
                     <div>Sun</div>
                     <div>Mon</div>
                     <div>Tue</div>
                     <div>Wed</div>
                     <div>Thu</div>
                     <div>Fri</div>
-                    
+                    <div>Sat</div>
                   </div>
 
                   {/* Contribution squares */}
                   <div className="flex">
-                    {weeks.map((week, weekIndex) => (
+                    {reversedWeeks.map((week, weekIndex) => (
                       <div key={weekIndex} className="flex flex-col mr-1">
                         {week.map((date, dayIndex) => {
                           if (!date) {
@@ -375,7 +382,7 @@ export default function StatsPage() {
                 </div>
 
                 {/* Legend */}
-                <div className="flex items-center justify-end mt-4 text-xs text-gray-400">
+                <div className="flex items-center justify-start mt-4 text-xs text-gray-400">
                   <span className="mr-2">Less</span>
                   <div className="flex items-center gap-1">
                     <div className="flex flex-col items-center">
