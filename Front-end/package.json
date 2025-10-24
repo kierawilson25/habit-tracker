@@ -9,7 +9,7 @@
     "lint": "next lint",
     "prepare": "husky"
   },
-    "config": {
+  "config": {
     "commitizen": {
       "path": "cz-emoji"
     }
