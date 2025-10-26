@@ -12,7 +12,7 @@ export default function HomePage() {
 
   useEffect(() => {
     setMounted(true)
-    
+
     // Create animated stars that encourage scrolling
     // Only generate random values on the client side to prevent hydration mismatch
     const stars = Array.from({ length: 30 }, (_, i) => ({
@@ -29,6 +29,13 @@ export default function HomePage() {
     setMatrixLines(stars)
   }, [])
 
+  useEffect(() => {
+    if (user && !loading) {
+      console.log("authenticated");
+      router.push("/home");
+    }
+  }, [user, loading, router])
+  
   const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
   const secondaryButtonClass = "border-2 border-green-600 text-green-600 rounded px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200"
 
@@ -316,7 +323,7 @@ export default function HomePage() {
             {user ? (
               <div>
                 <p className="text-green-300 mb-6">
-                  Welcome back, {user?.user_metadata?.display_name || user?.email}
+                  Welcome back, {(user as any)?.user_metadata?.display_name || (user as any)?.email}
                 </p>
                 <button 
                   className={activeButtonClass + " px-6 py-3"}
