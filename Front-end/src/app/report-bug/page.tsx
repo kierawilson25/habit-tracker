@@ -2,8 +2,10 @@
 import { useState, useEffect } from "react";
 import { HiOutlineCamera, HiOutlineInformationCircle } from "react-icons/hi";
 import { FaBug } from "react-icons/fa";
+import { createClient } from "@/utils/supabase/client";
 
 export default function BugReport() {
+  const supabase = createClient();
   const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -11,8 +13,7 @@ export default function BugReport() {
     stepsToReproduce: "",
     expectedBehavior: "",
     actualBehavior: "",
-    severity: "Medium",
-    screenshot: null as File | null
+    severity: "Medium"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -66,17 +67,28 @@ export default function BugReport() {
       submitData.append('severity', formData.severity);
       submitData.append('deviceInfo', JSON.stringify(deviceInfo));
       
-      if (formData.screenshot) {
-        submitData.append('screenshot', formData.screenshot);
-      }
+
 
       // TODO: Replace with your actual API endpoint
-      const response = await fetch('/api/bug-reports', {
-        method: 'POST',
-        body: submitData
-      });
+      const { data, error } = await supabase
+        .from('bug_reports')
+        .insert([
+          {
+            title: formData.title,
+            description: formData.description,
+            steps_to_reproduce: formData.stepsToReproduce,
+            expected_behavior: formData.expectedBehavior,
+            actual_behavior: formData.actualBehavior,
+            severity: formData.severity
+          }
+        ])
+        .select()
 
-      if (response.ok) {
+        if (error) throw error
+
+      console.log('Bug report submitted:', data)
+      alert('Bug report submitted successfully!')
+
         setSubmitSuccess(true);
         // Reset form
         setFormData({
@@ -86,14 +98,9 @@ export default function BugReport() {
           expectedBehavior: "",
           actualBehavior: "",
           severity: "Medium",
-          screenshot: null
         });
         // Reset file input
-        const fileInput = document.getElementById('screenshot') as HTMLInputElement;
-        if (fileInput) fileInput.value = '';
-      } else {
-        throw new Error('Failed to submit bug report');
-      }
+
     } catch (error) {
       setSubmitError('Failed to submit bug report. Please try again.');
       console.error('Error submitting bug report:', error);
@@ -134,7 +141,6 @@ export default function BugReport() {
                       expectedBehavior: "",
                       actualBehavior: "",
                       severity: "Medium",
-                      screenshot: null
                     });
                   }}
                   className="bg-green-600 text-white rounded px-6 py-2 hover:bg-green-700 transition-colors duration-200 mr-4"
@@ -314,28 +320,7 @@ export default function BugReport() {
                   </select>
                 </div>
 
-                {/* Screenshot Upload */}
-                <div>
-                  <label htmlFor="screenshot" className="block text-sm font-semibold mb-2">
-                    Screenshot (Optional)
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <HiOutlineCamera className="text-gray-400 text-xl" />
-                    <input
-                      type="file"
-                      id="screenshot"
-                      name="screenshot"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="flex-1 p-3 rounded-lg bg-gray-800 border border-gray-600 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:cursor-pointer hover:file:bg-red-700"
-                    />
-                  </div>
-                  {formData.screenshot && (
-                    <p className="text-sm text-green-400 mt-2">
-                      File selected: {formData.screenshot.name}
-                    </p>
-                  )}
-                </div>
+
 
                 {/* Submit Button */}
                 <div className="text-center pt-4">
