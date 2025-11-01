@@ -54,11 +54,34 @@ const fetchUserData = async () => {
     if (habitsError) {
       console.error("Failed to fetch habits:", habitsError.message);
     } else if (todayHabits) {
-      const completed = todayHabits.filter((habit: any) => habit.completed).length;
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date().toLocaleDateString('en-CA');
+
+      // Fetch today's completions from habit_completions table
+      const { data: todayCompletions, error: completionsError } = await supabase
+        .from("habit_completions")
+        .select("habit_id")
+        .eq("user_id", user.id)
+        .eq("completion_date", today);
+
+      if (completionsError) {
+        console.error("Failed to fetch today's completions:", completionsError.message);
+      }
+
+      // Create a Set of habit IDs that are completed today
+      const completedHabitIds = new Set(
+        todayCompletions?.map((completion: any) => completion.habit_id) || []
+      );
+
+      // Count how many habits are completed today
+      const completed = todayHabits.filter((habit: any) =>
+        completedHabitIds.has(habit.id)
+      ).length;
+
       const total = todayHabits.length;
       const streaks = todayHabits.map((habit: any) => habit.current_streak || 0);
       const maxStreak = streaks.length > 0 ? Math.max(...streaks) : 0;
-      
+
       setCompletedHabits(completed);
       setTotalHabits(total);
       setCurrentStreak(maxStreak);
