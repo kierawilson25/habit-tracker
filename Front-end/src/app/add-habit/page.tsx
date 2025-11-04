@@ -252,7 +252,7 @@ export default function AddHabits() {
         onSubmit={handleSubmit}
         className="w-full max-w-2xl flex flex-col gap-4 p-8"
       >
-        <h1 className="text-xl font-bold mb-4 text-center">
+        <h1 className="text-xl font-bold mb-4  text-green-500 text-center">
           Add up to 5 Habits
         </h1>
 
@@ -267,7 +267,7 @@ export default function AddHabits() {
               disabled={habitDisabled[idx]}
               className={
                 habitDisabled[idx]
-                  ? "bg-gray-300 text-gray-500 disabled focus:outline-none border p-2 rounded flex-1"
+                  ? "bg-gray-300 text-black disabled focus:outline-none border p-2 rounded flex-1"
                   : "border p-2 rounded text-black flex-1  hover:ring-2 hover:ring-green-500 focus:outline-none transition-colors duration-200"
               }
             />
