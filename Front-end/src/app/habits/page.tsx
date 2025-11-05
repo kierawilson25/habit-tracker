@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import "../../utils/styles/global.css";
 import { createClient } from "@/utils/supabase/client";
+import Button from "@/components/Button";
 import type { 
   Habit, 
   HabitAnalysis, 
@@ -801,11 +802,9 @@ const fetchHabitsFromDB = async (): Promise<void> => {
         
         {/* Edit/Add Habits button */}
         <div className="w-full flex justify-center mb-8 row-start-3">
-          <Link href="/add-habit">
-            <button className={activeButtonClass}>
-              {habits.length > 0 ? "Edit Habits": "Add Habits"}
-            </button>
-          </Link>
+          <Button href="/add-habit">
+            {habits.length > 0 ? "Edit Habits" : "Add Habits"}
+          </Button>
         </div>
       </div>
     </div>
