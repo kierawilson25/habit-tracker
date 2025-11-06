@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import Button from "@/components/Button";
+
 
 export default function StatsPage() {
   const router = useRouter();
@@ -419,14 +421,12 @@ export default function StatsPage() {
           </div>
 
           {/* Back Button */}
-          <div className="flex justify-center">
-            <button 
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-200"
-              onClick={() => router.push('/home')}
-            >
-              Back to Home
-            </button>
-          </div>
+        <div className="w-full flex justify-center mb-8 row-start-3">
+          <Button href="/">
+            {"Back to Home"}
+          </Button>
+        </div>
+         
         </div>
       </div>
     </div>
