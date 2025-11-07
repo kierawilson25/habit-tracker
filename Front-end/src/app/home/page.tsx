@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import Button from "@/components/Button";
+
 
 export default function HomePage() {
   const router = useRouter();
@@ -299,7 +301,16 @@ const fetchUserData = async () => {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-2 gap-4">
-            <button className="bg-green-600 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
+
+              <Button href="/habits">
+                {"View Habits"}
+              </Button>
+
+              <Button href="/add-habit" type="secondary">
+                {"Edit Habits"}
+              </Button>
+
+            {/* <button className="bg-green-600 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
                 onClick={() => router.push('/habits') }
                 >
               View Habits
@@ -308,7 +319,7 @@ const fetchUserData = async () => {
                 onClick={() => router.push('/add-habit')}
                 >
               Edit Habits
-            </button>
+            </button> */}
           </div>
 
           {/* Quick Stats Cards */}
