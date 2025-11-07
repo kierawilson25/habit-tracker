@@ -319,12 +319,7 @@ export default function HomePage() {
                 <p className="text-green-300 mb-6">
                   Welcome back, {(user as any)?.user_metadata?.display_name || (user as any)?.email}
                 </p>
-                <button 
-                  className={activeButtonClass + " px-6 py-3"}
-                  onClick={() => window.location.href = '/habits'}
-                >
-                  Continue Building
-                </button>
+
                 <Button href="/habits" type="primary" className="px-6 py-3">
                   {"Continue Building"}
                 </Button>
