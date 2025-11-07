@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
+import Button from "@/components/Button";
 
 export default function HomePage() {
   const router = useRouter()
@@ -141,26 +142,19 @@ export default function HomePage() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               {user ? (
-                <button 
-                  className={activeButtonClass}
-                  onClick={() => window.location.href = '/habits'}
-                >
-                  Go to Dashboard
-                </button>
+              <Button href="/habits">
+                {"Go to Dashboard"}
+              </Button>
+
               ) : (
                 <>
-                  <button 
-                    className={activeButtonClass}
-                    onClick={() => window.location.href = '/sign-up'}
-                  >
-                    Get Started
-                  </button>
-                  <button 
-                    className={secondaryButtonClass}
-                    onClick={() => window.location.href = '/login'}
-                  >
-                    Login
-                  </button>
+              <Button href="/sign-up" type="primary">
+                {"Get Started"}
+              </Button>
+
+                <Button href="/login" type="secondary">
+                  {"Login"}
+                </Button>
                 </>
               )}
             </div>
@@ -331,21 +325,19 @@ export default function HomePage() {
                 >
                   Continue Building
                 </button>
+                <Button href="/habits" type="primary" className="px-6 py-3">
+                  {"Continue Building"}
+                </Button>
               </div>
             ) : (
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button 
-                  className={activeButtonClass + " px-6 py-3"}
-                  onClick={() => window.location.href = '/sign-up'}
-                >
-                  Get Started
-                </button>
-                <button 
-                  className={secondaryButtonClass + " px-6 py-3"}
-                  onClick={() => router.push('/login')}
-                >
-                  Login
-                </button>
+              <Button href="/sign-up" type="primary">
+                {"Get Started"}
+              </Button>
+
+                <Button href="/login" type="secondary">
+                  {"Login"}
+                </Button>
               </div>
             )}
           </div>
