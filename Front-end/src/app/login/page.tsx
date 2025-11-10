@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import "../../utils/styles/global.css";
+import { H1 } from '@/components/H1';
 
 export default function LoginPage() {
   const { signIn, loading } = useAuth();
@@ -27,9 +28,9 @@ export default function LoginPage() {
   return (
     <div className="page-dark min-h-screen">
       <div style={{ maxWidth: "400px", margin: "auto", padding: "2rem" }}>
-        <h1 className="text-4xl md:text-6xl font-bold text-green-600 text-center mb-8 pb-4">
-          Login
-        </h1>
+
+        <H1 text="Login" />
+
 
         <form onSubmit={handleSubmit}>
           {error && (
