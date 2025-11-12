@@ -309,17 +309,6 @@ const fetchUserData = async () => {
               <Button href="/add-habit" type="secondary">
                 {"Edit Habits"}
               </Button>
-
-            {/* <button className="bg-green-600 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
-                onClick={() => router.push('/habits') }
-                >
-              View Habits
-            </button>
-            <button className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 border border-gray-600"
-                onClick={() => router.push('/add-habit')}
-                >
-              Edit Habits
-            </button> */}
           </div>
 
           {/* Quick Stats Cards */}

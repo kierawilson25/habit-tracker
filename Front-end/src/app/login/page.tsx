@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import "../../utils/styles/global.css";
 import { H1 } from '@/components/H1';
+import Button from "@/components/Button";
+
 
 export default function LoginPage() {
   const { signIn, loading } = useAuth();
@@ -70,13 +72,18 @@ export default function LoginPage() {
           </div>
           
           {/* Large prominent login button */}
-          <button
+          {/* <button
             type="submit"
             disabled={loading}
             className="w-full bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200 mb-4"
           >
             {loading ? "Logging in..." : "Log in"}
-          </button>
+          </button> */}
+
+          <Button htmlType="submit" type="primary" className="w-full mb-4">
+            {loading ? "Logging in..." : "Log in"}
+          </Button>
+
         </form>
 
         {/* Secondary sign up link */}
