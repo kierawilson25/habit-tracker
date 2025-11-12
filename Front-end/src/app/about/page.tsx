@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
+import Button from "@/components/Button";
 
 const AboutPage = () => {
   return (
@@ -63,9 +64,9 @@ const AboutPage = () => {
               <p className="text-xl text-gray-300 mb-6">
                 Ready to start building your tower?
               </p>
-              <button className="bg-green-600 hover:bg-green-500 text-white text-lg font-bold px-8 py-3 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg shadow-green-900/50">
-                Start Tracking Today
-              </button>
+            <Button href="/sign-up">
+              {"Start Tracking Today"}
+            </Button>
             </div>
           </div>
 
