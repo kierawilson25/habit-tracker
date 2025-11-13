@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { HiOutlineMail, HiOutlineGlobeAlt } from "react-icons/hi";
 import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
+import Button from "@/components/Button";
 
 export default function Contact() {
   const [mounted, setMounted] = useState(false);
@@ -67,12 +68,9 @@ export default function Contact() {
                       <p className="text-black">kiera.wilson025@gmail.com</p>
                     </div>
                   </div>
-                  <button
-                    onClick={handleCopyEmail}
-                    className="bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
-                  >
-                    {emailCopied ? "Copied!" : "Copy"}
-                  </button>
+                  <Button onClick={handleCopyEmail} type="primary">
+                      {emailCopied ? "Copied!" : "Copy"}
+                   </Button>
                 </div>
                 <p className="text-gray-600 mt-3 text-sm">
                   Best for questions, feedback, or bug reports. I typically respond within 24 hours.
@@ -176,12 +174,9 @@ export default function Contact() {
 
           {/* Back to App */}
           <div className="text-center mt-6">
-            <button
-              onClick={() => window.history.back()}
-              className="border-2 border-green-600 text-green-600 rounded px-6 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200"
-            >
-              ← Back to App
-            </button>
+              <Button onClick={() => window.history.back()} type="primary">
+                {"Back to app"}
+              </Button>
           </div>
 
         </div>
