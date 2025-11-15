@@ -6,6 +6,7 @@ import { useState } from "react";
 import "../../utils/styles/global.css";
 import { H1 } from '@/components/H1';
 import Button from "@/components/Button";
+import TextBox from '@/components/TextBox';
 
 
 export default function LoginPage() {
@@ -41,20 +42,16 @@ export default function LoginPage() {
             </div>
           )}
           
-          {/* email */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label htmlFor="email" className="text-white">Email</label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={{ width: "100%", padding: "0.5rem" }}
-              className="text-black"
-            />
-          </div>
+          <TextBox
+            label="Email"
+            type="email"
+            name="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+                    
           
           {/* password */}
           <div style={{ marginBottom: "2rem" }}>
@@ -72,13 +69,6 @@ export default function LoginPage() {
           </div>
           
           {/* Large prominent login button */}
-          {/* <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200 mb-4"
-          >
-            {loading ? "Logging in..." : "Log in"}
-          </button> */}
 
           <Button htmlType="submit" type="primary" className="w-full mb-4">
             {loading ? "Logging in..." : "Log in"}
