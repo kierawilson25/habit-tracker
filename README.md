@@ -10,22 +10,18 @@ The Habit Tracker App is a full-stack application built to support users in trac
 - Logging habit completion daily
 - Viewing progress over time
 
-The project is structured as a **monorepo**, containing both frontend and backend components in a single repository for easier development and collaboration.
 
 ## 🗂️ Repository Structure
 
-This is a monorepo with the following key folders:
 ```
 habit-tracker/
 ├── frontend/ → React-based client application
-├── backend/ → Express.js server and API
 ├── README.md
 ```
 
 ## 🧩 Tech Stack
-- **Frontend**: React, Tailwind CSS
-- **Backend**: Node.js, Express.js, MongoDB
-- **Monorepo**: Managed manually with separate folders
+- **Frontend**: Next.js, Tailwind CSS
+- **Backend**: Supabase
 
 
 
@@ -43,19 +39,17 @@ npm run dev
 
 ##  🔶 Backend
 
-The backend is located in the [`/backend`](./backend) directory and is built with **Node.js** and **Express.js**. It serves as the API layer for the application, handling requests such as creating, updating, deleting, and retrieving habit data.
+Grains of Sand uses Supabase for backend services.
 
-To run the project locally:
 
-```bash
-# development
-$ npm run start
+Stack
+- **Database**: PostgreSQL database for storing user data, habits, and completion records
+- **Authentication**: Built-in auth system with support for email/password authentication and session management
+- **Real-time subscriptions**: Live data updates for habit completion tracking
+- **Row Level Security (RLS)**: Ensures users can only access and modify their own data
 
-# watch mode
-$ npm run start:dev
 
-# production mode
-$ npm run start:prod
-```
+
+
 
 
