@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
-import Button from "@/components/Button";
+import { Button } from "@/components";
 
 const AboutPage = () => {
   return (
