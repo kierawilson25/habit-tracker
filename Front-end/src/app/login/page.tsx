@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import "../../utils/styles/global.css";
-import { H1 } from '@/components/H1';
-import Button from "@/components/Button";
-import TextBox from '@/components/TextBox';
+import { H1, Button, TextBox } from '@/components';
+
 
 
 export default function LoginPage() {

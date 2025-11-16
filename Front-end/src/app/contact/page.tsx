@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { HiOutlineMail, HiOutlineGlobeAlt } from "react-icons/hi";
 import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
-import Button from "@/components/Button";
+import { Button }  from "@/components";
 
 export default function Contact() {
   const [mounted, setMounted] = useState(false);

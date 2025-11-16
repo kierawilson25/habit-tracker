@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import "../../utils/styles/global.css";
 import { createClient } from "@/utils/supabase/client";
-import Button from "@/components/Button";
+import { Button } from "@/components";
 import type { 
   Habit, 
   HabitAnalysis, 
