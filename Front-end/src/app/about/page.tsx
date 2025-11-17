@@ -1,16 +1,12 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
-import { Button } from "@/components";
+import { Button, H1 } from "@/components";
 
 const AboutPage = () => {
   return (
     <div className="bg-black min-h-screen text-white">
       {/* Hero Section - Visible without scrolling */}
-      <div className="px-6 pt-12 pb-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-green-500 mb-8">About</h1>
-        </div>
-      </div>
+      <H1 text="About"></H1>
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-6 pb-20">
