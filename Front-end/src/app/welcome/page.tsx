@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { H1 } from "@/components";
 import "../../utils/styles/global.css";
 
 export default function Welcome() {
@@ -48,9 +49,7 @@ export default function Welcome() {
               <span className="text-white font-bold text-2xl sm:text-3xl">🎉</span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 text-white break-words">
-              One more step..
-            </h1>
+          <H1 text="One more step..."></H1>
 
             <div className="space-y-4 sm:space-y-6 text-white">
               <p className="text-lg sm:text-xl leading-relaxed">
