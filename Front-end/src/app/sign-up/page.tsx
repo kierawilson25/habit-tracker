@@ -4,6 +4,7 @@ import { signup } from "./actions";
 import "../../utils/styles/global.css";
 import Link from "next/link";
 import { useState, FormEvent } from "react";
+import { H1 } from "@/components";
 
 export default function SignUpPage() {
   // State for password fields
@@ -41,9 +42,7 @@ export default function SignUpPage() {
   return (
     <div className="page-dark">
       <div style={{ maxWidth: "400px", margin: "auto", padding: "2rem" }}>
-        <h1 className="text-4xl md:text-6xl font-bold text-green-600 text-center mb-8 pb-4">
-          Sign Up
-        </h1>
+        <H1 text="Sign Up"/>
 
         <form onSubmit={handleSubmit}>
           {/* Username */}
