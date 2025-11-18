@@ -5,7 +5,7 @@ import { Button, H1 } from "@/components";
 const AboutPage = () => {
   return (
     <div className="bg-black min-h-screen text-white">
-      {/* Hero Section - Visible without scrolling */}
+      {/* Hero Section - Visible without scrolling */} v
       <H1 text="About"></H1>
 
       {/* Main Content */}
