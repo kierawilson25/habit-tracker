@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Button } from "@/components";
+import { Button, H1 } from "@/components";
 
 
 export default function StatsPage() {
@@ -221,9 +221,8 @@ export default function StatsPage() {
           
           {/* Header */}
           <div className="bg-green-950/20 rounded-lg p-6 border border-green-600/30">
-            <h1 className="text-3xl font-bold text-center mb-2">
-              {userName}'s Stats
-            </h1>
+
+            <H1 text={userName + "'s Stats"}/>
             <p className="text-gray-400 text-center mb-4">
               Your habit completion journey
             </p>
