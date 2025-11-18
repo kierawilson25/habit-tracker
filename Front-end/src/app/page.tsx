@@ -33,7 +33,8 @@ export default function HomePage() {
   useEffect(() => {
     if (user && !loading) {
       console.log("authenticated");
-      router.push("/home");
+      //router.push("/home");
+      router.replace("/home");
     }
   }, [user, loading, router])
   
@@ -65,6 +66,16 @@ export default function HomePage() {
       </div>
     )
   }
+
+  if (user) {
+  return (
+    <div className="min-h-screen bg-black flex justify-center items-center">
+      <div className="text-lg text-green-500 font-mono">
+        <span className="animate-pulse">Redirecting...</span>
+      </div>
+    </div>
+  )
+}
 
   return (
     <div className="min-h-screen bg-black text-green-500 relative overflow-hidden font-[family-name:var(--font-geist-sans)]">
