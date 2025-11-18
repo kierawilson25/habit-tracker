@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
-import { Button } from "@/components";
+import { Button, H1 } from "@/components";
 
 export default function HomePage() {
   const router = useRouter()
@@ -128,9 +128,8 @@ export default function HomePage() {
             </div>
             
             <div className="mb-15">
-              <h1 className="text-3xl md:text-5xl font-bold mb-10 text-green-400">
-                of Sand
-              </h1>
+              <H1 text="of Sand"/>
+
             </div>
             
             <div className="bg-green-500/10 border border-green-500/30 rounded p-6 max-w-2xl mx-auto mb-8">
