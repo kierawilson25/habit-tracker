@@ -5,6 +5,8 @@ import { HiOutlinePencil } from "react-icons/hi2";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { createClient } from "@/utils/supabase/client";
+import { H1 } from "@/components";
+
 
 interface Habit {
   id: string;
@@ -252,9 +254,10 @@ export default function AddHabits() {
         onSubmit={handleSubmit}
         className="w-full max-w-2xl flex flex-col gap-4 p-8"
       >
-        <h1 className="text-xl font-bold mb-4  text-green-500 text-center">
+        <H1 text="Edit Habits" />
+        <p className="text-gray-400 text-center mb-4">
           Add up to 5 Habits
-        </h1>
+        </p>
 
         {habits.map((habit, idx) => (
           <div key={idx} className="flex items-center gap-2">
