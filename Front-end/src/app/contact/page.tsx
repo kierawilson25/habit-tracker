@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { HiOutlineMail, HiOutlineGlobeAlt } from "react-icons/hi";
 import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
-import { Button }  from "@/components";
+import { Button, H1 }  from "@/components";
 
 export default function Contact() {
   const [mounted, setMounted] = useState(false);
@@ -40,9 +40,9 @@ export default function Contact() {
             <div className="w-20 h-20 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-4">
               <HiOutlineMail className="text-white text-3xl" />
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Get in Touch</h1>
+            <H1 text="Hey you" />
             <p className="text-gray-300 text-lg">
-              Have questions, feedback, or suggestions? I'd love to hear from you.
+              Let's get in touch
             </p>
           </div>
 
@@ -167,7 +167,7 @@ export default function Contact() {
               </div>
               <div>
                 <h4 className="font-semibold text-green-300 mb-1">How can I report a bug?</h4>
-                <p className="text-gray-300">Send me an email with details about what you were doing when the bug occurred, and I'll investigate immediately.</p>
+                <p className="text-gray-300">Use the 'Report a Bug' link at the bottom of any page, you can submit a description of what you encountered and I'll get right to it.</p>
               </div>
             </div>
           </div>
