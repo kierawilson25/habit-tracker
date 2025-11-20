@@ -3,6 +3,8 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
+import { H1 } from "@/components";
+
 
 function ErrorPageContent() {
   const searchParams = useSearchParams()
@@ -65,9 +67,7 @@ function ErrorPageContent() {
           </div>
           
           {/* Error Message */}
-          <h1 className="mt-6 text-2xl sm:text-4xl font-bold mb-4 text-green-500">
-            We encountered an error
-          </h1>
+          <H1 text="Uh Oh" />
           <p className="mt-4 text-lg text-white">
             Something went wrong while processing your request. Please try again.
           </p>
