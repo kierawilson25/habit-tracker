@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { H1 }  from "@/components";
 
 export default function ConfirmPage() {
   const router = useRouter();
@@ -39,6 +40,7 @@ export default function ConfirmPage() {
         <h1 className="text-green-500 text-4xl font-semibold mb-4">
           Habit Tracker
         </h1>
+        <H1 text="Habit Tracker"/>
         
         <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
           <span className="text-white text-2xl font-bold">✓</span>
@@ -49,7 +51,7 @@ export default function ConfirmPage() {
         </h2>
         
         <p className="text-white text-lg mb-4">
-          Welcome to Habit Tracker! Your account has been confirmed.
+          Welcome to Grains of Sand! Your account has been confirmed.
         </p>
         
         <p className="text-white text-base mb-6">
