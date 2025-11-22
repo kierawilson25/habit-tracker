@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlinePencil } from "react-icons/hi2";
 import { IoIosCloseCircleOutline, IoIosCheckmarkCircle } from "react-icons/io";
 import { useRouter } from "next/navigation";
+import { H1 }  from "@/components";
 
 export default function GettingStarted() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -208,9 +209,8 @@ export default function GettingStarted() {
             border: "2px solid rgba(34, 197, 94, 1)"
           }}
         >
-          <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-white">
-            {steps[currentStep].title}
-          </h1>
+
+          <H1 text={steps[currentStep].title} />
           
           <div className="mb-6 sm:mb-8 text-white text-left">
             {steps[currentStep].content}
