@@ -36,10 +36,8 @@ export default function ConfirmPage() {
         <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
           <span className="text-white text-2xl font-bold">H</span>
         </div>
-        
-        <h1 className="text-green-500 text-4xl font-semibold mb-4">
-          Habit Tracker
-        </h1>
+         
+
         <H1 text="Habit Tracker"/>
         
         <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
