@@ -245,7 +245,7 @@ export default function GettingStarted() {
 
           {currentStep === steps.length - 1 ? (
             <button
-              onClick={() => alert('Going to dashboard/sign up!')}
+              onClick={() => router.push("/home")}
               className={activeButtonClass + " px-4 sm:px-6 font-semibold"}
             >
               <span className="hidden sm:inline">Get Started!</span>
