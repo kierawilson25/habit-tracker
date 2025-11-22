@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import "../../utils/styles/global.css";
 import { createClient } from "@/utils/supabase/client";
-import { Button } from "@/components";
+import { Button, H1 } from "@/components";
 import type { 
   Habit, 
   HabitAnalysis, 
@@ -700,8 +700,7 @@ const fetchHabitsFromDB = async (): Promise<void> => {
 
       <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center px-4 pb-20 gap-8 sm:p-20 sm:gap-16 font-[family-name:var(--font-geist-sans)] w-full">
         <main className="flex flex-col gap-8 row-start-2 items-center w-full max-w-4xl">
-          <h1 className="w-full flex justify-center text-4xl sm:text-6xl font-bold mb-4 text-green-500">Habits</h1>
-
+          <H1 text="Habits" />
           {/* Celebration Banner */}
           {(showCelebration || celebrationAnimating) && (
             <div className={`w-full px-4 ${showCelebration ? 'animate-slide-down' : 'animate-slide-up'}`}>
@@ -717,7 +716,7 @@ const fetchHabitsFromDB = async (): Promise<void> => {
               </div>
             </div>
           )}
-
+ç
           {/* Habits List */}
           <div className="w-full flex justify-center px-2 sm:px-4">
             {habits.length === 0 ? (
