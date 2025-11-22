@@ -59,23 +59,23 @@ export default function Contact() {
             
             <div className="space-y-6">
               {/* Email */}
-              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <HiOutlineMail className="text-green-600 text-xl" />
-                    <div>
-                      <h3 className="font-semibold text-green-800">Email</h3>
-                      <p className="text-black">kiera.wilson025@gmail.com</p>
-                    </div>
+            <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <HiOutlineMail className="text-green-600 text-xl flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-green-800">Email</h3>
+                    <p className="text-black break-all">kiera.wilson025@gmail.com</p>
                   </div>
-                  <Button onClick={handleCopyEmail} type="primary">
-                      {emailCopied ? "Copied!" : "Copy"}
-                   </Button>
                 </div>
-                <p className="text-gray-600 mt-3 text-sm">
-                  Best for questions, feedback, or bug reports. I typically respond within 24 hours.
-                </p>
+                <Button onClick={handleCopyEmail} type="primary" className="flex-shrink-0 w-full sm:w-auto">
+                  {emailCopied ? "Copied!" : "Copy"}
+                </Button>
               </div>
+              <p className="text-gray-600 mt-3 text-sm">
+                Best for questions, feedback, or bug reports. I typically respond within 24 hours.
+              </p>
+            </div>
 
               {/* Response Time */}
               <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6">
