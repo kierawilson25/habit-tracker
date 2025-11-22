@@ -716,7 +716,6 @@ const fetchHabitsFromDB = async (): Promise<void> => {
               </div>
             </div>
           )}
-ç
           {/* Habits List */}
           <div className="w-full flex justify-center px-2 sm:px-4">
             {habits.length === 0 ? (
