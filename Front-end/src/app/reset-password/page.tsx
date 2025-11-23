@@ -4,6 +4,8 @@ import { resetPassword } from "./actions";
 import "../../utils/styles/global.css";
 import Link from "next/link";
 import { useState, FormEvent, use } from "react";
+import { H1 } from "@/components";
+
 
 export default function ResetPasswordPage({
   searchParams,
@@ -61,9 +63,9 @@ export default function ResetPasswordPage({
   return (
     <div className="page-dark">
       <div style={{ maxWidth: "400px", margin: "auto", padding: "2rem" }}>
-        <h1 className="text-4xl md:text-6xl font-bold text-green-600 text-center mb-8 pb-4">
-          Reset Password
-        </h1>
+
+        <H1 text="Reset Password" />
+
 
         {errorMessage && (
           <div style={{
