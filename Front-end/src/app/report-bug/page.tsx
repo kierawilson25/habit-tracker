@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlineCamera, HiOutlineInformationCircle } from "react-icons/hi";
 import { FaBug } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
+import { H1 } from "@/components";
 
 export default function BugReport() {
   const supabase = createClient();
@@ -171,7 +172,7 @@ export default function BugReport() {
             <div className="w-20 h-20 bg-red-500 rounded-lg flex items-center justify-center mx-auto mb-4">
               <FaBug className="text-white text-3xl" />
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Report a Bug</h1>
+            <H1 text="Report a Bug" />
             <p className="text-gray-300 text-lg">
               Help me improve Grains of Sand by reporting any issues you encounter.
             </p>
