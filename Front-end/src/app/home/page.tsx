@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import Button from "@/components/Button";
+import { Button, H1 } from "@/components";
 
 
 export default function HomePage() {
@@ -192,9 +192,7 @@ const fetchUserData = async () => {
           
           {/* Welcome Section */}
           <div className="bg-green-950/20 rounded-lg p-6 border border-green-600/30">
-            <h1 className="text-2xl font-bold text-center mb-2">
-              Hi, {userName}! 
-            </h1>
+            <H1 text= {"Hi " + userName + "!"} />
             <p className="text-gray-400 text-center">
               Welcome back to your habit journey
             </p>
