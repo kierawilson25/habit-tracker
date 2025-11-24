@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import "../../utils/styles/global.css";
 import { createClient } from "@/utils/supabase/client";
-import { Button, H1 } from "@/components";
+import { Button, H1, StreakCell } from "@/components";
 import type { 
   Habit, 
   HabitAnalysis, 
@@ -760,21 +760,7 @@ const fetchHabitsFromDB = async (): Promise<void> => {
                       </div>
 
                       {/* Streak Cell - Compact size */}
-                      <div className="w-16 sm:w-20 flex-shrink-0">
-                        <div 
-                          className="border-2 rounded-lg p-2 sm:p-3 flex items-center justify-center h-[56px] sm:h-[64px] transition-transform duration-200"
-                          style={{
-                            backgroundColor: "rgba(34, 197, 94, 0.05)",
-                            borderColor: "rgba(34, 197, 94, 1)",
-                          }}
-                        >
-                          <div className="flex items-center justify-center">
-                            <span className="text-base sm:text-lg font-bold text-white">
-                              {habit.current_streak || 0}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+                      <StreakCell streak={habit.current_streak || 0} />
                     </div>
                   ))}
                 </div>
