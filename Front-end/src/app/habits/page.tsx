@@ -2,12 +2,11 @@
 import Image from "next/image";
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
-import Checkbox from "@/app/components/Checkbox";
 import Link from "next/link";
 import { useEffect } from "react";
 import "../../utils/styles/global.css";
 import { createClient } from "@/utils/supabase/client";
-import { Button, H1, StreakCell } from "@/components";
+import { Button, H1, HabitCell, StreakCell } from "@/components";
 import type { 
   Habit, 
   HabitAnalysis, 
@@ -743,21 +742,11 @@ const fetchHabitsFromDB = async (): Promise<void> => {
                   {habits.map((habit, idx) => (
                     <div key={habit.id} className="flex items-center gap-2 sm:gap-4">
                       {/* Habit Cell - Takes up most of the space */}
-                      <div className="flex-1 min-w-0">
-                        <div
-                          className="w-full px-3 py-3 sm:px-4 sm:py-4 rounded-lg border-2 transition-transform duration-200"
-                          style={{
-                            backgroundColor: "rgba(34, 197, 94, 0.2)",
-                            borderColor: "rgba(34, 197, 94, 1)",
-                          }}
-                        >
-                          <Checkbox
-                            label={habit.title}
-                            checked={habit.completed}
-                            onChange={checked => handleCheckboxChange(idx, checked)}
-                          />
-                        </div>
-                      </div>
+                      <HabitCell
+                        title={habit.title}
+                        checked={habit.completed}
+                        onChange={checked => handleCheckboxChange(idx, checked)}
+                      />
 
                       {/* Streak Cell - Compact size */}
                       <StreakCell streak={habit.current_streak || 0} />
