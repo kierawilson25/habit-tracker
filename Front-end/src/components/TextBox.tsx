@@ -1,3 +1,4 @@
+"use client";
 // components/TextBox.tsx
 import { useState } from "react";
 
