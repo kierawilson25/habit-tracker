@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlineCamera, HiOutlineInformationCircle } from "react-icons/hi";
 import { FaBug } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
-import { H1 } from "@/components";
+import { H1, TextBox } from "@/components";
 
 export default function BugReport() {
   const supabase = createClient();
@@ -221,11 +221,9 @@ export default function BugReport() {
               
               <div className="space-y-6">
                 {/* Title */}
-                <div>
-                  <label htmlFor="title" className="block text-sm font-semibold mb-2">
-                    Bug Title <span className="text-red-400">*</span>
-                  </label>
-                  <input
+                <div style={{ marginBottom: 0 }}>
+                  <TextBox
+                    label="Bug Title *"
                     type="text"
                     id="title"
                     name="title"
@@ -233,7 +231,7 @@ export default function BugReport() {
                     onChange={handleInputChange}
                     required
                     placeholder="Brief description of the issue"
-                    className="w-full p-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                    className="w-full rounded-lg bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
                   />
                 </div>
 
