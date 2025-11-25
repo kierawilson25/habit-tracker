@@ -53,19 +53,16 @@ export default function LoginPage() {
                     
           
           {/* password */}
-          <div style={{ marginBottom: "2rem" }}>
-            <label htmlFor="password" className="text-white">Password</label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={{ width: "100%", padding: "0.5rem" }}
-              className="text-black"
-            />
-          </div>
+          <TextBox
+            label="Password"
+            type="password"
+            name="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            showPasswordToggle
+          />
           
           {/* Large prominent login button */}
 

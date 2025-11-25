@@ -4,16 +4,14 @@ import { signup } from "./actions";
 import "../../utils/styles/global.css";
 import Link from "next/link";
 import { useState, FormEvent } from "react";
-import { H1 } from "@/components";
+import { H1, TextBox } from "@/components";
 
 export default function SignUpPage() {
-  // State for password fields
+  // State for form fields
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
-  // State for show/hide password toggles
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Derived state - automatically recalculates when password or confirmPassword changes
   const passwordsMatch = password === confirmPassword && confirmPassword !== '';
@@ -45,132 +43,53 @@ export default function SignUpPage() {
         <H1 text="Sign Up"/>
 
         <form onSubmit={handleSubmit}>
-          {/* Username */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label htmlFor="display_name">Choose a Display Name</label>
-            <input
-              id="display_name"
-              type="text"
-              name="display_name"
-              required
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-                marginTop: "0.25rem",
-              }}
-              className="text-black"
-            />
-          </div>
+          {/* Display Name */}
+          <TextBox
+            label="Choose a Display Name"
+            type="text"
+            name="display_name"
+            id="display_name"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            required
+          />
 
           {/* Email */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              required
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-                marginTop: "0.25rem",
-              }}
-              className="text-black"
-            />
-          </div>
+          <TextBox
+            label="Email"
+            type="email"
+            name="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
           {/* Password */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label htmlFor="password">Password</label>
-            <div style={{ position: "relative" }}>
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                style={{
-                  width: "100%",
-                  padding: "0.5rem",
-                  paddingRight: "4rem",
-                  borderRadius: "4px",
-                  border: "1px solid #ccc",
-                  marginTop: "0.25rem",
-                }}
-                className="text-black"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: "absolute",
-                  right: "0.5rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  padding: "0.25rem 0.5rem",
-                  fontSize: "0.875rem",
-                  color: "#16a34a",
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-          </div>
+          <TextBox
+            label="Password"
+            type="password"
+            name="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            showPasswordToggle
+          />
 
           {/* Confirm Password */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label htmlFor="confirm_password">Confirm Password</label>
-            <div style={{ position: "relative" }}>
-              <input
-                id="confirm_password"
-                type={showConfirmPassword ? "text" : "password"}
-                name="confirm_password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                style={{
-                  width: "100%",
-                  padding: "0.5rem",
-                  paddingRight: "4rem",
-                  borderRadius: "4px",
-                  border: showError ? "1px solid #dc2626" : "1px solid #ccc",
-                  marginTop: "0.25rem",
-                }}
-                className="text-black"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={{
-                  position: "absolute",
-                  right: "0.5rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  padding: "0.25rem 0.5rem",
-                  fontSize: "0.875rem",
-                  color: "#16a34a",
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                {showConfirmPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-            {showError && (
-              <p style={{ color: "#dc2626", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-                Passwords do not match
-              </p>
-            )}
-          </div>
+          <TextBox
+            label="Confirm Password"
+            type="password"
+            name="confirm_password"
+            id="confirm_password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            showPasswordToggle
+            error={showError}
+            errorMessage="Passwords do not match"
+          />
 
           {/* Submit */}
           <div style={{ marginTop: "1.5rem", marginBottom: "1rem" }}>

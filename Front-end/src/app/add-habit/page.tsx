@@ -5,7 +5,7 @@ import { HiOutlinePencil } from "react-icons/hi2";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { createClient } from "@/utils/supabase/client";
-import { H1 } from "@/components";
+import { H1, TextBox } from "@/components";
 
 
 interface Habit {
@@ -261,19 +261,24 @@ export default function AddHabits() {
 
         {habits.map((habit, idx) => (
           <div key={idx} className="flex items-center gap-2">
-            <input
-              type="text"
-              value={habit}
-              maxLength={50}
-              placeholder={`Habit ${idx + 1}`}
-              onChange={(e) => handleChange(idx, e.target.value)}
-              disabled={habitDisabled[idx]}
-              className={
-                habitDisabled[idx]
-                  ? "bg-gray-300 text-black disabled focus:outline-none border p-2 rounded flex-1"
-                  : "border p-2 rounded text-black flex-1  hover:ring-2 hover:ring-green-500 focus:outline-none transition-colors duration-200"
-              }
-            />
+            <div className="flex-1" style={{ marginBottom: 0 }}>
+              <TextBox
+                label=""
+                type="text"
+                name={`habit_${idx}`}
+                id={`habit_${idx}`}
+                value={habit}
+                maxLength={50}
+                placeholder={`Habit ${idx + 1}`}
+                onChange={(e) => handleChange(idx, e.target.value)}
+                disabled={habitDisabled[idx]}
+                className={
+                  habitDisabled[idx]
+                    ? "bg-gray-300 disabled focus:outline-none"
+                    : "hover:ring-2 hover:ring-green-500 focus:outline-none transition-colors duration-200"
+                }
+              />
+            </div>
             {/* return either edit icon or save icon based on the state of habitDisabled */}
             {habit != "" && habitDisabled[idx] ? (
               <div className="flex items-center gap-1">
