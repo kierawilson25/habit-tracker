@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
-import { Button, H1 } from "@/components";
+import { Button, H1, Container } from "@/components";
 
 const AboutPage = () => {
   return (
@@ -26,7 +26,7 @@ const AboutPage = () => {
           </div>
 
           {/* The Build */}
-          <div className="mb-16 bg-gradient-to-br from-green-950/40 to-black border border-green-900 rounded-xl p-8">
+          <Container color="green" padding="lg" className="mb-16">
             <h2 className="text-3xl font-bold text-green-500 mb-6">Twenty Minutes a Day</h2>
             <div className="space-y-6 text-lg text-gray-300 leading-relaxed">
               <p>
@@ -39,7 +39,7 @@ const AboutPage = () => {
                 This site is living proof that small, consistent action actually works. It wasn't easy at first, I kept getting stuck and it felt like things were taking forever. But whenever I would look back at a 2 week span I would be so impressed by how much I had completed.
               </p>
             </div>
-          </div>
+          </Container>
 
           {/* Philosophy */}
           <div className="mb-16 text-lg text-gray-300 leading-relaxed space-y-6">
@@ -56,14 +56,14 @@ const AboutPage = () => {
 
           {/* CTA */}
           <div className="text-center mt-16">
-            <div className="inline-block bg-gradient-to-br from-green-950/60 to-black border-2 border-green-500 rounded-xl p-10">
+            <Container color="green" className="inline-block" padding="lg">
               <p className="text-xl text-gray-300 mb-6">
                 Ready to start building your tower?
               </p>
             <Button href="/sign-up">
               {"Start Tracking Today"}
             </Button>
-            </div>
+            </Container>
           </div>
 
           {/* Footer Note */}

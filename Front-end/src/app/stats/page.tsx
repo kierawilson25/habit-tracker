@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Button, H1, StreakCalendar } from "@/components";
+import { Button, H1, StreakCalendar, Container, StatCard } from "@/components";
 
 
 export default function StatsPage() {
@@ -157,8 +157,7 @@ export default function StatsPage() {
         <div className="w-full max-w-6xl space-y-6">
           
           {/* Header */}
-          <div className="bg-green-950/20 rounded-lg p-6 border border-green-600/30">
-
+          <Container>
             <H1 text={userName + "'s Stats"}/>
             <p className="text-gray-400 text-center mb-4">
               Your habit completion journey
@@ -168,30 +167,15 @@ export default function StatsPage() {
               <div className="text-sm text-gray-400 mt-1">Grains of Sand</div>
               <div className="text-xs text-gray-500 mt-1">collected this year!</div>
             </div>
-          </div>
+          </Container>
 
           {/* Stats Overview Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
-              <div className="text-3xl font-bold text-blue-400">{totalDays}</div>
-              <div className="text-sm text-gray-400 mt-1">Active Days</div>
-            </div>
-            <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
-              <div className="text-3xl font-bold text-purple-400">{currentStreak}</div>
-              <div className="text-sm text-gray-400 mt-1">Current Streak</div>
-            </div>
-            <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
-              <div className="text-3xl font-bold text-yellow-400">{goldStarDays}</div>
-              <div className="text-sm text-gray-400 mt-1">Gold Star Days ⭐</div>
-            </div>
-            <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
-              <div className="text-3xl font-bold text-orange-400">{longestStreak}</div>
-              <div className="text-sm text-gray-400 mt-1">Longest Streak</div>
-            </div>
-            <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
-              <div className="text-3xl font-bold text-pink-400">{avgHabitsPerDay}</div>
-              <div className="text-sm text-gray-400 mt-1">Avg Per Day</div>
-            </div>
+            <StatCard value={totalDays} label="Active Days" color="blue" />
+            <StatCard value={currentStreak} label="Current Streak" color="purple" />
+            <StatCard value={goldStarDays} label="Gold Star Days ⭐" color="yellow" />
+            <StatCard value={longestStreak} label="Longest Streak" color="orange" />
+            <StatCard value={avgHabitsPerDay} label="Avg Per Day" color="pink" />
           </div>
 
           {/* Contribution Graph */}

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlineCamera, HiOutlineInformationCircle } from "react-icons/hi";
 import { FaBug } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
-import { H1, TextBox } from "@/components";
+import { H1, TextBox, Container } from "@/components";
 
 export default function BugReport() {
   const supabase = createClient();
@@ -186,38 +186,24 @@ export default function BugReport() {
           )}
 
           {/* Tips Section */}
-          <div 
-            className="rounded-lg p-6 text-white"
-            style={{
-              backgroundColor: "rgba(59, 130, 246, 0.1)",
-              borderColor: "rgba(59, 130, 246, 0.5)",
-              border: "1px solid rgba(59, 130, 246, 0.5)"
-            }}
-          >
-            <h3 className="text-lg font-semibold mb-4 text-center flex items-center justify-center gap-2">
+          <Container color="blue">
+            <h3 className="text-lg font-semibold mb-4 text-center flex items-center justify-center gap-2 text-white">
               <HiOutlineInformationCircle className="text-xl" />
               Tips for Better Bug Reports
             </h3>
-            <div className="space-y-3 text-sm">
+            <div className="space-y-3 text-sm text-white">
               <p>• <strong>Be specific:</strong> Include exact error messages and what you clicked</p>
               <p>• <strong>Include steps:</strong> Help me reproduce the issue on my end</p>
               <p>• <strong>Add screenshots:</strong> A picture is worth a thousand words</p>
               <p>• <strong>Mention your device:</strong> Browser, operating system, screen size (auto-detected)</p>
               <p>• <strong>Check the severity:</strong> Help me prioritize fixes appropriately</p>
             </div>
-          </div>
+          </Container>
 
           {/* Bug Report Form */}
           <form onSubmit={handleSubmit}>
-            <div 
-              className="rounded-lg p-8 text-white"
-              style={{
-                backgroundColor: "rgba(239, 68, 68, 0.2)",
-                borderColor: "rgba(239, 68, 68, 1)",
-                border: "2px solid rgba(239, 68, 68, 1)"
-              }}
-            >
-              <h2 className="text-xl font-semibold mb-6 text-center">Bug Details</h2>
+            <Container color="red" padding="lg">
+              <h2 className="text-xl font-semibold mb-6 text-center text-white">Bug Details</h2>
               
               <div className="space-y-6">
                 {/* Title */}
@@ -332,20 +318,13 @@ export default function BugReport() {
                   </button>
                 </div>
               </div>
-            </div>
+            </Container>
           </form>
 
           {/* Device Info Preview */}
-          <div 
-            className="rounded-lg p-6 text-white"
-            style={{
-              backgroundColor: "rgba(34, 197, 94, 0.1)",
-              borderColor: "rgba(34, 197, 94, 0.5)",
-              border: "1px solid rgba(34, 197, 94, 0.5)"
-            }}
-          >
-            <h3 className="text-lg font-semibold mb-4 text-center">Auto-Detected Device Information</h3>
-            <div className="grid md:grid-cols-2 gap-4 text-sm">
+          <Container color="green">
+            <h3 className="text-lg font-semibold mb-4 text-center text-white">Auto-Detected Device Information</h3>
+            <div className="grid md:grid-cols-2 gap-4 text-sm text-white">
               <div>
                 <p><strong>Browser:</strong> {navigator.userAgent.split(' ').slice(-1)[0]}</p>
                 <p><strong>Platform:</strong> {navigator.platform}</p>
@@ -358,7 +337,7 @@ export default function BugReport() {
             <p className="text-center text-gray-300 text-xs mt-4">
               This information helps me understand the context of your bug report
             </p>
-          </div>
+          </Container>
 
           {/* Back to App */}
           <div className="text-center mt-6">
