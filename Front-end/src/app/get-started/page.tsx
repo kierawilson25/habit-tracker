@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlinePencil } from "react-icons/hi2";
 import { IoIosCloseCircleOutline, IoIosCheckmarkCircle } from "react-icons/io";
 import { useRouter } from "next/navigation";
-import { H1 }  from "@/components";
+import { H1, Container }  from "@/components";
 
 export default function GettingStarted() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -201,21 +201,14 @@ export default function GettingStarted() {
         </div>
 
         {/* Content */}
-        <div 
-          className="rounded-lg p-4 sm:p-8 min-h-64 sm:min-h-96 text-center transition-transform duration-200"
-          style={{
-            backgroundColor: "rgba(34, 197, 94, 0.2)",
-            borderColor: "rgba(34, 197, 94, 1)",
-            border: "2px solid rgba(34, 197, 94, 1)"
-          }}
-        >
+        <Container color="green" padding="lg" className="min-h-64 sm:min-h-96 text-center transition-transform duration-200">
 
           <H1 text={steps[currentStep].title} />
           
           <div className="mb-6 sm:mb-8 text-white text-left">
             {steps[currentStep].content}
           </div>
-        </div>
+        </Container>
 
         {/* Navigation */}
         <div className="flex justify-between items-center gap-2">

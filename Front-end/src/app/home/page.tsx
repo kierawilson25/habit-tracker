@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Button, H1 } from "@/components";
+import { Button, H1, Container, StatCard } from "@/components";
 
 
 export default function HomePage() {
@@ -191,15 +191,15 @@ const fetchUserData = async () => {
         <div className="w-full max-w-2xl space-y-6">
           
           {/* Welcome Section */}
-          <div className="bg-green-950/20 rounded-lg p-6 border border-green-600/30">
+          <Container>
             <H1 text= {"Hi " + userName + "!"} />
             <p className="text-gray-400 text-center">
               Welcome back to your habit journey
             </p>
-          </div>
+          </Container>
 
           {/* Encouraging Message Section */}
-          <div className="bg-green-950/20 rounded-lg p-6 border border-green-600/30">
+          <Container>
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-12 h-12 bg-green-600 rounded-full mb-4">
                 <span className="text-xl">💡</span>
@@ -208,10 +208,10 @@ const fetchUserData = async () => {
                 {encouragingMessage}
               </p>
             </div>
-          </div>
+          </Container>
 
           {/* Habits Progress Widget */}
-          <div className="bg-green-950/20 rounded-lg p-6 border border-green-600/30">
+          <Container>
             <h2 className="text-xl font-bold text-center mb-6">Today's Progress</h2>
             
             <div className="flex flex-col items-center space-y-4">
@@ -295,7 +295,7 @@ const fetchUserData = async () => {
                 )}
               </div>
             </div>
-          </div>
+          </Container>
 
           {/* Quick Actions */}
           <div className="grid grid-cols-2 gap-4">
@@ -311,18 +311,9 @@ const fetchUserData = async () => {
 
           {/* Quick Stats Cards */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
-              <div className="text-2xl font-bold text-green-400">{currentStreak}</div>
-              <div className="text-sm text-gray-400">Day Streak</div>
-            </div>
-            <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
-              <div className="text-2xl font-bold text-blue-400">{weeklyProgress}%</div>
-              <div className="text-sm text-gray-400">This Week</div>
-            </div>
-            <div className="bg-green-950/20 rounded-lg p-4 border border-green-600/30 text-center">
-              <div className="text-2xl font-bold text-purple-400">{avgHabitsPerDay}</div>
-              <div className="text-sm text-gray-400">Avg Per Day</div>
-            </div>
+            <StatCard value={currentStreak} label="Day Streak" color="green" />
+            <StatCard value={`${weeklyProgress}%`} label="This Week" color="blue" />
+            <StatCard value={avgHabitsPerDay} label="Avg Per Day" color="purple" />
           </div>
         </div>
       </div>

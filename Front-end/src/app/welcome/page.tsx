@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { H1 } from "@/components";
+import { H1, Container } from "@/components";
 import "../../utils/styles/global.css";
 
 export default function Welcome() {
@@ -37,14 +37,7 @@ export default function Welcome() {
         <div className="w-full max-w-2xl flex flex-col gap-6 p-8">
 
           {/* Welcome Content */}
-          <div
-            className="rounded-lg p-4 sm:p-8 text-center hover:scale-105 transition-transform duration-200"
-            style={{
-              backgroundColor: "rgba(34, 197, 94, 0.2)",
-              borderColor: "rgba(34, 197, 94, 1)",
-              border: "2px solid rgba(34, 197, 94, 1)"
-            }}
-          >
+          <Container color="green" padding="lg" className="text-center hover:scale-105 transition-transform duration-200">
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-4 sm:mb-6">
               <span className="text-white font-bold text-2xl sm:text-3xl">🎉</span>
             </div>
@@ -62,7 +55,7 @@ export default function Welcome() {
 
 
             </div>
-          </div>
+          </Container>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

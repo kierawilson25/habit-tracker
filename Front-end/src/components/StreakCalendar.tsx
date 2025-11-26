@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Container from "./Container";
 
 interface StreakCalendarProps {
   contributionData: Record<string, number>;
@@ -72,7 +73,7 @@ export default function StreakCalendar({ contributionData }: StreakCalendarProps
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   return (
-    <div className="bg-green-950/20 rounded-lg p-6 border border-green-600/30 relative">
+    <Container className="relative">
       <h2 className="text-xl font-bold text-center mb-2">365 Day Activity</h2>
       <p className="text-sm text-gray-400 text-center mb-4">
         Tap squares to see daily completions. Darker green = 1 habit, ⭐ = all 5 habits completed!
@@ -231,6 +232,6 @@ export default function StreakCalendar({ contributionData }: StreakCalendarProps
           </div>
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import Container from "./Container";
 
 interface PopupBannerProps {
   isVisible: boolean;
@@ -21,13 +22,7 @@ export default function PopupBanner({
 
   return (
     <div className={`w-full px-4 ${isVisible ? 'animate-slide-down' : 'animate-slide-up'}`}>
-      <div
-        className="px-6 py-5 rounded-lg text-center border-2 shadow-xl relative overflow-hidden"
-        style={{
-          backgroundColor: "rgba(34, 197, 94, 0.15)",
-          borderColor: "rgba(251, 191, 36, 0.8)",
-        }}
-      >
+      <Container color="yellow" className="text-center shadow-xl relative overflow-hidden" padding="md">
         {/* Subtle glow effect */}
         <div
           className="absolute inset-0 opacity-20"
@@ -60,7 +55,7 @@ export default function PopupBanner({
             </div>
           )}
         </div>
-      </div>
+      </Container>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { HiOutlineMail, HiOutlineGlobeAlt } from "react-icons/hi";
 import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
-import { Button, H1 }  from "@/components";
+import { Button, H1, Container }  from "@/components";
 
 export default function Contact() {
   const [mounted, setMounted] = useState(false);
@@ -47,15 +47,8 @@ export default function Contact() {
           </div>
 
           {/* Contact Methods */}
-          <div 
-            className="rounded-lg p-8 text-white"
-            style={{
-              backgroundColor: "rgba(34, 197, 94, 0.2)",
-              borderColor: "rgba(34, 197, 94, 1)",
-              border: "2px solid rgba(34, 197, 94, 1)"
-            }}
-          >
-            <h2 className="text-xl font-semibold mb-6 text-center">Contact Information</h2>
+          <Container color="green" padding="lg">
+            <h2 className="text-xl font-semibold mb-6 text-center text-white">Contact Information</h2>
             
             <div className="space-y-6">
               {/* Email */}
@@ -98,18 +91,11 @@ export default function Contact() {
                 </div>
               </div>
             </div>
-          </div>
+          </Container>
 
           {/* Social Links (Optional) */}
-          <div 
-            className="rounded-lg p-6 text-white"
-            style={{
-              backgroundColor: "rgba(34, 197, 94, 0.1)",
-              borderColor: "rgba(34, 197, 94, 0.5)",
-              border: "1px solid rgba(34, 197, 94, 0.5)"
-            }}
-          >
-            <h3 className="text-lg font-semibold mb-4 text-center">Connect With Me</h3>
+          <Container color="green">
+            <h3 className="text-lg font-semibold mb-4 text-center text-white">Connect With Me</h3>
             <div className="flex justify-center gap-4">
               {/* Replace these with your actual social media links */}
               <a
@@ -144,18 +130,11 @@ export default function Contact() {
             <p className="text-center text-gray-300 text-sm mt-4">
               Follow for updates and behind-the-scenes content
             </p>
-          </div>
+          </Container>
 
           {/* FAQ Section */}
-          <div 
-            className="rounded-lg p-6 text-white"
-            style={{
-              backgroundColor: "rgba(34, 197, 94, 0.1)",
-              borderColor: "rgba(34, 197, 94, 0.5)",
-              border: "1px solid rgba(34, 197, 94, 0.5)"
-            }}
-          >
-            <h3 className="text-lg font-semibold mb-4 text-center">Frequently Asked Questions</h3>
+          <Container color="green">
+            <h3 className="text-lg font-semibold mb-4 text-center text-white">Frequently Asked Questions</h3>
             <div className="space-y-4 text-sm">
               <div>
                 <h4 className="font-semibold text-green-300 mb-1">Can I suggest new features?</h4>
@@ -170,7 +149,7 @@ export default function Contact() {
                 <p className="text-gray-300">Use the 'Report a Bug' link at the bottom of any page, you can submit a description of what you encountered and I'll get right to it.</p>
               </div>
             </div>
-          </div>
+          </Container>
 
           {/* Back to App */}
           <div className="text-center mt-6">
