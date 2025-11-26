@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import "../../utils/styles/global.css";
 import { createClient } from "@/utils/supabase/client";
-import { Button, H1, HabitCell, StreakCell } from "@/components";
+import { Button, H1, HabitCell, StreakCell, PopupBanner } from "@/components";
 import type { 
   Habit, 
   HabitAnalysis, 
@@ -47,16 +47,16 @@ export default function Home() {
       }));
       setConfetti(newConfetti);
       
-      // Start slide up animation after 3 seconds
+      // Start fade out animation after 5 seconds (2 seconds longer)
       setTimeout(() => {
         setShowCelebration(false);
-      }, 3000);
-      
-      // Fully hide after slide up animation completes (3s + 1s animation)
+      }, 5000);
+
+      // Fully hide after fade out animation completes (5s + 2s animation)
       setTimeout(() => {
         setConfetti([]);
         setCelebrationAnimating(false);
-      }, 4000);
+      }, 7000);
     } else if (completedCount < totalCount && (showCelebration || celebrationAnimating)) {
       setShowCelebration(false);
       setConfetti([]);
@@ -701,20 +701,14 @@ const fetchHabitsFromDB = async (): Promise<void> => {
         <main className="flex flex-col gap-8 row-start-2 items-center w-full max-w-4xl">
           <H1 text="Habits" />
           {/* Celebration Banner */}
-          {(showCelebration || celebrationAnimating) && (
-            <div className={`w-full px-4 ${showCelebration ? 'animate-slide-down' : 'animate-slide-up'}`}>
-              <div className="bg-gradient-to-r from-green-200 via-green-500 to-green-600 text-white px-4 py-4 rounded-xl shadow-lg text-center border-2 border-yellow-300">
-                <div className="text-3xl mb-1">⭐</div>
-                <div className="text-lg sm:text-xl font-bold">Congratulations!</div>
-                <div className="text-sm sm:text-base">
-                  You completed all {totalCount} habit{totalCount !== 1 ? 's' : ''}!
-                </div>
-                <div className="text-base sm:text-lg font-bold text-yellow-200">
-                  Gold Star Day! ⭐
-                </div>
-              </div>
-            </div>
-          )}
+          <PopupBanner
+            isVisible={showCelebration}
+            isAnimating={celebrationAnimating}
+            title="Congratulations!"
+            message={`You completed all ${totalCount} habit${totalCount !== 1 ? 's' : ''} today!`}
+            badge="Gold Star Day! ⭐"
+            icon="⭐"
+          />
           {/* Habits List */}
           <div className="w-full flex justify-center px-2 sm:px-4">
             {habits.length === 0 ? (
