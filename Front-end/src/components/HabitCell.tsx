@@ -1,4 +1,4 @@
-import Checkbox from "@/app/components/Checkbox";
+import Checkbox from "./Checkbox";
 
 interface HabitCellProps {
   title: string;
