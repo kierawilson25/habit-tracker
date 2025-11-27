@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
-import { H1 } from "@/components";
+import { H1, Button } from "@/components";
 
 
 function ErrorPageContent() {
@@ -11,8 +11,6 @@ function ErrorPageContent() {
   const router = useRouter()
   const [returnPath, setReturnPath] = useState('/login')
   const [returnLabel, setReturnLabel] = useState('Return to Login')
-  const secondaryButtonClass = "border-2 border-green-600 text-green-600 rounded px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200"
-
 
   useEffect(() => {
     // Check if there's a 'from' parameter in the URL
@@ -75,19 +73,22 @@ function ErrorPageContent() {
 
         {/* Action Buttons */}
         <div className="mt-12 space-y-4">
-          <button
+          <Button
             onClick={handleRetry}
-            className="w-full bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
+            type="primary"
+            fullWidth
           >
             {returnLabel}
-          </button>
-          
-          <button
+          </Button>
+
+          <Button
             onClick={handleHome}
-            className={secondaryButtonClass + " w-full"}
+            type="primary"
+            variant="outline"
+            fullWidth
           >
             Go to Home
-          </button>
+          </Button>
         </div>
 
         {/* Additional Help */}

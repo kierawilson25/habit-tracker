@@ -4,7 +4,7 @@ import { resetPassword } from "./actions";
 import "../../utils/styles/global.css";
 import Link from "next/link";
 import { useState, FormEvent, use } from "react";
-import { H1 } from "@/components";
+import { H1, Button } from "@/components";
 
 
 export default function ResetPasswordPage({
@@ -26,11 +26,6 @@ export default function ResetPasswordPage({
   // Derived state - automatically recalculates when password or confirmPassword changes
   const passwordsMatch = password === confirmPassword && confirmPassword !== '';
   const showError = confirmPassword !== '' && !passwordsMatch;
-
-  const activeButtonClass =
-    "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200";
-  const disabledButtonClass =
-    "bg-gray-400 text-gray-200 rounded px-4 py-2 cursor-not-allowed";
 
   const getErrorMessage = (error?: string) => {
     switch (error) {
@@ -175,14 +170,14 @@ export default function ResetPasswordPage({
 
           {/* Submit */}
           <div style={{ marginTop: "1.5rem", marginBottom: "1rem" }}>
-            <button
-              type="submit"
+            <Button
+              htmlType="submit"
+              type="primary"
               disabled={!passwordsMatch}
-              className={passwordsMatch ? activeButtonClass : disabledButtonClass}
-              style={{ width: "100%", padding: "0.5rem" }}
+              fullWidth
             >
               Reset Password
-            </button>
+            </Button>
           </div>
         </form>
         

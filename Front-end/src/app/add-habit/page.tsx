@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { H1, EditableHabitInput } from "@/components";
+import { H1, EditableHabitInput, Button } from "@/components";
 
 
 interface Habit {
@@ -275,8 +275,7 @@ export default function AddHabits() {
         <div className="flex justify-end mt-6">
           {/* show add button only if habits length is less than 5 */}
           {habits.length < 5 && (
-            <button
-              type="button"
+            <Button
               onClick={() => {
                 if (habits.length < 5) {
                   setHabits([...habits, ""]);
@@ -286,19 +285,18 @@ export default function AddHabits() {
                 }
               }}
               disabled={habits.length == 5}
-              className="bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded-full transition-colors duration-200"
+              type="primary"
+              roundedFull
+              className="font-bold"
             >
               +
-            </button>
+            </Button>
           )}
         </div>
         <div className="flex justify-center mt-6">
-          <button
-            className="bg-green-600 text-white rounded px-4 py-2 hover:bg-green-800 transition-colors duration-200"
-            type="submit"
-          >
+          <Button htmlType="submit" type="primary">
             Save Changes
-          </button>
+          </Button>
         </div>
       </form>
     </div>

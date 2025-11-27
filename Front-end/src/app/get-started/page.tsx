@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlinePencil } from "react-icons/hi2";
 import { IoIosCloseCircleOutline, IoIosCheckmarkCircle } from "react-icons/io";
 import { useRouter } from "next/navigation";
-import { H1, Container }  from "@/components";
+import { H1, Container, Button }  from "@/components";
 
 export default function GettingStarted() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -166,9 +166,6 @@ export default function GettingStarted() {
     }
   };
 
-  const activeButtonClass = "bg-green-600 text-white rounded px-3 sm:px-4 py-2 hover:bg-green-700 transition-colors duration-200 text-sm sm:text-base"
-  const secondaryButtonClass = "border-2 border-green-600 text-green-600 rounded px-3 sm:px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200 text-sm sm:text-base"
-
   if (!mounted) {
     return (
       <div className="min-h-screen bg-gray-900 flex justify-center items-center">
@@ -212,13 +209,15 @@ export default function GettingStarted() {
 
         {/* Navigation */}
         <div className="flex justify-between items-center gap-2">
-          <button
+          <Button
             onClick={prevStep}
             disabled={currentStep === 0}
-            className={currentStep === 0 ? secondaryButtonClass + " opacity-50 cursor-not-allowed" : secondaryButtonClass}
+            type="primary"
+            variant="outline"
+            className="text-sm sm:text-base px-3 sm:px-4"
           >
             Previous
-          </button>
+          </Button>
 
           <div className="flex gap-1.5 sm:gap-2">
             {steps.map((_, index) => (
@@ -237,20 +236,22 @@ export default function GettingStarted() {
           </div>
 
           {currentStep === steps.length - 1 ? (
-            <button
+            <Button
               onClick={() => router.push("/home")}
-              className={activeButtonClass + " px-4 sm:px-6 font-semibold"}
+              type="primary"
+              className="px-4 sm:px-6 font-semibold text-sm sm:text-base"
             >
               <span className="hidden sm:inline">Get Started!</span>
               <span className="sm:hidden">Start!</span>
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               onClick={nextStep}
-              className={activeButtonClass}
+              type="primary"
+              className="text-sm sm:text-base px-3 sm:px-4"
             >
               Next
-            </button>
+            </Button>
           )}
         </div>
 
