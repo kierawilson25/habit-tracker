@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { H1, Container } from "@/components";
+import { H1, Container, Button } from "@/components";
 import "../../utils/styles/global.css";
 
 export default function Welcome() {
@@ -11,9 +11,6 @@ export default function Welcome() {
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200";
-  const secondaryButtonClass = "border-2 border-green-600 text-green-600 rounded px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200";
 
   const handleGetStarted = () => {
     router.push("/get-started");
@@ -59,19 +56,22 @@ export default function Welcome() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button
+            <Button
               onClick={handleGetStarted}
-              className={secondaryButtonClass + " w-full sm:w-auto px-6 py-3 font-semibold text-sm sm:text-base"}
+              type="primary"
+              variant="outline"
+              className="w-full sm:w-auto px-6 py-3 font-semibold text-sm sm:text-base"
             >
               Learn how to track
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={handleLogin}
-              className={activeButtonClass + " w-full sm:w-auto px-6 py-3 font-semibold text-sm sm:text-base"}
+              type="primary"
+              className="w-full sm:w-auto px-6 py-3 font-semibold text-sm sm:text-base"
             >
               Login to Start Tracking
-            </button>
+            </Button>
           </div>
 
           {/* Subtitle */}

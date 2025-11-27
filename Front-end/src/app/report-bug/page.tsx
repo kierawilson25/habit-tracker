@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlineCamera, HiOutlineInformationCircle } from "react-icons/hi";
 import { FaBug } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
-import { H1, TextBox, Container } from "@/components";
+import { H1, TextBox, Container, Button } from "@/components";
 
 export default function BugReport() {
   const supabase = createClient();
@@ -132,7 +132,7 @@ export default function BugReport() {
                 Your bug report has been submitted successfully. I'll investigate and get back to you soon.
               </p>
               <div className="space-y-4">
-                <button
+                <Button
                   onClick={() => {
                     setSubmitSuccess(false);
                     setFormData({
@@ -144,16 +144,18 @@ export default function BugReport() {
                       severity: "Medium",
                     });
                   }}
-                  className="bg-green-600 text-white rounded px-6 py-2 hover:bg-green-700 transition-colors duration-200 mr-4"
+                  type="primary"
+                  className="mr-4"
                 >
                   Submit Another Report
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => window.history.back()}
-                  className="border-2 border-green-600 text-green-600 rounded px-6 py-2 hover:bg-green-600 hover:text-white transition-colors duration-200"
+                  type="primary"
+                  variant="outline"
                 >
                   ← Back to App
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -309,13 +311,14 @@ export default function BugReport() {
 
                 {/* Submit Button */}
                 <div className="text-center pt-4">
-                  <button
-                    type="submit"
+                  <Button
+                    htmlType="submit"
+                    type="danger"
                     disabled={isSubmitting || !formData.title || !formData.description}
-                    className="bg-red-600 text-white rounded px-8 py-3 hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-600 disabled:cursor-not-allowed text-lg font-semibold"
+                    className="px-8 py-3 text-lg font-semibold"
                   >
                     {isSubmitting ? "Submitting..." : "Submit Bug Report"}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </Container>
@@ -341,12 +344,13 @@ export default function BugReport() {
 
           {/* Back to App */}
           <div className="text-center mt-6">
-            <button
+            <Button
               onClick={() => window.history.back()}
-              className="border-2 border-red-600 text-red-600 rounded px-6 py-2 hover:bg-red-600 hover:text-white transition-colors duration-200"
+              type="danger"
+              variant="outline"
             >
               ← Back to App
-            </button>
+            </Button>
           </div>
 
         </div>
