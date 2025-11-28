@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Button, H1, Container, StatCard } from "@/components";
+import { Button, H1, Container, StatCard, Loading } from "@/components";
 
 
 export default function HomePage() {
@@ -178,11 +178,7 @@ const fetchUserData = async () => {
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex justify-center items-center">
-        <div className="text-lg">Loading your dashboard...</div>
-      </div>
-    );
+    return <Loading text="Loading your dashboard..." />
   }
 
   return (

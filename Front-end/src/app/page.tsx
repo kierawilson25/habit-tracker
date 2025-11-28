@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
-import { Button, H1 } from "@/components";
+import { Button, H1, Loading } from "@/components";
 
 export default function HomePage() {
   const router = useRouter()
@@ -57,25 +57,12 @@ export default function HomePage() {
 
   // Show loading or empty state until mounted to prevent hydration issues
   if (!mounted || loading) {
-    return (
-      <div className="min-h-screen bg-black flex justify-center items-center">
-        <div className="text-lg text-green-500 font-mono">
-          <span className="animate-pulse">Loading...</span>
-          <span className="animate-ping">_</span>
-        </div>
-      </div>
-    )
+    return <Loading />
   }
 
   if (user) {
-  return (
-    <div className="min-h-screen bg-black flex justify-center items-center">
-      <div className="text-lg text-green-500 font-mono">
-        <span className="animate-pulse">Redirecting...</span>
-      </div>
-    </div>
-  )
-}
+    return <Loading text="Redirecting..." />
+  }
 
   return (
     <div className="min-h-screen bg-black text-green-500 relative overflow-hidden font-[family-name:var(--font-geist-sans)]">

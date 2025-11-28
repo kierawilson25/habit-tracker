@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { H1, EditableHabitInput, Button } from "@/components";
+import { H1, EditableHabitInput, Button, Loading } from "@/components";
 
 
 interface Habit {
@@ -238,11 +238,7 @@ export default function AddHabits() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-lg">Loading habits...</div>
-      </div>
-    );
+    return <Loading text="Loading habits..." />
   }
 
   return (

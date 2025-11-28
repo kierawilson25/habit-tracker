@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlineCamera, HiOutlineInformationCircle } from "react-icons/hi";
 import { FaBug } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
-import { H1, TextBox, Container, Button } from "@/components";
+import { H1, TextBox, Container, Button, Loading } from "@/components";
 
 export default function BugReport() {
   const supabase = createClient();
@@ -111,11 +111,7 @@ export default function BugReport() {
   };
 
   if (!mounted) {
-    return (
-      <div className="page-dark min-h-screen flex justify-center items-center">
-        <div className="text-lg text-white">Loading...</div>
-      </div>
-    );
+    return <Loading />
   }
 
   if (submitSuccess) {

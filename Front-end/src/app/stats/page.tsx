@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Button, H1, StreakCalendar, Container, StatCard } from "@/components";
+import { Button, H1, StreakCalendar, Container, StatCard, Loading } from "@/components";
 
 
 export default function StatsPage() {
@@ -144,11 +144,7 @@ export default function StatsPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex justify-center items-center">
-        <div className="text-lg">Loading your stats...</div>
-      </div>
-    );
+    return <Loading text="Loading your stats..." />
   }
 
   return (

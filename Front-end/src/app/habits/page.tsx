@@ -6,12 +6,12 @@ import Link from "next/link";
 import { useEffect } from "react";
 import "../../utils/styles/global.css";
 import { createClient } from "@/utils/supabase/client";
-import { Button, H1, HabitCell, StreakCell, PopupBanner } from "@/components";
-import type { 
-  Habit, 
-  HabitAnalysis, 
-  UpdateStrategy, 
-  HabitUpdate 
+import { Button, H1, HabitCell, StreakCell, PopupBanner, Loading } from "@/components";
+import type {
+  Habit,
+  HabitAnalysis,
+  UpdateStrategy,
+  HabitUpdate
 } from '../../types/habit.types';
 
 
@@ -620,11 +620,7 @@ const fetchHabitsFromDB = async (): Promise<void> => {
   const completionPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   if (loading || !fetchedHabits) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-pulse text-lg text-white">Loading habits...</div>
-      </div>
-    );
+    return <Loading text="Loading habits..." />
   }
 
   return (
