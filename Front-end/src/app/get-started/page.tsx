@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlinePencil } from "react-icons/hi2";
 import { IoIosCloseCircleOutline, IoIosCheckmarkCircle } from "react-icons/io";
 import { useRouter } from "next/navigation";
-import { H1, Container, Button }  from "@/components";
+import { H1, Container, Button, Loading }  from "@/components";
 
 export default function GettingStarted() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -167,11 +167,7 @@ export default function GettingStarted() {
   };
 
   if (!mounted) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex justify-center items-center">
-        <div className="text-lg text-white">Loading...</div>
-      </div>
-    );
+    return <Loading />
   }
 
   return (

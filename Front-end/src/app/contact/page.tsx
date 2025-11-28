@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { HiOutlineMail, HiOutlineGlobeAlt } from "react-icons/hi";
 import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
-import { Button, H1, Container }  from "@/components";
+import { Button, H1, Container, Loading }  from "@/components";
 
 export default function Contact() {
   const [mounted, setMounted] = useState(false);
@@ -23,11 +23,7 @@ export default function Contact() {
   };
 
   if (!mounted) {
-    return (
-      <div className="page-dark min-h-screen flex justify-center items-center">
-        <div className="text-lg text-white">Loading...</div>
-      </div>
-    );
+    return <Loading />
   }
 
   return (

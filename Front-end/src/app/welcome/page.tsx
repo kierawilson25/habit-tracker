@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { H1, Container, Button } from "@/components";
+import { H1, Container, Button, Loading } from "@/components";
 import "../../utils/styles/global.css";
 
 export default function Welcome() {
@@ -21,11 +21,7 @@ export default function Welcome() {
   };
 
   if (!mounted) {
-    return (
-      <div className="page-dark min-h-screen flex justify-center items-center">
-        <div className="text-lg text-white">Loading...</div>
-      </div>
-    );
+    return <Loading />
   }
 
   return (

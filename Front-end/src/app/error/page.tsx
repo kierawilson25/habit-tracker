@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
-import { H1, Button } from "@/components";
+import { H1, Button, Loading } from "@/components";
 
 
 function ErrorPageContent() {
@@ -107,11 +107,7 @@ function ErrorPageContent() {
 
 export default function ErrorPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-lg text-white">Loading...</div>
-      </div>
-    }>
+    <Suspense fallback={<Loading />}>
       <ErrorPageContent />
     </Suspense>
   )
