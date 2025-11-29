@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import "../../utils/styles/global.css";
-import { H1, Button, TextBox, PageLayout, AlertBox } from '@/components';
+import { H1, Button, TextBox, PageLayout, AlertBox, SecondaryLink } from '@/components';
 
 
 
@@ -71,17 +71,11 @@ export default function LoginPage() {
         </form>
 
         {/* Secondary sign up link */}
-        <div className="text-center">
-          <p className="text-gray-400 text-sm">
-            Don't have an account?{" "}
-            <Link 
-              href="/sign-up" 
-              className="text-green-400 hover:text-green-300 underline transition-colors duration-200"
-            >
-              Sign up
-            </Link>
-          </p>
-        </div>
+        <SecondaryLink
+          promptText="Don't have an account?"
+          linkText="Sign up"
+          href="/sign-up"
+        />
     </PageLayout>
   );
 }

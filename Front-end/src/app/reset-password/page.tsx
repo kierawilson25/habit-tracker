@@ -4,7 +4,7 @@ import { resetPassword } from "./actions";
 import "../../utils/styles/global.css";
 import Link from "next/link";
 import { useState, FormEvent, use } from "react";
-import { H1, Button, PageLayout } from "@/components";
+import { H1, Button, PageLayout, SecondaryLink } from "@/components";
 
 
 export default function ResetPasswordPage({
@@ -180,17 +180,11 @@ export default function ResetPasswordPage({
         </form>
         
         {/* Secondary link */}
-        <div className="text-center">
-          <p className="text-gray-400 text-sm">
-            Remember your password?{" "}
-            <Link
-              href="/login"
-              className="text-green-400 hover:text-green-300 underline transition-colors duration-200"
-            >
-              Log in
-            </Link>
-          </p>
-        </div>
+        <SecondaryLink
+          promptText="Remember your password?"
+          linkText="Log in"
+          href="/login"
+        />
     </PageLayout>
   );
 }
