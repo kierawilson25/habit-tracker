@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import "../../utils/styles/global.css";
-import { H1, Button, TextBox, PageLayout } from '@/components';
+import { H1, Button, TextBox, PageLayout, AlertBox } from '@/components';
 
 
 
@@ -34,9 +34,9 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            <AlertBox type="error" className="mb-4">
               {error}
-            </div>
+            </AlertBox>
           )}
           
           <TextBox
