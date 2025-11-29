@@ -1,4 +1,5 @@
 // components/index.ts
+export { default as AlertBox } from './AlertBox';
 export { default as AppHeader } from './AppHeader';
 export { default as Button } from './Button';
 export { default as Checkbox } from './Checkbox';

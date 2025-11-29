@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlineCamera, HiOutlineInformationCircle } from "react-icons/hi";
 import { FaBug } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
-import { H1, TextBox, Container, Button, Loading, PageLayout, PageHeader } from "@/components";
+import { H1, TextBox, Container, Button, Loading, PageLayout, PageHeader, AlertBox } from "@/components";
 
 export default function BugReport() {
   const supabase = createClient();
@@ -172,9 +172,9 @@ export default function BugReport() {
 
           {/* Error Message */}
           {submitError && (
-            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
-              <p className="text-red-800">{submitError}</p>
-            </div>
+            <AlertBox type="error">
+              <p>{submitError}</p>
+            </AlertBox>
           )}
 
           {/* Tips Section */}
