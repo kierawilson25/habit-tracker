@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlineCamera, HiOutlineInformationCircle } from "react-icons/hi";
 import { FaBug } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
-import { H1, TextBox, Container, Button, Loading, PageLayout } from "@/components";
+import { H1, TextBox, Container, Button, Loading, PageLayout, PageHeader } from "@/components";
 
 export default function BugReport() {
   const supabase = createClient();
@@ -163,15 +163,12 @@ export default function BugReport() {
       <div className="flex flex-col gap-6">
           
           {/* Header */}
-          <div className="text-center mb-6">
-            <div className="w-20 h-20 bg-red-500 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <FaBug className="text-white text-3xl" />
-            </div>
-            <H1 text="Report a Bug" />
-            <p className="text-gray-300 text-lg">
-              Help me improve Grains of Sand by reporting any issues you encounter.
-            </p>
-          </div>
+          <PageHeader
+            icon={<FaBug className="text-white text-3xl" />}
+            iconBgColor="red"
+            title="Report a Bug"
+            subtitle="Help me improve Grains of Sand by reporting any issues you encounter."
+          />
 
           {/* Error Message */}
           {submitError && (

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { HiOutlineMail, HiOutlineGlobeAlt } from "react-icons/hi";
 import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
-import { Button, H1, Container, Loading, PageLayout }  from "@/components";
+import { Button, H1, Container, Loading, PageLayout, PageHeader }  from "@/components";
 
 export default function Contact() {
   const [mounted, setMounted] = useState(false);
@@ -30,15 +30,12 @@ export default function Contact() {
     <PageLayout maxWidth="2xl">
       <div className="flex flex-col gap-6">
         {/* Header */}
-          <div className="text-center mb-6">
-            <div className="w-20 h-20 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <HiOutlineMail className="text-white text-3xl" />
-            </div>
-            <H1 text="Hey you" />
-            <p className="text-gray-300 text-lg">
-              Let's get in touch
-            </p>
-          </div>
+        <PageHeader
+          icon={<HiOutlineMail className="text-white text-3xl" />}
+          iconBgColor="green"
+          title="Hey you"
+          subtitle="Let's get in touch"
+        />
 
           {/* Contact Methods */}
           <Container color="green" padding="lg">
