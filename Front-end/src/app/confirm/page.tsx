@@ -63,6 +63,7 @@ export default function ConfirmPage() {
         >
           Go to Home
         </button>
+      </div>
     </PageLayout>
   );
 }
