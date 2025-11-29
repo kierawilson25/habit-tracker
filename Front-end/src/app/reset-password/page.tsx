@@ -4,7 +4,7 @@ import { resetPassword } from "./actions";
 import "../../utils/styles/global.css";
 import Link from "next/link";
 import { useState, FormEvent, use } from "react";
-import { H1, Button } from "@/components";
+import { H1, Button, PageLayout } from "@/components";
 
 
 export default function ResetPasswordPage({
@@ -56,10 +56,8 @@ export default function ResetPasswordPage({
   };
 
   return (
-    <div className="page-dark">
-      <div style={{ maxWidth: "400px", margin: "auto", padding: "2rem" }}>
-
-        <H1 text="Reset Password" />
+    <PageLayout maxWidth="sm">
+      <H1 text="Reset Password" />
 
 
         {errorMessage && (
@@ -193,7 +191,6 @@ export default function ResetPasswordPage({
             </Link>
           </p>
         </div>
-      </div>
-    </div>
+    </PageLayout>
   );
 }

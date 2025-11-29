@@ -1,16 +1,12 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
-import { Button, H1, Container } from "@/components";
+import { Button, H1, Container, PageLayout } from "@/components";
 
 const AboutPage = () => {
   return (
-    <div className="bg-black min-h-screen text-white">
-      {/* Hero Section - Visible without scrolling */} v
+    <PageLayout maxWidth="xl" className="bg-black text-white">
       <H1 text="About"></H1>
-
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-6 pb-20">
-        <div>
+      <div>
           
           {/* Opening */}
           <div className="mb-16 text-lg text-gray-300 leading-relaxed space-y-6">
@@ -70,9 +66,8 @@ const AboutPage = () => {
           <div className="text-center text-gray-500 italic mt-12">
             <p>One grain at a time. That's all it takes.</p>
           </div>
-        </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 
