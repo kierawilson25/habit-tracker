@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { H1, EditableHabitInput, Button, Loading } from "@/components";
+import { H1, EditableHabitInput, Button, Loading, PageLayout } from "@/components";
 
 
 interface Habit {
@@ -242,10 +242,10 @@ export default function AddHabits() {
   }
 
   return (
-    <div className="flex justify-center px-4">
+    <PageLayout maxWidth="2xl" className="flex justify-center">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-2xl flex flex-col gap-4 p-8"
+        className="w-full flex flex-col gap-4"
       >
         <H1 text="Edit Habits" />
         <p className="text-gray-400 text-center mb-4">
@@ -295,6 +295,6 @@ export default function AddHabits() {
           </Button>
         </div>
       </form>
-    </div>
+    </PageLayout>
   );
 }

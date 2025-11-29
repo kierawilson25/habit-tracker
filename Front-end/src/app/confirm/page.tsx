@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { H1 }  from "@/components";
+import { H1, PageLayout }  from "@/components";
 
 export default function ConfirmPage() {
   const router = useRouter();
@@ -31,8 +31,8 @@ export default function ConfirmPage() {
   }, [countdown, router]);
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="max-w-md w-full px-6 text-center">
+    <PageLayout maxWidth="md" className="flex items-center justify-center">
+      <div className="w-full text-center">
         <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
           <span className="text-white text-2xl font-bold">H</span>
         </div>
@@ -64,6 +64,6 @@ export default function ConfirmPage() {
           Go to Home
         </button>
       </div>
-    </div>
+    </PageLayout>
   );
 }

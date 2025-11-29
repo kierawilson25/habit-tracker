@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { HiOutlineMail, HiOutlineGlobeAlt } from "react-icons/hi";
 import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
-import { Button, H1, Container, Loading }  from "@/components";
+import { Button, H1, Container, Loading, PageLayout }  from "@/components";
 
 export default function Contact() {
   const [mounted, setMounted] = useState(false);
@@ -27,9 +27,8 @@ export default function Contact() {
   }
 
   return (
-    <div className="page-dark min-h-screen">
-      <div className="flex justify-center px-4">
-        <div className="w-full max-w-2xl flex flex-col gap-6 p-8">
+    <PageLayout maxWidth="2xl">
+      <div className="flex flex-col gap-6">
           
           {/* Header */}
           <div className="text-center mb-6">
@@ -153,9 +152,7 @@ export default function Contact() {
                 {"Back to app"}
               </Button>
           </div>
-
-        </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }

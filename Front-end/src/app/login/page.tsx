@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import "../../utils/styles/global.css";
-import { H1, Button, TextBox } from '@/components';
+import { H1, Button, TextBox, PageLayout } from '@/components';
 
 
 
@@ -28,10 +28,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="page-dark min-h-screen">
-      <div style={{ maxWidth: "400px", margin: "auto", padding: "2rem" }}>
-
-        <H1 text="Login" />
+    <PageLayout maxWidth="sm">
+      <H1 text="Login" />
 
 
         <form onSubmit={handleSubmit}>
@@ -84,7 +82,6 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-      </div>
-    </div>
+    </PageLayout>
   );
 }

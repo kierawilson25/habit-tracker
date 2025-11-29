@@ -8,6 +8,7 @@ export { default as Footer } from './Footer';
 export { default as H1 } from './H1';
 export { default as HabitCell } from './HabitCell';
 export { default as Loading } from './Loading';
+export { default as PageLayout } from './PageLayout';
 export { default as PopupBanner } from './PopupBanner';
 export { default as StatCard } from './StatCard';
 export { default as StreakCalendar } from './StreakCalendar';

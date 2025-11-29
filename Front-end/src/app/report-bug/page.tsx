@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlineCamera, HiOutlineInformationCircle } from "react-icons/hi";
 import { FaBug } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
-import { H1, TextBox, Container, Button, Loading } from "@/components";
+import { H1, TextBox, Container, Button, Loading, PageLayout } from "@/components";
 
 export default function BugReport() {
   const supabase = createClient();
@@ -161,9 +161,8 @@ export default function BugReport() {
   }
 
   return (
-    <div className="page-dark min-h-screen">
-      <div className="flex justify-center px-4">
-        <div className="w-full max-w-2xl flex flex-col gap-6 p-8">
+    <PageLayout maxWidth="2xl">
+      <div className="flex flex-col gap-6">
           
           {/* Header */}
           <div className="text-center mb-6">
@@ -348,9 +347,7 @@ export default function BugReport() {
               ← Back to App
             </Button>
           </div>
-
-        </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }

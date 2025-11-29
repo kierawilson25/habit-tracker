@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
-import { H1, Button, Loading } from "@/components";
+import { H1, Button, Loading, PageLayout } from "@/components";
 
 
 function ErrorPageContent() {
@@ -44,8 +44,8 @@ function ErrorPageContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <PageLayout maxWidth="md" className="flex items-center justify-center" padding="lg">
+      <div className="w-full space-y-8">
         <div className="text-center">
           {/* Error Icon */}
           <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-900 bg-opacity-20 border-2 border-red-500 mb-6">
@@ -101,7 +101,7 @@ function ErrorPageContent() {
           </p>
         </div>
       </div>
-    </div>
+    </PageLayout>
   )
 }
 

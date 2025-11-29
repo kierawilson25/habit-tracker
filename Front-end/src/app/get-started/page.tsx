@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { HiOutlinePencil } from "react-icons/hi2";
 import { IoIosCloseCircleOutline, IoIosCheckmarkCircle } from "react-icons/io";
 import { useRouter } from "next/navigation";
-import { H1, Container, Button, Loading }  from "@/components";
+import { H1, Container, Button, Loading, PageLayout }  from "@/components";
 
 export default function GettingStarted() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -171,9 +171,8 @@ export default function GettingStarted() {
   }
 
   return (
-    <div className="min-h-screen bg-black-">
-      <div className="flex justify-center px-3 sm:px-4 py-4 sm:py-8">
-        <div className="w-full max-w-2xl flex flex-col gap-4 sm:gap-6">
+    <PageLayout maxWidth="2xl" className="bg-black-" padding="md">
+      <div className="flex flex-col gap-4 sm:gap-6">
         
         {/* Progress indicator */}
         <div className="mb-2 sm:mb-6">
@@ -261,7 +260,6 @@ export default function GettingStarted() {
           </button>
         </div>
       </div>
-    </div>
-    </div>
+    </PageLayout>
   )
 }

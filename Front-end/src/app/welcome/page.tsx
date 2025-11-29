@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { H1, Container, Button, Loading } from "@/components";
+import { H1, Container, Button, Loading, PageLayout } from "@/components";
 import "../../utils/styles/global.css";
 
 export default function Welcome() {
@@ -25,9 +25,8 @@ export default function Welcome() {
   }
 
   return (
-    <div className="page-dark min-h-screen">
-      <div className="flex justify-center px-4">
-        <div className="w-full max-w-2xl flex flex-col gap-6 p-8">
+    <PageLayout maxWidth="2xl">
+      <div className="flex flex-col gap-6">
 
           {/* Welcome Content */}
           <Container color="green" padding="lg" className="text-center hover:scale-105 transition-transform duration-200">
@@ -76,8 +75,7 @@ export default function Welcome() {
               Your journey to consistent, positive change starts here
             </p>
           </div>
-        </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }
