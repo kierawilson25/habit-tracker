@@ -4,7 +4,7 @@ import { signup } from "./actions";
 import "../../utils/styles/global.css";
 import Link from "next/link";
 import { useState, FormEvent } from "react";
-import { H1, TextBox, Button, PageLayout } from "@/components";
+import { H1, TextBox, Button, PageLayout, SecondaryLink } from "@/components";
 
 export default function SignUpPage() {
   // State for form fields
@@ -97,17 +97,11 @@ export default function SignUpPage() {
         </form>
         
         {/* Secondary sign up link */}
-        <div className="text-center">
-          <p className="text-gray-400 text-sm">
-            Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-green-400 hover:text-green-300 underline transition-colors duration-200"
-            >
-              Log in
-            </Link>
-          </p>
-        </div>
+        <SecondaryLink
+          promptText="Already have an account?"
+          linkText="Log in"
+          href="/login"
+        />
     </PageLayout>
   );
 }

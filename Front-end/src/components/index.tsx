@@ -12,6 +12,7 @@ export { default as Loading } from './Loading';
 export { default as PageHeader } from './PageHeader';
 export { default as PageLayout } from './PageLayout';
 export { default as PopupBanner } from './PopupBanner';
+export { default as SecondaryLink } from './SecondaryLink';
 export { default as StatCard } from './StatCard';
 export { default as StreakCalendar } from './StreakCalendar';
 export { default as StreakCell } from './StreakCell';
