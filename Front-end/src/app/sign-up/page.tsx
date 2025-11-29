@@ -4,7 +4,7 @@ import { signup } from "./actions";
 import "../../utils/styles/global.css";
 import Link from "next/link";
 import { useState, FormEvent } from "react";
-import { H1, TextBox, Button } from "@/components";
+import { H1, TextBox, Button, PageLayout } from "@/components";
 
 export default function SignUpPage() {
   // State for form fields
@@ -31,9 +31,8 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="page-dark">
-      <div style={{ maxWidth: "400px", margin: "auto", padding: "2rem" }}>
-        <H1 text="Sign Up"/>
+    <PageLayout maxWidth="sm">
+      <H1 text="Sign Up"/>
 
         <form onSubmit={handleSubmit}>
           {/* Display Name */}
@@ -109,7 +108,6 @@ export default function SignUpPage() {
             </Link>
           </p>
         </div>
-      </div>
-    </div>
+    </PageLayout>
   );
 }
