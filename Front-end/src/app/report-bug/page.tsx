@@ -4,108 +4,80 @@ import { HiOutlineCamera, HiOutlineInformationCircle } from "react-icons/hi";
 import { FaBug } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
 import { H1, TextBox, Container, Button, Loading, PageLayout, PageHeader, AlertBox } from "@/components";
-import { useMounted } from "@/hooks";
+import { useMounted, useForm } from "@/hooks";
+
+interface BugReportForm {
+  title: string;
+  description: string;
+  stepsToReproduce: string;
+  expectedBehavior: string;
+  actualBehavior: string;
+  severity: string;
+}
 
 export default function BugReport() {
   const supabase = createClient();
   const mounted = useMounted();
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    stepsToReproduce: "",
-    expectedBehavior: "",
-    actualBehavior: "",
-    severity: "Medium"
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const { values, handleChange, handleSubmit, isSubmitting, reset } = useForm<BugReportForm>({
+    initialValues: {
+      title: "",
+      description: "",
+      stepsToReproduce: "",
+      expectedBehavior: "",
+      actualBehavior: "",
+      severity: "Medium"
+    },
+    onSubmit: async (formData) => {
+      setSubmitError("");
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      setFormData(prev => ({
-        ...prev,
-        screenshot: file
-      }));
-    }
-  };
+      try {
+        // Get device info for context
+        const deviceInfo = {
+          userAgent: navigator.userAgent,
+          platform: navigator.platform,
+          language: navigator.language,
+          screenResolution: `${screen.width}x${screen.height}`,
+          viewportSize: `${window.innerWidth}x${window.innerHeight}`,
+          timestamp: new Date().toISOString()
+        };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitError("");
-
-    try {
-      // Get device info for context
-      const deviceInfo = {
-        userAgent: navigator.userAgent,
-        platform: navigator.platform,
-        language: navigator.language,
-        screenResolution: `${screen.width}x${screen.height}`,
-        viewportSize: `${window.innerWidth}x${window.innerHeight}`,
-        timestamp: new Date().toISOString()
-      };
-
-      // Create FormData for file upload
-      const submitData = new FormData();
-      submitData.append('title', formData.title);
-      submitData.append('description', formData.description);
-      submitData.append('stepsToReproduce', formData.stepsToReproduce);
-      submitData.append('expectedBehavior', formData.expectedBehavior);
-      submitData.append('actualBehavior', formData.actualBehavior);
-      submitData.append('severity', formData.severity);
-      submitData.append('deviceInfo', JSON.stringify(deviceInfo));
-      
-
-
-      // TODO: Replace with your actual API endpoint
-      const { data, error } = await supabase
-        .from('bug_reports')
-        .insert([
-          {
-            title: formData.title,
-            description: formData.description,
-            steps_to_reproduce: formData.stepsToReproduce,
-            expected_behavior: formData.expectedBehavior,
-            actual_behavior: formData.actualBehavior,
-            severity: formData.severity
-          }
-        ])
-        .select()
+        // Submit to Supabase
+        const { data, error } = await supabase
+          .from('bug_reports')
+          .insert([
+            {
+              title: formData.title,
+              description: formData.description,
+              steps_to_reproduce: formData.stepsToReproduce,
+              expected_behavior: formData.expectedBehavior,
+              actual_behavior: formData.actualBehavior,
+              severity: formData.severity
+            }
+          ])
+          .select()
 
         if (error) throw error
 
-      console.log('Bug report submitted:', data)
-      alert('Bug report submitted successfully!')
+        console.log('Bug report submitted:', data)
+        alert('Bug report submitted successfully!')
 
         setSubmitSuccess(true);
-        // Reset form
-        setFormData({
-          title: "",
-          description: "",
-          stepsToReproduce: "",
-          expectedBehavior: "",
-          actualBehavior: "",
-          severity: "Medium",
-        });
-        // Reset file input
-
-    } catch (error) {
-      setSubmitError('Failed to submit bug report. Please try again.');
-      console.error('Error submitting bug report:', error);
-    } finally {
-      setIsSubmitting(false);
+        reset();
+      } catch (error) {
+        setSubmitError('Failed to submit bug report. Please try again.');
+        console.error('Error submitting bug report:', error);
+      }
+    },
+    validate: (values) => {
+      const errors: Partial<Record<keyof BugReportForm, string>> = {};
+      if (!values.title) errors.title = 'Title is required';
+      if (!values.description) errors.description = 'Description is required';
+      return errors;
     }
-  };
+  });
 
   if (!mounted) {
     return <Loading />
@@ -127,14 +99,7 @@ export default function BugReport() {
                 <Button
                   onClick={() => {
                     setSubmitSuccess(false);
-                    setFormData({
-                      title: "",
-                      description: "",
-                      stepsToReproduce: "",
-                      expectedBehavior: "",
-                      actualBehavior: "",
-                      severity: "Medium",
-                    });
+                    reset();
                   }}
                   type="primary"
                   className="mr-4"
@@ -202,8 +167,8 @@ export default function BugReport() {
                     type="text"
                     id="title"
                     name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
+                    value={values.title}
+                    onChange={handleChange}
                     required
                     placeholder="Brief description of the issue"
                     className="w-full rounded-lg bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
@@ -218,8 +183,8 @@ export default function BugReport() {
                   <textarea
                     id="description"
                     name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
+                    value={values.description}
+                    onChange={handleChange}
                     required
                     rows={4}
                     placeholder="Provide a detailed description of the bug..."
@@ -235,8 +200,8 @@ export default function BugReport() {
                   <textarea
                     id="stepsToReproduce"
                     name="stepsToReproduce"
-                    value={formData.stepsToReproduce}
-                    onChange={handleInputChange}
+                    value={values.stepsToReproduce}
+                    onChange={handleChange}
                     rows={3}
                     placeholder="1. Go to...&#10;2. Click on...&#10;3. See error..."
                     className="w-full p-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none resize-vertical"
@@ -252,8 +217,8 @@ export default function BugReport() {
                     <textarea
                       id="expectedBehavior"
                       name="expectedBehavior"
-                      value={formData.expectedBehavior}
-                      onChange={handleInputChange}
+                      value={values.expectedBehavior}
+                      onChange={handleChange}
                       rows={3}
                       placeholder="What should have happened?"
                       className="w-full p-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none resize-vertical"
@@ -266,8 +231,8 @@ export default function BugReport() {
                     <textarea
                       id="actualBehavior"
                       name="actualBehavior"
-                      value={formData.actualBehavior}
-                      onChange={handleInputChange}
+                      value={values.actualBehavior}
+                      onChange={handleChange}
                       rows={3}
                       placeholder="What actually happened?"
                       className="w-full p-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none resize-vertical"
@@ -283,8 +248,8 @@ export default function BugReport() {
                   <select
                     id="severity"
                     name="severity"
-                    value={formData.severity}
-                    onChange={handleInputChange}
+                    value={values.severity}
+                    onChange={handleChange}
                     className="w-full p-3 rounded-lg bg-gray-800 border border-gray-600 text-white focus:border-red-500 focus:outline-none"
                   >
                     <option value="Low">Low - Minor issue, doesn't affect main functionality</option>
@@ -301,7 +266,7 @@ export default function BugReport() {
                   <Button
                     htmlType="submit"
                     type="danger"
-                    disabled={isSubmitting || !formData.title || !formData.description}
+                    disabled={isSubmitting || !values.title || !values.description}
                     className="px-8 py-3 text-lg font-semibold"
                   >
                     {isSubmitting ? "Submitting..." : "Submit Bug Report"}
