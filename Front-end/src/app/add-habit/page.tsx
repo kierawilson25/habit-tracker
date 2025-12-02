@@ -2,124 +2,50 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { H1, EditableHabitInput, Button, Loading } from "@/components";
-import { useSupabaseAuth } from "@/hooks";
-
-
-interface Habit {
-  id: string;
-  title: string;
-  completed: boolean;
-  created_at: string;
-  last_completed?: string | null; // Can be undefined, null, or string
-}
+import { useSupabaseAuth, useHabits } from "@/hooks";
 
 export default function AddHabits() {
   const router = useRouter();
-  const { user, loading: authLoading, supabase } = useSupabaseAuth({
+  const { user, loading: authLoading } = useSupabaseAuth({
     requireAuth: true,
     redirectTo: "/"
   });
-  const [habits, setHabits] = useState<string[]>([]);
+
+  const {
+    habits: dbHabits,
+    loading: habitsLoading,
+    addHabit,
+    updateHabit,
+    deleteHabit
+  } = useHabits({
+    userId: user?.id,
+    autoFetch: true
+  });
+
+  const [editedHabits, setEditedHabits] = useState<string[]>([]);
   const [habitIds, setHabitIds] = useState<string[]>([]); // Track database IDs
   const [habitDisabled, setHabitDisabled] = useState<boolean[]>([]);
-  const [checkedStates, setCheckedStates] = useState<boolean[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // Function to check if habits need to be reset (daily reset at midnight)
-  const needsReset = (lastCompleted: string | null | undefined) => {
-    if (!lastCompleted) return false;
-    
-    const lastCompletedDate = new Date(lastCompleted);
-    const today = new Date();
-    
-    // Reset if last completed date is not today
-        console.log("Checking reset for:", lastCompleted, "Needs reset:", !lastCompleted || lastCompletedDate.toDateString() !== today.toDateString());
-
-    return lastCompletedDate.toDateString() !== today.toDateString();
-  };
-
-  // Function to fetch habits from database
-  const fetchHabitsFromDB = async () => {
-    // user is provided by useSupabaseAuth hook
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    const { data: habitData, error: fetchError } = await supabase
-      .from("habits")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: true });
-
-    if (fetchError) {
-      console.error("Failed to fetch habits:", fetchError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (habitData && habitData.length > 0) {
-      // Check if any habits need to be reset
-      const habitsToUpdate: string[] = [];
-      const updatedHabits = habitData.map((habit: Habit) => {
-        console.log("Habit:", habit);
-        if (habit.completed && needsReset(habit.last_completed)) {
-          habitsToUpdate.push(habit.id);
-          return { ...habit, completed: false };
-        }
-        return habit;
-      });
-
-      // Update database if any habits need reset
-      if (habitsToUpdate.length > 0) {
-        const { error: updateError } = await supabase
-          .from("habits")
-          .update({ completed: false })
-          .in("id", habitsToUpdate);
-
-        if (updateError) {
-          console.error("Failed to reset habits:", updateError.message);
-        }
-      }
-
-      // Set state with fetched/updated data
-      setHabits(updatedHabits.map((habit: Habit) => habit.title));
-      setHabitIds(updatedHabits.map((habit: Habit) => habit.id));
-      setCheckedStates(updatedHabits.map((habit: Habit) => habit.completed));
-      setHabitDisabled(updatedHabits.map(() => true)); // All inputs start as disabled
-    } else {
-      // No habits found, start with empty arrays
-      setHabits([]);
-      setHabitIds([]);
-      setCheckedStates([]);
-      setHabitDisabled([]);
-    }
-
-    setLoading(false);
-  };
-
+  // Sync dbHabits from hook to local state
   useEffect(() => {
-    // Load data when user is available
-    if (user) {
-      fetchHabitsFromDB();
+    if (dbHabits && dbHabits.length > 0) {
+      setEditedHabits(dbHabits.map((habit) => habit.title));
+      setHabitIds(dbHabits.map((habit) => habit.id));
+      setHabitDisabled(dbHabits.map(() => true)); // All inputs start as disabled
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  // Remove the localStorage effects since we're using database now
-  // You can keep them as backup/fallback if needed
+  }, [dbHabits]);
 
   const handleChange = (idx: number, value: string) => {
-    setHabits((prev) => prev.map((h, i) => (i === idx ? value : h)));
+    setEditedHabits((prev) => prev.map((h, i) => (i === idx ? value : h)));
   };
 
-  /* handelEdit: Function to handle the edit/save functionality
+  /* handleEdit: Function to handle the edit/save functionality
     If the input is disabled, clicking the edit icon will enable it
     If the input is enabled, clicking the save icon will disable it */
   const handleEdit = async (idx: number, enabled: boolean) => {
     // clicking the save icon, setting it to disabled
     if (enabled) {
-      if (habits[idx].trim() === "") {
+      if (editedHabits[idx].trim() === "") {
         alert("Habit cannot be empty. Delete it or add a value.");
       } else {
         setHabitDisabled((prev) => prev.map((d, i) => (i === idx ? true : d)));
@@ -127,17 +53,10 @@ export default function AddHabits() {
           | HTMLInputElement
           | undefined;
         input?.blur();
-        
-        // Update the habit in the database if it has an ID
-        if (habitIds[idx]) {
-          const { error } = await supabase
-            .from("habits")
-            .update({ title: habits[idx] })
-            .eq("id", habitIds[idx]);
 
-          if (error) {
-            console.error("Failed to update habit:", error.message);
-          }
+        // Update the habit in the database if it has an ID using hook
+        if (habitIds[idx]) {
+          await updateHabit(habitIds[idx], { title: editedHabits[idx] });
         }
       }
     }
@@ -153,47 +72,19 @@ export default function AddHabits() {
   };
 
   const handleDelete = async (idx: number) => {
-    // Delete from database if it has an ID
+    // Delete from database if it has an ID using hook
     if (habitIds[idx]) {
-      const { error } = await supabase
-        .from("habits")
-        .delete()
-        .eq("id", habitIds[idx]);
-
-      if (error) {
-        console.error("Failed to delete habit:", error.message);
+      const success = await deleteHabit(habitIds[idx]);
+      if (!success) {
+        console.error("Failed to delete habit");
         return;
       }
     }
 
     // Remove from local state
-    setHabits((prev) => prev.filter((_, i) => i !== idx));
+    setEditedHabits((prev) => prev.filter((_, i) => i !== idx));
     setHabitIds((prev) => prev.filter((_, i) => i !== idx));
-    setCheckedStates((prev) => prev.filter((_, i) => i !== idx));
     setHabitDisabled((prev) => prev.filter((_, i) => i !== idx));
-  };
-
-  // Function to handle checking/unchecking habits
-  const handleCheck = async (idx: number) => {
-    const newCheckedState = !checkedStates[idx];
-    setCheckedStates((prev) => prev.map((c, i) => (i === idx ? newCheckedState : c)));
-
-    // Update in database
-    if (habitIds[idx]) {
-      const updateData = {
-        completed: newCheckedState,
-        last_completed: newCheckedState ? new Date().toISOString() : null
-      };
-
-      const { error } = await supabase
-        .from("habits")
-        .update(updateData)
-        .eq("id", habitIds[idx]);
-
-      if (error) {
-        console.error("Failed to update habit completion:", error.message);
-      }
-    }
   };
 
   // handleSubmit: Function to handle the form submission (for new habits)
@@ -206,33 +97,19 @@ export default function AddHabits() {
       return;
     }
 
-    // Only insert new habits (ones without IDs)
-    const newHabits = habits
+    // Only insert new habits (ones without IDs) using hook
+    const newHabitsToAdd = editedHabits
       .map((habit, idx) => ({ habit, idx }))
-      .filter(({ habit, idx }) => !habitIds[idx] && habit.trim() !== "")
-      .map(({ habit, idx }) => ({
-        user_id: user.id,
-        title: habit,
-        completed: checkedStates[idx] ?? false,
-        last_completed: checkedStates[idx] ? new Date().toISOString() : null
-      }));
+      .filter(({ habit, idx }) => !habitIds[idx] && habit.trim() !== "");
 
-    if (newHabits.length > 0) {
-      const { data, error: insertError } = await supabase
-        .from("habits")
-        .insert(newHabits);
-
-      if (insertError) {
-        console.error("Insert failed:", insertError.message);
-      } else {
-        console.log("New habits inserted:", data);
-      }
+    for (const { habit } of newHabitsToAdd) {
+      await addHabit(habit);
     }
 
     router.push("/habits");
   };
 
-  if (authLoading || loading) {
+  if (authLoading || habitsLoading) {
     return <Loading text="Loading habits..." />
   }
 
@@ -247,7 +124,7 @@ export default function AddHabits() {
           Add up to 5 Habits
         </p>
 
-        {habits.map((habit, idx) => (
+        {editedHabits.map((habit, idx) => (
           <EditableHabitInput
             key={idx}
             name={`habit_${idx}`}
@@ -264,18 +141,17 @@ export default function AddHabits() {
         ))}
 
         <div className="flex justify-end mt-6">
-          {/* show add button only if habits length is less than 5 */}
-          {habits.length < 5 && (
+          {/* show add button only if editedHabits length is less than 5 */}
+          {editedHabits.length < 5 && (
             <Button
               onClick={() => {
-                if (habits.length < 5) {
-                  setHabits([...habits, ""]);
+                if (editedHabits.length < 5) {
+                  setEditedHabits([...editedHabits, ""]);
                   setHabitIds([...habitIds, ""]); // Empty ID for new habit
                   setHabitDisabled([...habitDisabled, false]);
-                  setCheckedStates((prev) => [...prev, false]);
                 }
               }}
-              disabled={habits.length == 5}
+              disabled={editedHabits.length == 5}
               type="primary"
               roundedFull
               className="font-bold"

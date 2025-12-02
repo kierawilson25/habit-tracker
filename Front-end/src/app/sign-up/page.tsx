@@ -5,30 +5,49 @@ import "../../utils/styles/global.css";
 import Link from "next/link";
 import { useState, FormEvent } from "react";
 import { H1, TextBox, Button, PageLayout, SecondaryLink } from "@/components";
+import { useForm } from "@/hooks";
+
+interface SignUpForm {
+  display_name: string;
+  email: string;
+  password: string;
+  confirm_password: string;
+}
 
 export default function SignUpPage() {
-  // State for form fields
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const { values, errors, handleChange, handleSubmit, isSubmitting } = useForm<SignUpForm>({
+    initialValues: {
+      display_name: '',
+      email: '',
+      password: '',
+      confirm_password: ''
+    },
+    onSubmit: async (formValues) => {
+      // Create FormData for server action
+      const formData = new FormData();
+      formData.append('display_name', formValues.display_name);
+      formData.append('email', formValues.email);
+      formData.append('password', formValues.password);
+      formData.append('confirm_password', formValues.confirm_password);
 
-  // Derived state - automatically recalculates when password or confirmPassword changes
-  const passwordsMatch = password === confirmPassword && confirmPassword !== '';
-  const showError = confirmPassword !== '' && !passwordsMatch;
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    // Don't submit if passwords don't match
-    if (!passwordsMatch) {
-      return;
+      await signup(formData);
+    },
+    validate: (values) => {
+      const errors: Partial<Record<keyof SignUpForm, string>> = {};
+      if (!values.display_name) errors.display_name = 'Display name is required';
+      if (!values.email) errors.email = 'Email is required';
+      if (!values.password) errors.password = 'Password is required';
+      if (!values.confirm_password) errors.confirm_password = 'Please confirm your password';
+      if (values.password && values.confirm_password && values.password !== values.confirm_password) {
+        errors.confirm_password = 'Passwords do not match';
+      }
+      return errors;
     }
+  });
 
-    // Create FormData and call server action
-    const formData = new FormData(e.currentTarget);
-    await signup(formData);
-  };
+  // Derived state for UI feedback
+  const passwordsMatch = values.password === values.confirm_password && values.confirm_password !== '';
+  const showError = values.confirm_password !== '' && !passwordsMatch;
 
   return (
     <PageLayout maxWidth="sm">
@@ -41,9 +60,11 @@ export default function SignUpPage() {
             type="text"
             name="display_name"
             id="display_name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
+            value={values.display_name}
+            onChange={handleChange}
             required
+            error={!!errors.display_name}
+            errorMessage={errors.display_name}
           />
 
           {/* Email */}
@@ -52,9 +73,11 @@ export default function SignUpPage() {
             type="email"
             name="email"
             id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={values.email}
+            onChange={handleChange}
             required
+            error={!!errors.email}
+            errorMessage={errors.email}
           />
 
           {/* Password */}
@@ -63,10 +86,12 @@ export default function SignUpPage() {
             type="password"
             name="password"
             id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={values.password}
+            onChange={handleChange}
             required
             showPasswordToggle
+            error={!!errors.password}
+            errorMessage={errors.password}
           />
 
           {/* Confirm Password */}
@@ -75,12 +100,12 @@ export default function SignUpPage() {
             type="password"
             name="confirm_password"
             id="confirm_password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            value={values.confirm_password}
+            onChange={handleChange}
             required
             showPasswordToggle
-            error={showError}
-            errorMessage="Passwords do not match"
+            error={showError || !!errors.confirm_password}
+            errorMessage={errors.confirm_password || "Passwords do not match"}
           />
 
           {/* Submit */}
@@ -88,10 +113,10 @@ export default function SignUpPage() {
             <Button
               htmlType="submit"
               type="primary"
-              disabled={!passwordsMatch}
+              disabled={!passwordsMatch || isSubmitting}
               fullWidth
             >
-              Create Account
+              {isSubmitting ? "Creating Account..." : "Create Account"}
             </Button>
           </div>
         </form>

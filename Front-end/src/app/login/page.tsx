@@ -5,27 +5,42 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import "../../utils/styles/global.css";
 import { H1, Button, TextBox, PageLayout, AlertBox, SecondaryLink } from '@/components';
+import { useForm } from '@/hooks';
 
 
+
+interface LoginForm {
+  email: string;
+  password: string;
+}
 
 export default function LoginPage() {
-  const { signIn, loading } = useAuth();
+  const { signIn, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    
-    try {
-      await signIn(email, password);
-      router.push("/home"); // Navigate back to home page
-    } catch (error: any) {
-      setError(error.message || "Login failed");
+  const { values, handleChange, handleSubmit, isSubmitting } = useForm<LoginForm>({
+    initialValues: {
+      email: "",
+      password: ""
+    },
+    onSubmit: async (formValues) => {
+      setError("");
+
+      try {
+        await signIn(formValues.email, formValues.password);
+        router.push("/home");
+      } catch (error: any) {
+        setError(error.message || "Login failed");
+      }
+    },
+    validate: (values) => {
+      const errors: Partial<Record<keyof LoginForm, string>> = {};
+      if (!values.email) errors.email = 'Email is required';
+      if (!values.password) errors.password = 'Password is required';
+      return errors;
     }
-  };
+  });
 
   return (
     <PageLayout maxWidth="sm">
@@ -44,28 +59,28 @@ export default function LoginPage() {
             type="email"
             name="email"
             id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={values.email}
+            onChange={handleChange}
             required
           />
-                    
-          
+
+
           {/* password */}
           <TextBox
             label="Password"
             type="password"
             name="password"
             id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={values.password}
+            onChange={handleChange}
             required
             showPasswordToggle
           />
-          
+
           {/* Large prominent login button */}
 
-          <Button htmlType="submit" type="primary" className="w-full mb-4">
-            {loading ? "Logging in..." : "Log in"}
+          <Button htmlType="submit" type="primary" className="w-full mb-4" disabled={isSubmitting || authLoading}>
+            {isSubmitting || authLoading ? "Logging in..." : "Log in"}
           </Button>
 
         </form>
