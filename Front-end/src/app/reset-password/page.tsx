@@ -5,7 +5,12 @@ import "../../utils/styles/global.css";
 import Link from "next/link";
 import { useState, FormEvent, use } from "react";
 import { H1, Button, PageLayout, SecondaryLink } from "@/components";
+import { useForm } from "@/hooks";
 
+interface ResetPasswordForm {
+  password: string;
+  confirm_password: string;
+}
 
 export default function ResetPasswordPage({
   searchParams,
@@ -14,18 +19,39 @@ export default function ResetPasswordPage({
 }) {
   // Unwrap searchParams
   const params = use(searchParams);
-  
-  // State for password fields
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
+
   // State for show/hide password toggles
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Derived state - automatically recalculates when password or confirmPassword changes
-  const passwordsMatch = password === confirmPassword && confirmPassword !== '';
-  const showError = confirmPassword !== '' && !passwordsMatch;
+  const { values, errors, handleChange, handleSubmit, isSubmitting } = useForm<ResetPasswordForm>({
+    initialValues: {
+      password: '',
+      confirm_password: ''
+    },
+    onSubmit: async (formValues) => {
+      // Create FormData for server action
+      const formData = new FormData();
+      formData.append('password', formValues.password);
+      formData.append('confirm_password', formValues.confirm_password);
+
+      await resetPassword(formData);
+    },
+    validate: (values) => {
+      const errors: Partial<Record<keyof ResetPasswordForm, string>> = {};
+      if (!values.password) errors.password = 'Password is required';
+      if (values.password && values.password.length < 6) errors.password = 'Password must be at least 6 characters long';
+      if (!values.confirm_password) errors.confirm_password = 'Please confirm your password';
+      if (values.password && values.confirm_password && values.password !== values.confirm_password) {
+        errors.confirm_password = 'Passwords do not match';
+      }
+      return errors;
+    }
+  });
+
+  // Derived state for UI feedback
+  const passwordsMatch = values.password === values.confirm_password && values.confirm_password !== '';
+  const showError = values.confirm_password !== '' && !passwordsMatch;
 
   const getErrorMessage = (error?: string) => {
     switch (error) {
@@ -41,19 +67,6 @@ export default function ResetPasswordPage({
   };
 
   const errorMessage = getErrorMessage(params.error);
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    // Don't submit if passwords don't match
-    if (!passwordsMatch) {
-      return;
-    }
-
-    // Create FormData and call server action
-    const formData = new FormData(e.currentTarget);
-    await resetPassword(formData);
-  };
 
   return (
     <PageLayout maxWidth="sm">
@@ -83,8 +96,8 @@ export default function ResetPasswordPage({
                 id="password"
                 type={showPassword ? "text" : "password"}
                 name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={values.password}
+                onChange={handleChange}
                 required
                 minLength={6}
                 style={{
@@ -126,8 +139,8 @@ export default function ResetPasswordPage({
                 id="confirm_password"
                 type={showConfirmPassword ? "text" : "password"}
                 name="confirm_password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={values.confirm_password}
+                onChange={handleChange}
                 required
                 minLength={6}
                 style={{
@@ -135,7 +148,7 @@ export default function ResetPasswordPage({
                   padding: "0.5rem",
                   paddingRight: "4rem",
                   borderRadius: "4px",
-                  border: showError ? "1px solid #dc2626" : "1px solid #ccc",
+                  border: showError || errors.confirm_password ? "1px solid #dc2626" : "1px solid #ccc",
                   marginTop: "0.25rem",
                 }}
                 className="text-black"
@@ -159,9 +172,9 @@ export default function ResetPasswordPage({
                 {showConfirmPassword ? "Hide" : "Show"}
               </button>
             </div>
-            {showError && (
+            {(showError || errors.confirm_password) && (
               <p style={{ color: "#dc2626", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-                Passwords do not match
+                {errors.confirm_password || "Passwords do not match"}
               </p>
             )}
           </div>
@@ -171,10 +184,10 @@ export default function ResetPasswordPage({
             <Button
               htmlType="submit"
               type="primary"
-              disabled={!passwordsMatch}
+              disabled={!passwordsMatch || isSubmitting}
               fullWidth
             >
-              Reset Password
+              {isSubmitting ? "Resetting..." : "Reset Password"}
             </Button>
           </div>
         </form>
