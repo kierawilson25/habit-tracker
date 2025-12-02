@@ -3,3 +3,7 @@ export { useSupabaseAuth } from './auth/useSupabaseAuth';
 
 // UI hooks
 export { useMounted } from './ui/useMounted';
+
+// Form hooks
+export { useForm } from './forms/useForm';
+export type { UseFormOptions, UseFormReturn } from './forms/useForm';
