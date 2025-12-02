@@ -11,3 +11,5 @@ export type { UseFormOptions, UseFormReturn } from './forms/useForm';
 // Data hooks
 export { useHabits } from './data/useHabits';
 export type { UseHabitsOptions, UseHabitsReturn } from './data/useHabits';
+export { useStreakCalculation } from './data/useStreakCalculation';
+export type { UseStreakCalculationReturn } from './data/useStreakCalculation';

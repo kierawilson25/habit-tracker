@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import "../../utils/styles/global.css";
 import { createClient } from "@/utils/supabase/client";
 import { Button, H1, HabitCell, StreakCell, PopupBanner, Loading } from "@/components";
+import { useStreakCalculation } from "@/hooks";
 import type {
   Habit,
   HabitAnalysis,
@@ -25,9 +26,9 @@ export default function Home() {
   const [celebrationAnimating, setCelebrationAnimating] = useState(false);
   const [confetti, setConfetti] = useState<Array<{ id: number; left: number; delay: number; duration: number }>>([]);
   const [fetchedHabits, setFetchedHabits] = useState(false);
-  const activeButtonClass = "bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors duration-200"
-  
+
   const supabase = createClient();
+  const { calculateStreak, isCompletedToday: isHabitCompletedToday, getLastCompletionDate } = useStreakCalculation();
 
   // Celebration effect
   useEffect(() => {
@@ -63,115 +64,6 @@ export default function Home() {
       setCelebrationAnimating(false);
     }
   }, [habits]);
-
-
-  // STREAK CALCULATION FUNCTIONS
-  
-  const calculateStreak = async (habitId: string) => {
-    console.log(`📊 calculateStreak called for habitId: ${habitId}`);
-    
-    const { data: completions, error } = await supabase
-      .from('habit_completions')
-      .select('completion_date')
-      .eq('habit_id', habitId)
-      .order('completion_date', { ascending: false });
-      
-    if (error || !completions?.length) {
-      console.log(`❌ No completions found for habit ${habitId}`);
-      return { current: 0, longest: 0 };
-    }
-    
-    console.log(`📅 Found ${completions.length} completions for habit ${habitId}`);
-    console.log(`📅 First 5 completions:`, completions.slice(0, 5).map(c => c.completion_date));
-    
-    let currentStreak = 0;
-    let longestStreak = 0;
-    
-    const completionDates = completions.map(c => new Date(c.completion_date).toISOString().split('T')[0]);
-    const today = new Date().toLocaleDateString('en-CA');
-    
-    console.log(`📅 Today's date: ${today}`);
-    console.log(`📅 Most recent completion: ${completionDates[0]}`);
-    
-    if (completionDates.length > 0) {
-      const mostRecentCompletion = completionDates[0];
-      const mostRecentDate = new Date(mostRecentCompletion);
-      const todayDate = new Date(today);
-      
-      const daysDiff = Math.floor((todayDate.getTime() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24));
-      console.log(`📅 Days since last completion: ${daysDiff}`);
-      
-      if (daysDiff > 1) {
-        console.log(`❌ Streak broken - last completion was ${daysDiff} days ago`);
-        currentStreak = 0;
-      } else {
-        currentStreak = 1;
-        console.log(`✅ Starting streak count from most recent completion`);
-        
-        for (let i = 1; i < completionDates.length; i++) {
-          const currentCompDate = new Date(completionDates[i - 1]);
-          const nextCompDate = new Date(completionDates[i]);
-          const daysDifference = Math.floor((currentCompDate.getTime() - nextCompDate.getTime()) / (1000 * 60 * 60 * 24));
-          
-          console.log(`  Comparing ${completionDates[i-1]} to ${completionDates[i]}: ${daysDifference} days apart`);
-          
-          if (daysDifference === 1) {
-            currentStreak++;
-            console.log(`  ✅ Consecutive! Streak now: ${currentStreak}`);
-          } else {
-            console.log(`  ❌ Gap found! Final current streak: ${currentStreak}`);
-            break;
-          }
-        }
-      }
-    }
-    
-    console.log(`📊 Calculating longest streak...`);
-    let i = 0;
-    while (i < completionDates.length) {
-      let tempStreak = 1;
-      let j = i;
-      
-      while (j < completionDates.length - 1) {
-        const currentDate = new Date(completionDates[j]);
-        const nextDate = new Date(completionDates[j + 1]);
-        const daysDiff = Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24));
-        
-        if (daysDiff === 1) {
-          tempStreak++;
-          j++;
-        } else {
-          break;
-        }
-      }
-      
-      if (tempStreak > longestStreak) {
-        console.log(`  New longest streak found: ${tempStreak} (starting from ${completionDates[i]})`);
-        longestStreak = tempStreak;
-      }
-      
-      i = j + 1;
-    }
-    
-    console.log(`📊 Final streaks - Current: ${currentStreak}, Longest: ${longestStreak}`);
-    return { current: currentStreak, longest: longestStreak };
-  };
-
-  const isHabitCompletedToday = async (habitId: string) => {
-    const today = new Date().toLocaleDateString('en-CA');
-    console.log(`🔍 Checking if habit ${habitId} was completed today (${today})`);
-    
-    const { data, error } = await supabase
-      .from('habit_completions')
-      .select('id')
-      .eq('habit_id', habitId)
-      .eq('completion_date', today)
-      .single();
-    
-    const result = !!data && !error;
-    console.log(`🔍 Habit ${habitId} completed today: ${result}`);
-    return result;
-  };
 
   const completeHabit = async (habitId: string, userId: string) => {
     const today = new Date().toLocaleDateString('en-CA');
@@ -316,18 +208,6 @@ const fetchUserHabits = async (userId: string): Promise<Habit[]> => {
 
   if (error) throw new Error(error.message);
   return data || [];
-};
-
-const getLastCompletionDate = async (habitId: string): Promise<string | null> => {
-  const { data } = await supabase
-    .from('habit_completions')
-    .select('completion_date')
-    .eq('habit_id', habitId)
-    .order('completion_date', { ascending: false })
-    .limit(1)
-    .single();
-  
-  return data?.completion_date || null;
 };
 
 // ============================================
