@@ -1,13 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
 import { Button, H1, StreakCalendar, Container, StatCard, Loading } from "@/components";
+import { useSupabaseAuth } from "@/hooks";
 
 
 export default function StatsPage() {
-  const router = useRouter();
-  const supabase = createClient();
+  const { user, loading: authLoading, supabase } = useSupabaseAuth({
+    requireAuth: true,
+    redirectTo: "/"
+  });
   
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
@@ -21,16 +22,8 @@ export default function StatsPage() {
 
   const fetchStatsData = async () => {
     try {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-        console.log("Not authenticated, redirecting to login");
-        router.push("/");
-        return;
-      }
+      // user is provided by useSupabaseAuth hook
+      if (!user) return;
 
       const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || "User";
       setUserName(displayName);
@@ -140,10 +133,14 @@ export default function StatsPage() {
   };
 
   useEffect(() => {
-    fetchStatsData();
-  }, []);
+    // Load data when user is available
+    if (user) {
+      fetchStatsData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
-  if (loading) {
+  if (authLoading || loading) {
     return <Loading text="Loading your stats..." />
   }
 
