@@ -1,13 +1,14 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { HiOutlineCamera, HiOutlineInformationCircle } from "react-icons/hi";
 import { FaBug } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
 import { H1, TextBox, Container, Button, Loading, PageLayout, PageHeader, AlertBox } from "@/components";
+import { useMounted } from "@/hooks";
 
 export default function BugReport() {
   const supabase = createClient();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -19,10 +20,6 @@ export default function BugReport() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

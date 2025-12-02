@@ -1,16 +1,13 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { HiOutlineMail, HiOutlineGlobeAlt } from "react-icons/hi";
 import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
 import { Button, H1, Container, Loading, PageLayout, PageHeader }  from "@/components";
+import { useMounted } from "@/hooks";
 
 export default function Contact() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const [emailCopied, setEmailCopied] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleCopyEmail = async () => {
     try {

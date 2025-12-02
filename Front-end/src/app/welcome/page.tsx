@@ -1,16 +1,12 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { H1, Container, Button, Loading, PageLayout } from "@/components";
+import { useMounted } from "@/hooks";
 import "../../utils/styles/global.css";
 
 export default function Welcome() {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useMounted();
 
   const handleGetStarted = () => {
     router.push("/get-started");

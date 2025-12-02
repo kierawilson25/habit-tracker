@@ -1,18 +1,15 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { HiOutlinePencil } from "react-icons/hi2";
 import { IoIosCloseCircleOutline, IoIosCheckmarkCircle } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import { H1, Container, Button, Loading, PageLayout }  from "@/components";
+import { useMounted } from "@/hooks";
 
 export default function GettingStarted() {
   const [currentStep, setCurrentStep] = useState(0);
-  const [mounted, setMounted] = useState(false);
-
+  const mounted = useMounted();
   const router = useRouter();
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const steps = [
     {
