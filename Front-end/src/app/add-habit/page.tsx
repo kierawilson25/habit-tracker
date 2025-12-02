@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
 import { H1, EditableHabitInput, Button, Loading } from "@/components";
+import { useSupabaseAuth } from "@/hooks";
 
 
 interface Habit {
@@ -15,13 +15,15 @@ interface Habit {
 
 export default function AddHabits() {
   const router = useRouter();
+  const { user, loading: authLoading, supabase } = useSupabaseAuth({
+    requireAuth: true,
+    redirectTo: "/"
+  });
   const [habits, setHabits] = useState<string[]>([]);
   const [habitIds, setHabitIds] = useState<string[]>([]); // Track database IDs
   const [habitDisabled, setHabitDisabled] = useState<boolean[]>([]);
   const [checkedStates, setCheckedStates] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const supabase = createClient();
 
   // Function to check if habits need to be reset (daily reset at midnight)
   const needsReset = (lastCompleted: string | null | undefined) => {
@@ -38,15 +40,8 @@ export default function AddHabits() {
 
   // Function to fetch habits from database
   const fetchHabitsFromDB = async () => {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      //console.error("Not authenticated:", userError?.message);
-      console.log("Not authenticated, redirecting to login");
-      router.push("/");
+    // user is provided by useSupabaseAuth hook
+    if (!user) {
       setLoading(false);
       return;
     }
@@ -104,8 +99,12 @@ export default function AddHabits() {
   };
 
   useEffect(() => {
-    fetchHabitsFromDB();
-  }, []);
+    // Load data when user is available
+    if (user) {
+      fetchHabitsFromDB();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // Remove the localStorage effects since we're using database now
   // You can keep them as backup/fallback if needed
@@ -200,14 +199,10 @@ export default function AddHabits() {
   // handleSubmit: Function to handle the form submission (for new habits)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
 
-    if (error || !user) {
-      console.error("Not authenticated:", error?.message);
+    // user is provided by useSupabaseAuth hook
+    if (!user) {
+      console.error("Not authenticated");
       return;
     }
 
@@ -237,7 +232,7 @@ export default function AddHabits() {
     router.push("/habits");
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return <Loading text="Loading habits..." />
   }
 

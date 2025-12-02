@@ -1,13 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
 import { Button, H1, Container, StatCard, Loading } from "@/components";
+import { useSupabaseAuth } from "@/hooks";
 
 
 export default function HomePage() {
-  const router = useRouter();
-  const supabase = createClient();
+  const { user, loading: authLoading, supabase } = useSupabaseAuth({
+    requireAuth: true,
+    redirectTo: "/"
+  });
   // State for user data and stats
   const [userName, setUserName] = useState("");
   const [completedHabits, setCompletedHabits] = useState(0);
@@ -32,16 +33,8 @@ export default function HomePage() {
   // Function to load data (replace with real database calls in your app)
 const fetchUserData = async () => {
   try {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      console.log("Not authenticated, redirecting to login");
-      router.push("/");
-      return;
-    }
+    // user is provided by useSupabaseAuth hook
+    if (!user) return;
 
     // Get user name from metadata or use email as fallback
     const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || "User";
@@ -166,10 +159,13 @@ const fetchUserData = async () => {
     // Set random encouraging message
     const randomIndex = Math.floor(Math.random() * encouragingMessages.length);
     setEncouragingMessage(encouragingMessages[randomIndex]);
-    
-    // Load data
-    fetchUserData();
-  }, []);
+
+    // Load data when user is available
+    if (user) {
+      fetchUserData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // Calculate percentage for the progress circle
   const percentage = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0;
@@ -177,7 +173,7 @@ const fetchUserData = async () => {
   const strokeDasharray = circumference;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
-  if (loading) {
+  if (authLoading || loading) {
     return <Loading text="Loading your dashboard..." />
   }
 
