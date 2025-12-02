@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Button, H1, Container, StatCard, Loading } from "@/components";
-import { useSupabaseAuth } from "@/hooks";
+import { useSupabaseAuth, useHabits } from "@/hooks";
 
 
 export default function HomePage() {
@@ -9,15 +9,20 @@ export default function HomePage() {
     requireAuth: true,
     redirectTo: "/"
   });
+
+  const { habits, loading: habitsLoading } = useHabits({
+    userId: user?.id,
+    autoFetch: true
+  });
+
   // State for user data and stats
   const [userName, setUserName] = useState("");
   const [completedHabits, setCompletedHabits] = useState(0);
-  const [totalHabits, setTotalHabits] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [weeklyProgress, setWeeklyProgress] = useState(0);
   const [avgHabitsPerDay, setAvgHabitsPerDay] = useState(0);
   const [encouragingMessage, setEncouragingMessage] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   const encouragingMessages = [
     "Every small step counts towards your goals! 🌟",
@@ -30,57 +35,45 @@ export default function HomePage() {
     "Every habit completed is a promise kept to yourself! 💚"
   ];
 
-  // Function to load data (replace with real database calls in your app)
+  // Function to load data
 const fetchUserData = async () => {
   try {
     // user is provided by useSupabaseAuth hook
-    if (!user) return;
+    if (!user || habits.length === 0) return;
 
     // Get user name from metadata or use email as fallback
     const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || "User";
     setUserName(displayName);
 
-    // Fetch today's habits
-    const { data: todayHabits, error: habitsError } = await supabase
-      .from("habits")
-      .select("id, completed, current_streak")
-      .eq("user_id", user.id);
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date().toLocaleDateString('en-CA');
 
-    if (habitsError) {
-      console.error("Failed to fetch habits:", habitsError.message);
-    } else if (todayHabits) {
-      // Get today's date in YYYY-MM-DD format
-      const today = new Date().toLocaleDateString('en-CA');
+    // Fetch today's completions from habit_completions table
+    const { data: todayCompletions, error: completionsError } = await supabase
+      .from("habit_completions")
+      .select("habit_id")
+      .eq("user_id", user.id)
+      .eq("completion_date", today);
 
-      // Fetch today's completions from habit_completions table
-      const { data: todayCompletions, error: completionsError } = await supabase
-        .from("habit_completions")
-        .select("habit_id")
-        .eq("user_id", user.id)
-        .eq("completion_date", today);
-
-      if (completionsError) {
-        console.error("Failed to fetch today's completions:", completionsError.message);
-      }
-
-      // Create a Set of habit IDs that are completed today
-      const completedHabitIds = new Set(
-        todayCompletions?.map((completion: any) => completion.habit_id) || []
-      );
-
-      // Count how many habits are completed today
-      const completed = todayHabits.filter((habit: any) =>
-        completedHabitIds.has(habit.id)
-      ).length;
-
-      const total = todayHabits.length;
-      const streaks = todayHabits.map((habit: any) => habit.current_streak || 0);
-      const maxStreak = streaks.length > 0 ? Math.max(...streaks) : 0;
-
-      setCompletedHabits(completed);
-      setTotalHabits(total);
-      setCurrentStreak(maxStreak);
+    if (completionsError) {
+      console.error("Failed to fetch today's completions:", completionsError.message);
     }
+
+    // Create a Set of habit IDs that are completed today
+    const completedHabitIds = new Set(
+      todayCompletions?.map((completion: any) => completion.habit_id) || []
+    );
+
+    // Count how many habits are completed today using habits from useHabits hook
+    const completed = habits.filter((habit) =>
+      completedHabitIds.has(habit.id)
+    ).length;
+
+    const streaks = habits.map((habit) => habit.current_streak || 0);
+    const maxStreak = streaks.length > 0 ? Math.max(...streaks) : 0;
+
+    setCompletedHabits(completed);
+    setCurrentStreak(maxStreak);
 
     // Calculate weekly progress from habit_completions table
     const sevenDaysAgo = new Date();
@@ -94,7 +87,7 @@ const fetchUserData = async () => {
 
     if (weeklyError) {
       console.error("Failed to fetch weekly data:", weeklyError.message);
-    } else if (weeklyCompletions && todayHabits) {
+    } else if (weeklyCompletions && habits.length > 0) {
       // Group completions by date and count unique habits completed each day
       const completionsByDate = weeklyCompletions.reduce((acc: any, completion: any) => {
         const date = completion.completion_date;
@@ -105,7 +98,7 @@ const fetchUserData = async () => {
 
       // Calculate average daily completion rate for the week
       const daysWithData = Object.keys(completionsByDate);
-      const totalHabitsCount = todayHabits.length;
+      const totalHabitsCount = habits.length;
       
       if (daysWithData.length > 0 && totalHabitsCount > 0) {
         const totalCompletionRate = daysWithData.reduce((sum: number, date: string) => {
@@ -148,10 +141,10 @@ const fetchUserData = async () => {
       setAvgHabitsPerDay(0);
     }
 
-    setLoading(false);
+    setStatsLoading(false);
   } catch (error) {
     console.error("Error in fetchUserData:", error);
-    setLoading(false);
+    setStatsLoading(false);
   }
 };
 
@@ -168,12 +161,12 @@ const fetchUserData = async () => {
   }, [user]);
 
   // Calculate percentage for the progress circle
-  const percentage = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0;
+  const percentage = habits.length > 0 ? (completedHabits / habits.length) * 100 : 0;
   const circumference = 2 * Math.PI * 45; // radius is 45
   const strokeDasharray = circumference;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
-  if (authLoading || loading) {
+  if (authLoading || statsLoading || habitsLoading) {
     return <Loading text="Loading your dashboard..." />
   }
 
@@ -240,7 +233,7 @@ const fetchUserData = async () => {
                       {completedHabits}
                     </div>
                     <div className="text-sm text-gray-400">
-                      of {totalHabits}
+                      of {habits.length}
                     </div>
                   </div>
                 </div>
@@ -249,7 +242,7 @@ const fetchUserData = async () => {
               {/* Progress Stats */}
               <div className="text-center space-y-2">
                 <p className="text-lg font-medium">
-                  {completedHabits} out of {totalHabits} habits completed
+                  {completedHabits} out of {habits.length} habits completed
                 </p>
                 <p className="text-green-400 font-bold text-xl">
                   {Math.round(percentage)}% Complete
