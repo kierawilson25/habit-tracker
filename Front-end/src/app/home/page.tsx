@@ -39,7 +39,10 @@ export default function HomePage() {
 const fetchUserData = async () => {
   try {
     // user is provided by useSupabaseAuth hook
-    if (!user || habits.length === 0) return;
+    if (!user || habits.length === 0) {
+      setStatsLoading(false);
+      return;
+    }
 
     // Get user name from metadata or use email as fallback
     const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || "User";
@@ -152,13 +155,14 @@ const fetchUserData = async () => {
     // Set random encouraging message
     const randomIndex = Math.floor(Math.random() * encouragingMessages.length);
     setEncouragingMessage(encouragingMessages[randomIndex]);
+  }, []);
 
-    // Load data when user is available
-    if (user) {
+  useEffect(() => {
+    // Load data when user is available and habits have finished loading
+    if (user && !habitsLoading) {
       fetchUserData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, habits, habitsLoading, supabase]);
 
   // Calculate percentage for the progress circle
   const percentage = habits.length > 0 ? (completedHabits / habits.length) * 100 : 0;
