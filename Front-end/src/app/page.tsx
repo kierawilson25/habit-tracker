@@ -96,10 +96,10 @@ export default function HomePage() {
 
       <div className="relative z-10">
         {/* Hero Section */}
-        <div className="max-w-6xl mx-auto px-4 py-24">
-          <div className="text-center mb-1">
+        <div className="max-w-6xl mx-auto px-4 py-12">
+          <div className="text-center">
             {/* ASCII Art Logo - Mobile Friendly */}
-            <div className="mb-8 text-green-400 leading-tight overflow-x-auto">
+            <div className="mb-2 text-green-400 leading-tight overflow-x-auto">
               {/* Large screens - full ASCII art */}
               <div className="hidden md:block text-sm">
                 <pre className="whitespace-pre inline-block">
@@ -129,11 +129,13 @@ export default function HomePage() {
               <H1 text="of Sand"/>
 
             </div>
+            <p className="text-green-200 italic mb-4">
+              "You can build a tower by gathering grains of sand."
+            </p>
             
             <div className="bg-green-500/10 border border-green-500/30 rounded p-6 max-w-2xl mx-auto mb-8">
               <p className="text-green-100 text-lg leading-relaxed">
-                A simple habit tracker designed to help you build trust in yourself to create consistent change.
-                Focus on small, sustained habits that become second nature over time.
+                Five habits. Every day. That's it. Change doesn't come from doing more. It comes from showing up.
               </p>
             </div>
 
@@ -146,12 +148,8 @@ export default function HomePage() {
               ) : (
                 <>
               <Button href="/sign-up" type="primary">
-                {"Get Started"}
+                {"Build Your Tower"}
               </Button>
-
-                <Button href="/login" type="secondary">
-                  {"Login"}
-                </Button>
                 </>
               )}
             </div>
