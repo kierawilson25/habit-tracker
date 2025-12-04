@@ -147,27 +147,23 @@ export default function StatsPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="flex justify-center px-4 py-8">
-        <div className="w-full max-w-6xl space-y-6">
+        <div className="w-full max-w-2xl space-y-6">
           
           {/* Header */}
           <Container>
             <H1 text={userName + "'s Stats"}/>
-            <p className="text-gray-400 text-center mb-4">
+            <p className="text-gray-400 text-center">
               Your habit completion journey
             </p>
-            <div className="text-center pt-4 border-t border-green-600/30">
-              <div className="text-4xl font-bold text-green-400">{totalCompletions}</div>
-              <div className="text-sm text-gray-400 mt-1">Grains of Sand</div>
-              <div className="text-xs text-gray-500 mt-1">collected this year!</div>
-            </div>
           </Container>
 
           {/* Stats Overview Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <StatCard value={totalDays} label="Active Days" color="blue" />
+            <StatCard value={totalCompletions} label="Habits Completed" color="red" />
             <StatCard value={currentStreak} label="Current Streak" color="purple" />
-            <StatCard value={goldStarDays} label="Gold Star Days ⭐" color="yellow" />
             <StatCard value={longestStreak} label="Longest Streak" color="orange" />
+            <StatCard value={goldStarDays} label="Gold Star Days ⭐" color="yellow" />
             <StatCard value={avgHabitsPerDay} label="Avg Per Day" color="pink" />
           </div>
 

@@ -1,7 +1,7 @@
 interface StatCardProps {
   value: number | string;
   label: string;
-  color?: "blue" | "purple" | "yellow" | "orange" | "pink" | "green";
+  color?: "blue" | "purple" | "yellow" | "orange" | "pink" | "green" | "red";
   className?: string;
 }
 
@@ -41,6 +41,11 @@ export default function StatCard({
       text: "text-green-400",
       bg: "bg-green-900/40",
       border: "border-green-500/80"
+    },
+    red: {
+      text: "text-rose-400",
+      bg: "bg-rose-900/40",
+      border: "border-rose-400/80"
     }
   };
 
