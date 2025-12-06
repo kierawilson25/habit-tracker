@@ -72,8 +72,45 @@ const fetchUserData = async () => {
       completedHabitIds.has(habit.id)
     ).length;
 
-    const streaks = habits.map((habit) => habit.current_streak || 0);
-    const maxStreak = streaks.length > 0 ? Math.max(...streaks) : 0;
+    // Calculate current streak for each habit by checking completion history
+    let maxStreak = 0;
+    for (const habit of habits) {
+      const { data: habitCompletions, error: habitError } = await supabase
+        .from("habit_completions")
+        .select("completion_date")
+        .eq("habit_id", habit.id)
+        .order("completion_date", { ascending: false });
+
+      if (!habitError && habitCompletions && habitCompletions.length > 0) {
+        const completionDates = habitCompletions.map((c: any) =>
+          new Date(c.completion_date).toISOString().split('T')[0]
+        );
+
+        let habitStreak = 0;
+        const mostRecentCompletion = completionDates[0];
+        const mostRecentDate = new Date(mostRecentCompletion);
+        const todayDate = new Date(today);
+        const daysSinceCompletion = Math.floor((todayDate.getTime() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24));
+
+        // Only count streak if completed today or yesterday
+        if (daysSinceCompletion <= 1) {
+          habitStreak = 1;
+          // Count consecutive days backward
+          for (let i = 1; i < completionDates.length; i++) {
+            const currentCompDate = new Date(completionDates[i - 1]);
+            const nextCompDate = new Date(completionDates[i]);
+            const daysDiff = Math.floor((currentCompDate.getTime() - nextCompDate.getTime()) / (1000 * 60 * 60 * 24));
+
+            if (daysDiff === 1) {
+              habitStreak++;
+            } else {
+              break;
+            }
+          }
+        }
+        maxStreak = Math.max(maxStreak, habitStreak);
+      }
+    }
 
     setCompletedHabits(completed);
     setCurrentStreak(maxStreak);
