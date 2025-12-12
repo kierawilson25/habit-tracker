@@ -90,7 +90,6 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
             onClick={handleUploadClick}
             disabled={uploading}
             type="secondary"
-            variant="outline"
           >
             {uploading ? 'Uploading...' : 'Upload Photo'}
           </Button>

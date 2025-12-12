@@ -198,7 +198,10 @@ export function useProfile(options: UseProfileOptions = {}): UseProfileReturn {
           upsert: true,
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Supabase storage upload error:', uploadError);
+        throw uploadError;
+      }
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage

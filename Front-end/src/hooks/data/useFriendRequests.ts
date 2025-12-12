@@ -94,26 +94,32 @@ export function useFriendRequests(userId?: string | null): UseFriendRequestsRetu
         .from('friend_requests')
         .select(`
           *,
-          receiver:user_profiles!friend_requests_receiver_id_fkey(id, username, profile_picture_url)
+          receiver:user_profiles!receiver_id(id, username, profile_picture_url)
         `)
         .eq('sender_id', userId)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
-      if (sentError) throw sentError;
+      if (sentError) {
+        console.error('Error fetching sent requests:', sentError);
+        throw sentError;
+      }
 
       // Fetch received requests
       const { data: received, error: receivedError } = await supabase
         .from('friend_requests')
         .select(`
           *,
-          sender:user_profiles!friend_requests_sender_id_fkey(id, username, profile_picture_url)
+          sender:user_profiles!sender_id(id, username, profile_picture_url)
         `)
         .eq('receiver_id', userId)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
-      if (receivedError) throw receivedError;
+      if (receivedError) {
+        console.error('Error fetching received requests:', receivedError);
+        throw receivedError;
+      }
 
       setSentRequests(sent || []);
       setReceivedRequests(received || []);

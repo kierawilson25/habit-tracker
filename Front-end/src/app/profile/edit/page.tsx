@@ -200,7 +200,6 @@ export default function EditProfilePage() {
                 <Button
                   onClick={handleCancel}
                   type="secondary"
-                  variant="outline"
                   fullWidth
                   disabled={saving}
                 >
