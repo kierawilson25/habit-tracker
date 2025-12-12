@@ -151,13 +151,50 @@ export default function ProfilePage() {
     return <Loading />;
   }
 
+  const handleCreateProfile = async () => {
+    if (!user) return;
+
+    try {
+      // Generate a username from email
+      const emailUsername = user.email?.split('@')[0] || '';
+      const username = emailUsername.toLowerCase().replace(/[^a-z0-9_]/g, '_') || `user_${user.id.substring(0, 8)}`;
+
+      const { error } = await supabase
+        .from('user_profiles')
+        .insert({
+          id: user.id,
+          username: username,
+          bio: null,
+          habits_privacy: 'public',
+          profile_picture_url: null,
+        });
+
+      if (error) {
+        console.error('Error creating profile:', error);
+        alert('Failed to create profile. Please try again.');
+      } else {
+        // Refetch profile
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    }
+  };
+
   if (!profile) {
     return (
       <Container>
-        <H1>Profile Not Found</H1>
-        <p className="text-gray-400">
-          Please complete your profile setup to continue.
+        <H1>Complete Your Profile</H1>
+        <p className="text-gray-400 mt-4">
+          Welcome! Let&apos;s set up your profile to get started.
         </p>
+        <button
+          onClick={handleCreateProfile}
+          className="mt-6 bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition-colors"
+        >
+          Create Profile
+        </button>
       </Container>
     );
   }

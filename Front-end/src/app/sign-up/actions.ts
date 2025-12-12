@@ -29,7 +29,7 @@ export async function signup(formData: FormData) {
   // Wait a moment for auth user to be fully created
   await new Promise(resolve => setTimeout(resolve, 500))
 
-  // Insert the user's data in the users table
+  // Insert the user's data in the users table (legacy)
   if (data.user) {
     console.log('User signed up:', data.user)
     const { error: insertError } = await supabase
@@ -44,7 +44,23 @@ export async function signup(formData: FormData) {
     if (insertError) {
       console.error('Error inserting into users table:', insertError)
       console.error('Error details:', JSON.stringify(insertError, null, 2))
-      // Don't redirect on this error - user is signed up, just missing profile
+    }
+
+    // Create user profile record
+    const username = displayName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
+    const { error: profileError } = await supabase
+      .from('user_profiles')
+      .insert({
+        id: data.user.id,
+        username: username || `user_${data.user.id.substring(0, 8)}`,
+        bio: null,
+        habits_privacy: 'public',
+        profile_picture_url: null
+      })
+
+    if (profileError) {
+      console.error('Error creating user profile:', profileError)
+      console.error('Error details:', JSON.stringify(profileError, null, 2))
     }
   }
 
