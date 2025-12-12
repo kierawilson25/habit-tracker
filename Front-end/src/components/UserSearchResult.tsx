@@ -1,6 +1,5 @@
 import React from 'react';
-import Avatar from './Avatar';
-import Button from './Button';
+import { Avatar, Button } from '@/components';
 import type { UserSearchResult as UserSearchResultType } from '@/types/friend.types';
 
 interface UserSearchResultProps {

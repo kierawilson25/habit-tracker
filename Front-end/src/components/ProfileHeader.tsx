@@ -1,6 +1,5 @@
 import React from 'react';
-import Avatar from './Avatar';
-import Button from './Button';
+import { Avatar, Button } from '@/components';
 
 interface ProfileHeaderProps {
   username: string;

@@ -6,12 +6,14 @@ import { createClient } from '@/utils/supabase/client';
 import { useSupabaseAuth } from '@/hooks/auth/useSupabaseAuth';
 import { useProfile } from '@/hooks/data/useProfile';
 import { useHabits } from '@/hooks/data/useHabits';
-import Container from '@/components/Container';
-import ProfileHeader from '@/components/ProfileHeader';
-import ProfileStats from '@/components/ProfileStats';
-import Loading from '@/components/Loading';
-import H1 from '@/components/H1';
-import Button from '@/components/Button';
+import {
+  Container,
+  ProfileHeader,
+  ProfileStats,
+  Loading,
+  H1,
+  Button,
+} from '@/components';
 import type { ProfileStats as ProfileStatsType } from '@/types/profile.types';
 
 export default function ProfilePage() {
@@ -190,7 +192,7 @@ export default function ProfilePage() {
           <div className="w-full max-w-2xl space-y-6">
             <Container>
               <div className="text-center">
-                <H1>Complete Your Profile</H1>
+                <H1 text="Complete Your Profile" />
                 <p className="text-gray-400 mt-4">
                   Welcome! Let&apos;s set up your profile to get started.
                 </p>

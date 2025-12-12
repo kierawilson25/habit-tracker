@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useSupabaseAuth } from '@/hooks/auth/useSupabaseAuth';
 import { useFriendRequests } from '@/hooks/data/useFriendRequests';
 import { useFriends } from '@/hooks/data/useFriends';
-import Container from '@/components/Container';
-import H1 from '@/components/H1';
-import FriendRequestCard from '@/components/FriendRequestCard';
-import UserSearchBar from '@/components/UserSearchBar';
-import UserSearchResult from '@/components/UserSearchResult';
-import Loading from '@/components/Loading';
+import {
+  Container,
+  H1,
+  FriendRequestCard,
+  UserSearchBar,
+  UserSearchResult,
+  Loading,
+} from '@/components';
 import type { UserSearchResult as UserSearchResultType } from '@/types/friend.types';
 
 export default function FriendRequestsPage() {
@@ -79,7 +81,7 @@ export default function FriendRequestsPage() {
 
   return (
     <Container>
-      <H1>Friend Requests</H1>
+      <H1 text="Friend Requests" />
 
       <div className="mt-6">
         <h2 className="text-lg font-semibold text-white mb-3">Search for Friends</h2>
