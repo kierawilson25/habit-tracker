@@ -1,20 +1,22 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useState, useEffect, useMemo } from 'react';
+import { createClient } from '@/utils/supabase/client';
 import { useSupabaseAuth } from '@/hooks/auth/useSupabaseAuth';
 import { useProfile } from '@/hooks/data/useProfile';
 import { useHabits } from '@/hooks/data/useHabits';
-import { useStreakCalculation } from '@/hooks/data/useStreakCalculation';
 import Container from '@/components/Container';
 import ProfileHeader from '@/components/ProfileHeader';
 import ProfileStats from '@/components/ProfileStats';
 import Loading from '@/components/Loading';
 import H1 from '@/components/H1';
-import { useMemo } from 'react';
 import type { ProfileStats as ProfileStatsType } from '@/types/profile.types';
 
 export default function ProfilePage() {
   const router = useRouter();
+  const supabase = createClient();
+
   const { user, loading: authLoading } = useSupabaseAuth({
     requireAuth: true,
     redirectTo: '/login',
@@ -30,10 +32,38 @@ export default function ProfilePage() {
     autoFetch: true,
   });
 
-  const { getCompletions } = useStreakCalculation({ userId: user?.id ?? '' });
+  const [completions, setCompletions] = useState<Array<{ completion_date: string; habit_id: string }>>([]);
+  const [completionsLoading, setCompletionsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchCompletions() {
+      if (!user?.id) {
+        setCompletionsLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('habit_completions')
+          .select('completion_date, habit_id')
+          .eq('user_id', user.id)
+          .order('completion_date', { ascending: false });
+
+        if (error) throw error;
+        setCompletions(data || []);
+      } catch (error) {
+        console.error('Error fetching completions:', error);
+        setCompletions([]);
+      } finally {
+        setCompletionsLoading(false);
+      }
+    }
+
+    fetchCompletions();
+  }, [user?.id, supabase]);
 
   const stats = useMemo<ProfileStatsType>(() => {
-    if (!user || !habits) {
+    if (!user || !habits || completionsLoading) {
       return {
         total_habits: 0,
         total_completions: 0,
@@ -44,7 +74,6 @@ export default function ProfilePage() {
       };
     }
 
-    const completions = getCompletions();
     const totalCompletions = completions.length;
 
     // Calculate current streak (consecutive days with at least 1 completion)
@@ -112,13 +141,13 @@ export default function ProfilePage() {
       gold_star_days: goldStarDays,
       avg_habits_per_day: avgPerDay,
     };
-  }, [user, habits, getCompletions]);
+  }, [user, habits, completions, completionsLoading]);
 
   const handleEditProfile = () => {
     router.push('/profile/edit');
   };
 
-  if (authLoading || profileLoading || habitsLoading) {
+  if (authLoading || profileLoading || habitsLoading || completionsLoading) {
     return <Loading />;
   }
 
