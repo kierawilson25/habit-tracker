@@ -184,35 +184,47 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <Container>
-        <H1>Complete Your Profile</H1>
-        <p className="text-gray-400 mt-4">
-          Welcome! Let&apos;s set up your profile to get started.
-        </p>
-        <button
-          onClick={handleCreateProfile}
-          className="mt-6 bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition-colors"
-        >
-          Create Profile
-        </button>
-      </Container>
+      <div className="min-h-screen bg-black text-white">
+        <div className="flex justify-center px-4 py-8">
+          <div className="w-full max-w-2xl space-y-6">
+            <Container>
+              <H1>Complete Your Profile</H1>
+              <p className="text-gray-400 mt-4">
+                Welcome! Let&apos;s set up your profile to get started.
+              </p>
+              <button
+                onClick={handleCreateProfile}
+                className="mt-6 bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition-colors"
+              >
+                Create Profile
+              </button>
+            </Container>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Container>
-      <ProfileHeader
-        username={profile.username}
-        bio={profile.bio}
-        profilePictureUrl={profile.profile_picture_url}
-        isOwner={true}
-        onEditProfile={handleEditProfile}
-      />
+    <div className="min-h-screen bg-black text-white">
+      <div className="flex justify-center px-4 py-8">
+        <div className="w-full max-w-2xl space-y-6">
+          <Container>
+            <ProfileHeader
+              username={profile.username}
+              bio={profile.bio}
+              profilePictureUrl={profile.profile_picture_url}
+              isOwner={true}
+              onEditProfile={handleEditProfile}
+            />
+          </Container>
 
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold text-white mb-4">My Stats</h2>
-        <ProfileStats stats={stats} />
+          <Container>
+            <h2 className="text-xl font-semibold text-white mb-4">My Stats</h2>
+            <ProfileStats stats={stats} />
+          </Container>
+        </div>
       </div>
-    </Container>
+    </div>
   );
 }

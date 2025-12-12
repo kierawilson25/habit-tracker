@@ -97,106 +97,118 @@ export default function EditProfilePage() {
 
   if (!profile) {
     return (
-      <Container>
-        <H1>Profile Not Found</H1>
-        <p className="text-gray-400">Unable to load profile for editing.</p>
-      </Container>
+      <div className="min-h-screen bg-black text-white">
+        <div className="flex justify-center px-4 py-8">
+          <div className="w-full max-w-2xl">
+            <Container>
+              <H1>Profile Not Found</H1>
+              <p className="text-gray-400">Unable to load profile for editing.</p>
+            </Container>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Container>
-      <H1>Edit Profile</H1>
+    <div className="min-h-screen bg-black text-white">
+      <div className="flex justify-center px-4 py-8">
+        <div className="w-full max-w-2xl">
+          <Container>
+            <H1>Edit Profile</H1>
 
-      <form onSubmit={handleSubmit} className="mt-6 max-w-md mx-auto space-y-6">
-        <div className="flex justify-center">
-          <ProfilePicture
-            currentUrl={profile.profile_picture_url}
-            username={username || profile.username}
-            onUpload={uploadProfilePicture}
-            editable={true}
-            size="xl"
-          />
+            <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+              <div className="flex justify-center">
+                <ProfilePicture
+                  currentUrl={profile.profile_picture_url}
+                  username={username || profile.username}
+                  onUpload={uploadProfilePicture}
+                  editable={true}
+                  size="xl"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="username" className="block text-white font-medium mb-2">
+                  Username
+                </label>
+                <input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:border-green-600 focus:outline-none"
+                  placeholder="Enter username"
+                  maxLength={30}
+                  disabled={saving}
+                />
+                <p className="text-sm text-gray-400 mt-1">
+                  3-30 characters, letters, numbers, and underscores only
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="bio" className="block text-white font-medium mb-2">
+                  Bio
+                </label>
+                <textarea
+                  id="bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  className="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:border-green-600 focus:outline-none"
+                  placeholder="Tell us about yourself..."
+                  rows={4}
+                  maxLength={500}
+                  disabled={saving}
+                />
+                <p className="text-sm text-gray-400 mt-1">
+                  {bio.length}/500 characters
+                </p>
+              </div>
+
+              <PrivacyToggle
+                value={habitsPrivacy}
+                onChange={setHabitsPrivacy}
+                disabled={saving}
+              />
+
+              {error && (
+                <div className="bg-red-900/20 border border-red-600 text-red-400 px-4 py-3 rounded">
+                  {error}
+                </div>
+              )}
+
+              {success && (
+                <div className="bg-green-900/20 border border-green-600 text-green-400 px-4 py-3 rounded">
+                  Profile updated successfully! Redirecting...
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <Button
+                  htmlType="submit"
+                  type="primary"
+                  fullWidth
+                  loading={saving}
+                  disabled={saving}
+                >
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
+
+                <Button
+                  onClick={handleCancel}
+                  type="secondary"
+                  variant="outline"
+                  fullWidth
+                  disabled={saving}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </Container>
         </div>
-
-        <div>
-          <label htmlFor="username" className="block text-white font-medium mb-2">
-            Username
-          </label>
-          <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:border-green-600 focus:outline-none"
-            placeholder="Enter username"
-            maxLength={30}
-            disabled={saving}
-          />
-          <p className="text-sm text-gray-400 mt-1">
-            3-30 characters, letters, numbers, and underscores only
-          </p>
-        </div>
-
-        <div>
-          <label htmlFor="bio" className="block text-white font-medium mb-2">
-            Bio
-          </label>
-          <textarea
-            id="bio"
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:border-green-600 focus:outline-none"
-            placeholder="Tell us about yourself..."
-            rows={4}
-            maxLength={500}
-            disabled={saving}
-          />
-          <p className="text-sm text-gray-400 mt-1">
-            {bio.length}/500 characters
-          </p>
-        </div>
-
-        <PrivacyToggle
-          value={habitsPrivacy}
-          onChange={setHabitsPrivacy}
-          disabled={saving}
-        />
-
-        {error && (
-          <div className="bg-red-900/20 border border-red-600 text-red-400 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="bg-green-900/20 border border-green-600 text-green-400 px-4 py-3 rounded">
-            Profile updated successfully! Redirecting...
-          </div>
-        )}
-
-        <div className="flex gap-3">
-          <Button
-            htmlType="submit"
-            type="primary"
-            fullWidth
-            loading={saving}
-            disabled={saving}
-          >
-            {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
-
-          <Button
-            onClick={handleCancel}
-            type="secondary"
-            variant="outline"
-            fullWidth
-            disabled={saving}
-          >
-            Cancel
-          </Button>
-        </div>
-      </form>
-    </Container>
+      </div>
+    </div>
   );
 }
