@@ -24,5 +24,6 @@ export { default as StreakCalendar } from './StreakCalendar';
 export { default as StreakCell } from './StreakCell';
 export { default as TextBox } from './TextBox';
 export { default as Toast } from './Toast';
+export { default as Toggle } from './Toggle';
 export { default as UserSearchBar } from './UserSearchBar';
 export { default as UserSearchResult } from './UserSearchResult';

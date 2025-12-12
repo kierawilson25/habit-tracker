@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Toggle } from '@/components';
 
 interface PrivacyToggleProps {
   value: 'public' | 'private';
@@ -15,39 +16,20 @@ const PrivacyToggle: React.FC<PrivacyToggleProps> = ({
 }) => {
   const isPublic = value === 'public';
 
-  const handleToggle = () => {
-    if (!disabled) {
-      onChange(isPublic ? 'private' : 'public');
-    }
+  const handleToggle = (enabled: boolean) => {
+    onChange(enabled ? 'public' : 'private');
   };
 
   return (
     <div className="flex flex-col gap-3">
       <label className="text-white font-medium">Habit Privacy</label>
 
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={handleToggle}
-          disabled={disabled}
-          className={`
-            relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-            ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-            ${isPublic ? 'bg-green-600' : 'bg-gray-600'}
-          `}
-        >
-          <span
-            className={`
-              inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-              ${isPublic ? 'translate-x-6' : 'translate-x-1'}
-            `}
-          />
-        </button>
-
-        <span className="text-gray-300">
-          {isPublic ? 'Public' : 'Private'}
-        </span>
-      </div>
+      <Toggle
+        enabled={isPublic}
+        onChange={handleToggle}
+        disabled={disabled}
+        label={isPublic ? 'Public' : 'Private'}
+      />
 
       <p className="text-sm text-gray-400">
         {isPublic ? (
