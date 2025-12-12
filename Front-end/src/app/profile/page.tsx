@@ -11,6 +11,7 @@ import ProfileHeader from '@/components/ProfileHeader';
 import ProfileStats from '@/components/ProfileStats';
 import Loading from '@/components/Loading';
 import H1 from '@/components/H1';
+import Button from '@/components/Button';
 import type { ProfileStats as ProfileStatsType } from '@/types/profile.types';
 
 export default function ProfilePage() {
@@ -193,12 +194,14 @@ export default function ProfilePage() {
                 <p className="text-gray-400 mt-4">
                   Welcome! Let&apos;s set up your profile to get started.
                 </p>
-                <button
-                  onClick={handleCreateProfile}
-                  className="mt-6 bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition-colors"
-                >
-                  Create Profile
-                </button>
+                <div className="mt-6">
+                  <Button
+                    onClick={handleCreateProfile}
+                    type="primary"
+                  >
+                    Create Profile
+                  </Button>
+                </div>
               </div>
             </Container>
           </div>
