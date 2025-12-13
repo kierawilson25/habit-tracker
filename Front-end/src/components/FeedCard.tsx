@@ -1,13 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { FeedActivity } from '@/types/activity.types';
 import Avatar from './Avatar';
 import { ActivityIcon } from './ActivityIcon';
+import { LikeButton } from './LikeButton';
+import { CommentSection } from './CommentSection';
 
 export interface FeedCardProps {
   /**
    * The activity to display
    */
   activity: FeedActivity;
+
+  /**
+   * Current user ID (for likes and comments)
+   */
+  userId?: string | null;
 }
 
 /**
@@ -15,8 +22,9 @@ export interface FeedCardProps {
  *
  * Displays a single feed activity with dynamic content based on activity type
  */
-export function FeedCard({ activity }: FeedCardProps) {
+export function FeedCard({ activity, userId }: FeedCardProps) {
   const { activity_type, user, habit, metadata, created_at } = activity;
+  const [showComments, setShowComments] = useState(false);
 
   // Format timestamp
   const formatTimestamp = (timestamp: string) => {
@@ -124,6 +132,25 @@ export function FeedCard({ activity }: FeedCardProps) {
 
         {/* Activity message */}
         <p className="text-gray-200">{getActivityMessage()}</p>
+
+        {/* Likes and Comments */}
+        <div className="flex items-center gap-4 mt-3">
+          <LikeButton activityId={activity.id} userId={userId} />
+          <button
+            onClick={() => setShowComments(!showComments)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+          >
+            <span className="text-lg">💬</span>
+            <span className="text-sm font-medium">
+              {showComments ? 'Hide' : 'Comment'}
+            </span>
+          </button>
+        </div>
+
+        {/* Comment Section */}
+        {showComments && (
+          <CommentSection activityId={activity.id} userId={userId} />
+        )}
       </div>
     </div>
   );
