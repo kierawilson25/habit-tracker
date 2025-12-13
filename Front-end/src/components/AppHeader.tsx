@@ -24,6 +24,9 @@ export default function AppHeader() {
     { href: "/home", label: "Home", authRequired: true },
     { href: "/habits", label: "My Habits", authRequired: true },
     { href: "/stats", label: "My Stats", authRequired: true },
+    { href: "/friends", label: "Friends", authRequired: true },
+    { href: "/feed", label: "Feed", authRequired: true },
+    { href: "/profile", label: "Profile", authRequired: true },
     { href: "/sign-up", label: "Get Started", authRequired: false },
     { href: "/about", label: "About", authRequired: false }
   ];
