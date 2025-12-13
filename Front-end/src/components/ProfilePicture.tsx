@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import Avatar from './Avatar';
-import Button from './Button';
+import { Avatar, Button } from '@/components';
 
 interface ProfilePictureProps {
   currentUrl?: string | null;
@@ -91,7 +90,6 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
             onClick={handleUploadClick}
             disabled={uploading}
             type="secondary"
-            variant="outline"
           >
             {uploading ? 'Uploading...' : 'Upload Photo'}
           </Button>

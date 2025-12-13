@@ -1,5 +1,5 @@
 import React from 'react';
-import StatCard from './StatCard';
+import { StatCard } from '@/components';
 import type { ProfileStats as ProfileStatsType } from '@/types/profile.types';
 
 interface ProfileStatsProps {

@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSupabaseAuth } from '@/hooks/auth/useSupabaseAuth';
 import { useProfile } from '@/hooks/data/useProfile';
-import Container from '@/components/Container';
-import H1 from '@/components/H1';
-import Button from '@/components/Button';
-import ProfilePicture from '@/components/ProfilePicture';
-import PrivacyToggle from '@/components/PrivacyToggle';
-import Loading from '@/components/Loading';
+import {
+  Container,
+  H1,
+  Button,
+  ProfilePicture,
+  PrivacyToggle,
+  Loading,
+} from '@/components';
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -101,7 +103,7 @@ export default function EditProfilePage() {
         <div className="flex justify-center px-4 py-8">
           <div className="w-full max-w-2xl">
             <Container>
-              <H1>Profile Not Found</H1>
+              <H1 text="Profile Not Found" />
               <p className="text-gray-400">Unable to load profile for editing.</p>
             </Container>
           </div>
@@ -115,7 +117,7 @@ export default function EditProfilePage() {
       <div className="flex justify-center px-4 py-8">
         <div className="w-full max-w-2xl">
           <Container>
-            <H1>Edit Profile</H1>
+            <H1 text="Edit Profile" />
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-6">
               <div className="flex justify-center">
@@ -198,7 +200,6 @@ export default function EditProfilePage() {
                 <Button
                   onClick={handleCancel}
                   type="secondary"
-                  variant="outline"
                   fullWidth
                   disabled={saving}
                 >

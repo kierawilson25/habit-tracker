@@ -112,9 +112,17 @@ export function useProfile(options: UseProfileOptions = {}): UseProfileReturn {
         .eq('id', userId)
         .single();
 
-      if (fetchError) throw fetchError;
-
-      setProfile(data);
+      if (fetchError) {
+        // PGRST116 means no rows found - this is a valid state (no profile created yet)
+        if (fetchError.code === 'PGRST116') {
+          setProfile(null);
+          setError(null);
+        } else {
+          throw fetchError;
+        }
+      } else {
+        setProfile(data);
+      }
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to fetch profile');
       setError(error);
@@ -190,7 +198,10 @@ export function useProfile(options: UseProfileOptions = {}): UseProfileReturn {
           upsert: true,
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Supabase storage upload error:', uploadError);
+        throw uploadError;
+      }
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage

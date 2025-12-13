@@ -99,12 +99,15 @@ export function useFriends(options: UseFriendsOptions = {}): UseFriendsReturn {
         .from('friendships')
         .select(`
           *,
-          friend:user_profiles!friendships_friend_id_fkey(id, username, profile_picture_url, bio)
+          friend:user_profiles!friend_id(id, username, profile_picture_url, bio)
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        console.error('Error fetching friends:', fetchError);
+        throw fetchError;
+      }
 
       setFriends(data || []);
     } catch (err) {
