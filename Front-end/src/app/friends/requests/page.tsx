@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useSupabaseAuth } from '@/hooks/auth/useSupabaseAuth';
 import { useFriendRequests } from '@/hooks/data/useFriendRequests';
 import { useFriends } from '@/hooks/data/useFriends';
@@ -34,20 +34,19 @@ export default function FriendRequestsPage() {
 
   const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
   const [searchResults, setSearchResults] = useState<UserSearchResultType[]>([]);
-  const [searching, setSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSearch = async (query: string) => {
+  const handleSearch = useCallback(async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
-      setSearching(false);
+      setHasSearched(false);
       return;
     }
 
-    setSearching(true);
+    setHasSearched(true);
     const results = await searchUsers(query);
     setSearchResults(results);
-    setSearching(false);
-  };
+  }, [searchUsers]);
 
   const handleAddFriend = async (userId: string) => {
     const success = await sendRequest(userId);
@@ -80,99 +79,107 @@ export default function FriendRequestsPage() {
   }
 
   return (
-    <Container>
-      <H1 text="Friend Requests" />
+    <div className="min-h-screen bg-black text-white">
+      <div className="flex justify-center px-4 py-8">
+        <div className="w-full max-w-2xl space-y-6">
+          <Container>
+            <H1 text="Friend Requests" />
+          </Container>
 
-      <div className="mt-6">
-        <h2 className="text-lg font-semibold text-white mb-3">Search for Friends</h2>
-        <UserSearchBar onSearch={handleSearch} />
+          <Container>
+            <h2 className="text-lg font-semibold text-white mb-3">Search for Friends</h2>
+            <UserSearchBar onSearch={handleSearch} />
 
-        {searching && (
-          <div className="mt-4 text-gray-400 text-center">Searching...</div>
-        )}
+            {searchResults.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {searchResults.map((user) => (
+                  <UserSearchResult
+                    key={user.id}
+                    user={user}
+                    onAddFriend={handleAddFriend}
+                  />
+                ))}
+              </div>
+            )}
 
-        {searchResults.length > 0 && (
-          <div className="mt-4 space-y-2">
-            {searchResults.map((user) => (
-              <UserSearchResult
-                key={user.id}
-                user={user}
-                onAddFriend={handleAddFriend}
-              />
-            ))}
-          </div>
-        )}
+            {hasSearched && searchResults.length === 0 && (
+              <p className="text-gray-400 text-center mt-4 text-sm">
+                No users found
+              </p>
+            )}
 
-        {!searching && searchResults.length === 0 && (
-          <p className="text-gray-400 text-center mt-4 text-sm">
-            Search for users by username to send friend requests
-          </p>
-        )}
-      </div>
+            {!hasSearched && (
+              <p className="text-gray-400 text-center mt-4 text-sm">
+                Search for users by username to send friend requests
+              </p>
+            )}
+          </Container>
 
-      <div className="mt-8">
-        <div className="flex border-b border-gray-700 mb-6">
-          <button
-            onClick={() => setActiveTab('received')}
-            className={`px-6 py-3 font-medium transition-colors ${
-              activeTab === 'received'
-                ? 'text-green-400 border-b-2 border-green-400'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Received ({receivedRequests.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('sent')}
-            className={`px-6 py-3 font-medium transition-colors ${
-              activeTab === 'sent'
-                ? 'text-green-400 border-b-2 border-green-400'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Sent ({sentRequests.length})
-          </button>
+          <Container>
+            <div className="flex border-b border-gray-700 mb-6">
+              <button
+                onClick={() => setActiveTab('received')}
+                className={`px-6 py-3 font-medium transition-colors ${
+                  activeTab === 'received'
+                    ? 'text-green-400 border-b-2 border-green-400'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Received ({receivedRequests.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('sent')}
+                className={`px-6 py-3 font-medium transition-colors ${
+                  activeTab === 'sent'
+                    ? 'text-green-400 border-b-2 border-green-400'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Sent ({sentRequests.length})
+              </button>
+            </div>
+
+            {activeTab === 'received' && (
+              <div className="space-y-3">
+                {receivedRequests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-400">No pending friend requests</p>
+                  </div>
+                ) : (
+                  receivedRequests.map((request) => (
+                    <FriendRequestCard
+                      key={request.id}
+                      request={request}
+                      type="received"
+                      onAccept={handleAccept}
+                      onReject={handleReject}
+                    />
+                  ))
+                )}
+              </div>
+            )}
+
+            {activeTab === 'sent' && (
+              <div className="space-y-3">
+                {sentRequests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-400">No pending sent requests</p>
+                  </div>
+                ) : (
+                  sentRequests.map((request) => (
+                    <FriendRequestCard
+                      key={request.id}
+                      request={request}
+                      type="sent"
+                      onCancel={handleCancel}
+                    />
+                  ))
+                )}
+              </div>
+            )}
+          </Container>
         </div>
-
-        {activeTab === 'received' && (
-          <div className="space-y-3">
-            {receivedRequests.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-400">No pending friend requests</p>
-              </div>
-            ) : (
-              receivedRequests.map((request) => (
-                <FriendRequestCard
-                  key={request.id}
-                  request={request}
-                  type="received"
-                  onAccept={handleAccept}
-                  onReject={handleReject}
-                />
-              ))
-            )}
-          </div>
-        )}
-
-        {activeTab === 'sent' && (
-          <div className="space-y-3">
-            {sentRequests.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-400">No pending sent requests</p>
-              </div>
-            ) : (
-              sentRequests.map((request) => (
-                <FriendRequestCard
-                  key={request.id}
-                  request={request}
-                  type="sent"
-                  onCancel={handleCancel}
-                />
-              ))
-            )}
-          </div>
-        )}
       </div>
-    </Container>
+    </div>
   );
 }

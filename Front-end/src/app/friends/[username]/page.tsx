@@ -1,24 +1,23 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useSupabaseAuth } from '@/hooks/auth/useSupabaseAuth';
-import { useProfile } from '@/hooks/data/useProfile';
-import { useHabits } from '@/hooks/data/useHabits';
 import { useFriends } from '@/hooks/data/useFriends';
 import {
   Container,
   ProfileHeader,
   ProfileStats,
   Loading,
-  H1,
   Button,
 } from '@/components';
-import type { ProfileStats as ProfileStatsType } from '@/types/profile.types';
+import type { UserProfile, ProfileStats as ProfileStatsType } from '@/types/profile.types';
 
-export default function ProfilePage() {
+export default function FriendProfilePage() {
   const router = useRouter();
+  const params = useParams();
+  const username = params.username as string;
   const supabase = createClient();
 
   const { user, loading: authLoading } = useSupabaseAuth({
@@ -26,42 +25,108 @@ export default function ProfilePage() {
     redirectTo: '/login',
   });
 
-  const { profile, loading: profileLoading } = useProfile({
-    userId: user?.id,
-    autoFetch: true,
-  });
+  const { friends, removeFriend, loading: friendsLoading } = useFriends({ userId: user?.id });
 
-  const { habits, loading: habitsLoading } = useHabits({
-    userId: user?.id,
-    autoFetch: true,
-  });
-
-  const { friends, loading: friendsLoading } = useFriends({
-    userId: user?.id,
-    autoFetch: true,
-  });
-
+  const [friendUserId, setFriendUserId] = useState<string | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [completions, setCompletions] = useState<Array<{ completion_date: string; habit_id: string }>>([]);
+  const [loading, setLoading] = useState(true);
   const [completionsLoading, setCompletionsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  const [habits, setHabits] = useState<any[]>([]);
+  const [habitsLoading, setHabitsLoading] = useState(false);
+
+  // Fetch profile by username
+  useEffect(() => {
+    async function fetchProfile() {
+      if (!username || !user || friendsLoading) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const { data: profileData, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('username', username)
+          .single();
+
+        if (profileError || !profileData) {
+          setError('User not found');
+          setLoading(false);
+          return;
+        }
+
+        // Check if this user is a friend
+        const isFriendCheck = friends.some(f => f.friend_id === profileData.id);
+
+        if (!isFriendCheck) {
+          setError('You can only view profiles of your friends');
+          setLoading(false);
+          return;
+        }
+
+        setProfile(profileData);
+        setFriendUserId(profileData.id);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+        setError('Failed to load profile');
+        setLoading(false);
+      }
+    }
+
+    fetchProfile();
+  }, [username, user, friends, friendsLoading, supabase]);
+
+  // Fetch friend's habits using RPC function
+  useEffect(() => {
+    async function fetchHabits() {
+      if (!friendUserId) {
+        setHabitsLoading(false);
+        return;
+      }
+
+      try {
+        setHabitsLoading(true);
+
+        const { data, error } = await supabase.rpc('get_friend_habits', {
+          friend_user_id: friendUserId
+        });
+
+        if (error) throw error;
+        setHabits(data || []);
+      } catch (error) {
+        console.error('Error fetching friend habits:', error);
+        setHabits([]);
+      } finally {
+        setHabitsLoading(false);
+      }
+    }
+
+    fetchHabits();
+  }, [friendUserId, supabase]);
+
+  // Fetch friend's completions using RPC function
   useEffect(() => {
     async function fetchCompletions() {
-      if (!user?.id) {
+      if (!friendUserId) {
         setCompletionsLoading(false);
         return;
       }
 
       try {
-        const { data, error } = await supabase
-          .from('habit_completions')
-          .select('completion_date, habit_id')
-          .eq('user_id', user.id)
-          .order('completion_date', { ascending: false });
+        setCompletionsLoading(true);
+
+        const { data, error } = await supabase.rpc('get_friend_completions', {
+          friend_user_id: friendUserId
+        });
 
         if (error) throw error;
         setCompletions(data || []);
       } catch (error) {
-        console.error('Error fetching completions:', error);
+        console.error('Error fetching friend completions:', error);
         setCompletions([]);
       } finally {
         setCompletionsLoading(false);
@@ -69,10 +134,10 @@ export default function ProfilePage() {
     }
 
     fetchCompletions();
-  }, [user?.id, supabase]);
+  }, [friendUserId, supabase]);
 
   const stats = useMemo<ProfileStatsType>(() => {
-    if (!user || !habits || completionsLoading) {
+    if (!friendUserId || !habits || habitsLoading || completionsLoading) {
       return {
         total_habits: 0,
         total_completions: 0,
@@ -85,7 +150,7 @@ export default function ProfilePage() {
 
     const totalCompletions = completions.length;
 
-    // Calculate current streak (consecutive days with at least 1 completion)
+    // Calculate current streak
     let currentStreak = 0;
     const today = new Date().toLocaleDateString('en-CA');
     const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
@@ -131,7 +196,7 @@ export default function ProfilePage() {
     }
     longestStreak = Math.max(longestStreak, tempStreak);
 
-    // Calculate gold star days (days with 5+ completions)
+    // Calculate gold star days
     const completionsByDate: Record<string, number> = {};
     completions.forEach(c => {
       completionsByDate[c.completion_date] = (completionsByDate[c.completion_date] || 0) + 1;
@@ -150,66 +215,39 @@ export default function ProfilePage() {
       gold_star_days: goldStarDays,
       avg_habits_per_day: avgPerDay,
     };
-  }, [user, habits, completions, completionsLoading]);
+  }, [friendUserId, habits, completions, habitsLoading, completionsLoading]);
 
-  const handleEditProfile = () => {
-    router.push('/profile/edit');
-  };
+  const handleRemoveFriend = async () => {
+    if (!profile || !window.confirm(`Remove ${profile.username} from your friends?`)) {
+      return;
+    }
 
-  if (authLoading || profileLoading || habitsLoading || completionsLoading || friendsLoading) {
-    return <Loading />;
-  }
-
-  const handleCreateProfile = async () => {
-    if (!user) return;
-
-    try {
-      // Generate a username from email
-      const emailUsername = user.email?.split('@')[0] || '';
-      const username = emailUsername.toLowerCase().replace(/[^a-z0-9_]/g, '_') || `user_${user.id.substring(0, 8)}`;
-
-      const { error } = await supabase
-        .from('user_profiles')
-        .insert({
-          id: user.id,
-          username: username,
-          bio: null,
-          habits_privacy: 'public',
-          profile_picture_url: null,
-        });
-
-      if (error) {
-        console.error('Error creating profile:', error);
-        alert('Failed to create profile. Please try again.');
-      } else {
-        // Refetch profile
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+    const success = await removeFriend(profile.id);
+    if (success) {
+      router.push('/friends');
     }
   };
 
-  if (!profile) {
+  if (authLoading || friendsLoading || loading || habitsLoading || completionsLoading) {
+    return <Loading />;
+  }
+
+  if (error || !profile) {
     return (
       <div className="min-h-screen bg-black text-white">
         <div className="flex justify-center px-4 py-8">
           <div className="w-full max-w-2xl space-y-6">
             <Container>
               <div className="text-center">
-                <H1 text="Complete Your Profile" />
-                <p className="text-gray-400 mt-4">
-                  Welcome! Let&apos;s set up your profile to get started.
-                </p>
-                <div className="mt-6">
-                  <Button
-                    onClick={handleCreateProfile}
-                    type="primary"
-                  >
-                    Create Profile
-                  </Button>
-                </div>
+                <h1 className="text-2xl font-bold text-white mb-4">
+                  {error || 'Profile Not Found'}
+                </h1>
+                <Button
+                  onClick={() => router.push('/friends')}
+                  type="primary"
+                >
+                  Back to Friends
+                </Button>
               </div>
             </Container>
           </div>
@@ -227,42 +265,28 @@ export default function ProfilePage() {
               username={profile.username}
               bio={profile.bio}
               profilePictureUrl={profile.profile_picture_url}
-              isOwner={true}
-              onEditProfile={handleEditProfile}
+              isOwner={false}
             />
-          </Container>
-
-          <Container>
-            <div className="text-center">
-              <h2 className="text-xl font-semibold text-white mb-4">Friends</h2>
-              <div className="flex items-center justify-center gap-2 mb-6">
-                <span className="text-3xl font-bold text-green-400">
-                  {friends.length}
-                </span>
-                <span className="text-gray-400">
-                  {friends.length === 1 ? 'friend' : 'friends'}
-                </span>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
-                  onClick={() => router.push('/friends')}
-                  type="primary"
-                >
-                  View Friends
-                </Button>
-                <Button
-                  onClick={() => router.push('/friends/requests')}
-                  type="secondary"
-                >
-                  Add Friends
-                </Button>
-              </div>
+            <div className="mt-4 text-center">
+              <Button
+                onClick={handleRemoveFriend}
+                type="danger"
+              >
+                Remove Friend
+              </Button>
             </div>
           </Container>
 
           <Container>
             <div className="text-center">
-              <h2 className="text-xl font-semibold text-white mb-4">My Stats</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">
+                {profile.username}&apos;s Stats
+              </h2>
+              {profile.habits_privacy === 'private' && (
+                <p className="text-gray-400 text-sm mb-4">
+                  This user has set their habits to private
+                </p>
+              )}
             </div>
             <ProfileStats stats={stats} />
           </Container>

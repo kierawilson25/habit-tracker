@@ -144,6 +144,14 @@ export function useFriendRequests(userId?: string | null): UseFriendRequestsRetu
     try {
       setError(null);
 
+      // Delete any existing non-pending requests (accepted/rejected) to allow re-requesting
+      await supabase
+        .from('friend_requests')
+        .delete()
+        .eq('sender_id', userId)
+        .eq('receiver_id', receiverId)
+        .neq('status', 'pending');
+
       const { error: insertError } = await supabase
         .from('friend_requests')
         .insert({
