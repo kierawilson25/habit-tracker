@@ -54,7 +54,6 @@ export function CommentInput({ onSubmit, placeholder = 'Add a comment...' }: Com
         <Button
           htmlType="submit"
           type="primary"
-          size="sm"
           loading={loading}
           disabled={loading || !text.trim()}
           className="w-full sm:w-auto"

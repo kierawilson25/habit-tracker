@@ -116,7 +116,6 @@ export const CommentCard = memo(function CommentCard({ comment, currentUserId, o
               <Button
                 onClick={handleSaveEdit}
                 type="primary"
-                size="sm"
                 loading={loading}
                 disabled={loading || !editText.trim()}
               >
@@ -125,7 +124,6 @@ export const CommentCard = memo(function CommentCard({ comment, currentUserId, o
               <Button
                 onClick={handleCancelEdit}
                 type="secondary"
-                size="sm"
                 disabled={loading}
               >
                 Cancel
