@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import type { FeedActivity } from '@/types/activity.types';
 import Avatar from './Avatar';
 import { ActivityIcon } from './ActivityIcon';
@@ -21,14 +21,15 @@ export interface FeedCardProps {
  * FeedCard component
  *
  * Displays a single feed activity with dynamic content based on activity type
+ * Optimized with React.memo to prevent unnecessary re-renders
  */
-export function FeedCard({ activity, userId }: FeedCardProps) {
+export const FeedCard = memo(function FeedCard({ activity, userId }: FeedCardProps) {
   const { activity_type, user, habit, metadata, created_at } = activity;
   const [showComments, setShowComments] = useState(false);
 
-  // Format timestamp
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
+  // Format timestamp (memoized)
+  const formattedTimestamp = useMemo(() => {
+    const date = new Date(created_at);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
@@ -40,10 +41,10 @@ export function FeedCard({ activity, userId }: FeedCardProps) {
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
     return date.toLocaleDateString();
-  };
+  }, [created_at]);
 
-  // Get activity message based on type
-  const getActivityMessage = () => {
+  // Get activity message based on type (memoized)
+  const activityMessage = useMemo(() => {
     switch (activity_type) {
       case 'habit_completion':
         if (habit?.title) {
@@ -107,7 +108,12 @@ export function FeedCard({ activity, userId }: FeedCardProps) {
       default:
         return 'did something';
     }
-  };
+  }, [activity_type, habit, metadata]);
+
+  // Toggle comments handler (memoized)
+  const toggleComments = useCallback(() => {
+    setShowComments(prev => !prev);
+  }, []);
 
   return (
     <div className="flex gap-4 p-4 bg-gray-800 rounded-lg hover:bg-gray-750 transition-colors">
@@ -127,17 +133,17 @@ export function FeedCard({ activity, userId }: FeedCardProps) {
           />
           <span className="font-semibold text-white">{user?.username}</span>
           <span className="text-gray-500">•</span>
-          <span className="text-gray-400 text-sm">{formatTimestamp(created_at)}</span>
+          <span className="text-gray-400 text-sm">{formattedTimestamp}</span>
         </div>
 
         {/* Activity message */}
-        <p className="text-gray-200">{getActivityMessage()}</p>
+        <p className="text-gray-200">{activityMessage}</p>
 
         {/* Likes and Comments */}
         <div className="flex items-center gap-4 mt-3">
           <LikeButton activityId={activity.id} userId={userId} />
           <button
-            onClick={() => setShowComments(!showComments)}
+            onClick={toggleComments}
             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
           >
             <span className="text-lg">💬</span>
@@ -154,4 +160,4 @@ export function FeedCard({ activity, userId }: FeedCardProps) {
       </div>
     </div>
   );
-}
+});

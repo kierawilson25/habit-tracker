@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import type { ActivityComment } from '@/types/activity.types';
 import Avatar from './Avatar';
 import Button from './Button';
@@ -31,15 +31,16 @@ export interface CommentCardProps {
  * CommentCard component
  *
  * Displays a single comment with edit/delete options for owner
+ * Optimized with React.memo to prevent unnecessary re-renders
  */
-export function CommentCard({ comment, currentUserId, onUpdate, onDelete }: CommentCardProps) {
+export const CommentCard = memo(function CommentCard({ comment, currentUserId, onUpdate, onDelete }: CommentCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.comment_text);
   const [loading, setLoading] = useState(false);
 
   const isOwner = currentUserId === comment.user_id;
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = useCallback(async () => {
     if (!editText.trim() || !onUpdate) return;
 
     setLoading(true);
@@ -49,14 +50,14 @@ export function CommentCard({ comment, currentUserId, onUpdate, onDelete }: Comm
     if (success) {
       setIsEditing(false);
     }
-  };
+  }, [editText, onUpdate, comment.id]);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setEditText(comment.comment_text);
     setIsEditing(false);
-  };
+  }, [comment.comment_text]);
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (!onDelete) return;
 
     const confirmed = window.confirm('Delete this comment?');
@@ -65,11 +66,11 @@ export function CommentCard({ comment, currentUserId, onUpdate, onDelete }: Comm
     setLoading(true);
     await onDelete(comment.id);
     setLoading(false);
-  };
+  }, [onDelete, comment.id]);
 
-  // Format timestamp
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
+  // Format timestamp (memoized)
+  const formattedTimestamp = useMemo(() => {
+    const date = new Date(comment.created_at);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
@@ -80,7 +81,7 @@ export function CommentCard({ comment, currentUserId, onUpdate, onDelete }: Comm
     if (diffHours < 24) return `${diffHours}h ago`;
     const diffDays = Math.floor(diffHours / 24);
     return `${diffDays}d ago`;
-  };
+  }, [comment.created_at]);
 
   return (
     <div className="flex gap-3 py-3">
@@ -95,7 +96,7 @@ export function CommentCard({ comment, currentUserId, onUpdate, onDelete }: Comm
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           <span className="font-semibold text-white text-sm">{comment.user?.username}</span>
-          <span className="text-gray-500 text-xs">{formatTimestamp(comment.created_at)}</span>
+          <span className="text-gray-500 text-xs">{formattedTimestamp}</span>
           {comment.updated_at !== comment.created_at && (
             <span className="text-gray-500 text-xs">(edited)</span>
           )}
@@ -157,4 +158,4 @@ export function CommentCard({ comment, currentUserId, onUpdate, onDelete }: Comm
       </div>
     </div>
   );
-}
+});
