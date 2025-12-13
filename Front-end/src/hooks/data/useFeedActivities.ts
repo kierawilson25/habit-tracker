@@ -94,7 +94,7 @@ export function useFeedActivities(options: UseFeedActivitiesOptions = {}): UseFe
       setLoading(true);
       setError(null);
 
-      // Build query
+      // Build query - exclude own activities, only show friends'
       let query = supabase
         .from('feed_activities')
         .select(`
@@ -107,6 +107,7 @@ export function useFeedActivities(options: UseFeedActivitiesOptions = {}): UseFe
           ),
           habit:habits(id, title)
         `)
+        .neq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(pageSize);
 
