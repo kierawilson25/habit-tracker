@@ -69,7 +69,7 @@ export function ActivityFeed({ userId, pageSize = 20 }: ActivityFeedProps) {
     <div className="space-y-4">
       {/* Activity list */}
       {activities.map((activity) => (
-        <FeedCard key={activity.id} activity={activity} />
+        <FeedCard key={activity.id} activity={activity} userId={userId} />
       ))}
 
       {/* Load more button */}
