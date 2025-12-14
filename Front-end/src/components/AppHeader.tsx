@@ -22,8 +22,8 @@ export default function AppHeader() {
   const navItems: NavItem[] = [
     { href: "/", label: "Home", authRequired: false},
     { href: "/home", label: "Home", authRequired: true },
-    { href: "/habits", label: "My Habits", authRequired: true },
-    { href: "/stats", label: "My Stats", authRequired: true },
+    { href: "/habits", label: "Habits", authRequired: true },
+    { href: "/stats", label: "Stats", authRequired: true },
     { href: "/friends", label: "Friends", authRequired: true },
     { href: "/feed", label: "Feed", authRequired: true },
     { href: "/profile", label: "Profile", authRequired: true },
