@@ -98,14 +98,14 @@ export default function EditProfilePage() {
     return <Loading />;
   }
 
-  if (!profile) {
+  if (!user || !profile) {
     return (
       <div className="min-h-screen bg-black text-white">
         <div className="flex justify-center px-4 py-8">
           <div className="w-full max-w-2xl">
             <Container>
               <H1 text="Profile Not Found" />
-              <p className="text-gray-400">Unable to load profile for editing.</p>
+              <p className="text-gray-400">Unable to load profile for editing. Please log in.</p>
             </Container>
           </div>
         </div>
