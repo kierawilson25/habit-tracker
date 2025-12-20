@@ -10,6 +10,7 @@ import {
   Button,
   ProfilePicture,
   PrivacyToggle,
+  NotificationSettings,
   Loading,
 } from '@/components';
 
@@ -171,6 +172,11 @@ export default function EditProfilePage() {
               <PrivacyToggle
                 value={habitsPrivacy}
                 onChange={setHabitsPrivacy}
+                disabled={saving}
+              />
+
+              <NotificationSettings
+                userId={user.id}
                 disabled={saving}
               />
 
