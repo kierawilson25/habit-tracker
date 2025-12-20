@@ -9,6 +9,7 @@ export { default as EditableHabitInput } from './EditableHabitInput';
 export { default as Footer } from './Footer';
 export { default as FriendCard } from './FriendCard';
 export { default as FriendRequestCard } from './FriendRequestCard';
+export { default as NotificationSettings } from './NotificationSettings';
 export { default as H1 } from './H1';
 export { default as HabitCell } from './HabitCell';
 export { default as Loading } from './Loading';
