@@ -73,10 +73,10 @@ export default function AppHeader() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`text-lg font-medium transition-colors relative no-underline ${
+                  className={`text-lg font-medium transition-colors relative ${
                     pathname === item.href
-                      ? "text-green-400 border-b-2 border-green-400 pb-1 visited:text-green-400"
-                      : "text-gray-300 hover:text-white visited:text-gray-300"
+                      ? "text-green-400 border-b-2 border-green-400 pb-1"
+                      : "text-gray-300 hover:text-white"
                   }`}
                 >
                   {item.label}
@@ -151,10 +151,10 @@ export default function AppHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`block px-4 py-3 text-base relative no-underline ${
+                className={`block px-4 py-3 text-base relative ${
                   pathname === item.href
-                    ? "text-green-400 bg-black-800 visited:text-green-400"
-                    : "text-gray-300 hover:text-white hover:bg-gray-800 visited:text-gray-300"
+                    ? "text-green-400 bg-black-800"
+                    : "text-gray-300 hover:text-white hover:bg-gray-800"
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
