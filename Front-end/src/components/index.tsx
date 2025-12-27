@@ -12,6 +12,8 @@ export { default as FriendRequestCard } from './FriendRequestCard';
 export { default as H1 } from './H1';
 export { default as HabitCell } from './HabitCell';
 export { default as Loading } from './Loading';
+export { default as NotificationBadge } from './NotificationBadge';
+export { default as NotificationCard } from './NotificationCard';
 export { default as NotificationSettings } from './NotificationSettings';
 export { default as PageHeader } from './PageHeader';
 export { default as PageLayout } from './PageLayout';
