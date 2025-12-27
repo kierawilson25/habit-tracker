@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { useUnreadCount } from "@/hooks/data/useUnreadCount";
+import NotificationBadge from "./NotificationBadge";
 
 // Type definitions
 interface NavItem {
@@ -17,6 +19,7 @@ export default function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { unreadCount } = useUnreadCount({ userId: user?.id });
 
   // Define your navigation structure
   const navItems: NavItem[] = [
@@ -80,6 +83,12 @@ export default function AppHeader() {
                   }`}
                 >
                   {item.label}
+                  {item.href === '/feed' && unreadCount > 0 && (
+                    <NotificationBadge
+                      count={unreadCount}
+                      className="absolute -top-1 -right-2"
+                    />
+                  )}
                   {item.isNew && (
                     <span className="absolute -top-2 -right-7 bg-yellow-500 text-black text-[8px] font-bold px-1 py-0.5 rounded uppercase">
                       New
@@ -158,12 +167,19 @@ export default function AppHeader() {
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {item.label}
-                {item.isNew && (
-                  <span className="ml-2 bg-yellow-500 text-black text-[8px] font-bold px-1 py-0.5 rounded uppercase">
-                    New
-                  </span>
-                )}
+                <div className="flex items-center justify-between">
+                  <span>{item.label}</span>
+                  <div className="flex items-center gap-2">
+                    {item.href === '/feed' && unreadCount > 0 && (
+                      <NotificationBadge count={unreadCount} />
+                    )}
+                    {item.isNew && (
+                      <span className="bg-yellow-500 text-black text-[8px] font-bold px-1 py-0.5 rounded uppercase">
+                        New
+                      </span>
+                    )}
+                  </div>
+                </div>
               </Link>
             ))}
           </div>

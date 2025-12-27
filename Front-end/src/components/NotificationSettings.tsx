@@ -38,6 +38,11 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({
     await updatePreferences({ reminder_if_none_enabled: enabled });
   };
 
+  // Handle in-app notification preferences
+  const handlePreferenceChange = async (key: string, enabled: boolean) => {
+    await updatePreferences({ [key]: enabled });
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col gap-3">
@@ -115,6 +120,53 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({
           <>Enable email notifications to receive daily habit reminders</>
         )}
       </p>
+
+      {/* In-App Notifications */}
+      <div className="flex flex-col gap-3 mt-6 pt-6 border-t border-gray-700">
+        <label className="text-white font-medium">In-App Notifications</label>
+
+        <div className="space-y-4">
+          <div className="flex flex-col gap-2">
+            <Toggle
+              enabled={preferences?.notify_friend_posts ?? true}
+              onChange={(enabled) => handlePreferenceChange('notify_friend_posts', enabled)}
+              disabled={disabled}
+              label="Friend posts"
+            />
+            <p className="text-sm text-gray-400">
+              Get notified when friends complete habits and earn achievements
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Toggle
+              enabled={preferences?.notify_likes ?? true}
+              onChange={(enabled) => handlePreferenceChange('notify_likes', enabled)}
+              disabled={disabled}
+              label="Likes"
+            />
+            <p className="text-sm text-gray-400">
+              Get notified when someone likes your activity
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Toggle
+              enabled={preferences?.notify_comments ?? true}
+              onChange={(enabled) => handlePreferenceChange('notify_comments', enabled)}
+              disabled={disabled}
+              label="Comments"
+            />
+            <p className="text-sm text-gray-400">
+              Get notified when someone comments on your activity
+            </p>
+          </div>
+        </div>
+
+        <p className="text-sm text-gray-400">
+          Control which notifications appear in your notification center
+        </p>
+      </div>
     </div>
   );
 };
