@@ -122,6 +122,7 @@ export function useNotifications(
   const fetchNotifications = useCallback(
     async (reset: boolean = false) => {
       if (!userId) {
+        console.log('📬 useNotifications: No userId, skipping fetch');
         setNotifications([]);
         setUnreadCount(0);
         return;
@@ -133,58 +134,249 @@ export function useNotifications(
 
         const currentOffset = reset ? 0 : offset;
 
-        // Build query
-        let query = supabase
-          .from('in_app_notifications')
-          .select(`
-            *,
-            actor:user_profiles!actor_id (
-              username,
-              profile_picture_url
-            )
-          `)
-          .eq('user_id', userId);
+        console.log('📬 useNotifications: Fetching notifications', {
+          userId,
+          filter,
+          offset: currentOffset,
+          pageSize,
+          reset
+        });
 
-        // Apply filter
-        if (filter !== 'all') {
-          const typeMap: Record<string, NotificationType> = {
-            posts: 'friend_post',
-            likes: 'like',
-            comments: 'comment',
-          };
-          const notificationType = typeMap[filter];
-          if (notificationType) {
-            query = query.eq('type', notificationType);
+        let transformedData: InAppNotification[] = [];
+
+        // For likes only, query activity_likes directly
+        if (filter === 'likes') {
+          console.log('📬 useNotifications: Fetching likes from activity_likes table');
+
+          const { data: likesData, error: likesError } = await supabase
+            .from('activity_likes')
+            .select(`
+              id,
+              activity_id,
+              user_id,
+              created_at,
+              feed_activities!inner (
+                id,
+                user_id,
+                activity_type,
+                habit_id,
+                habits (
+                  title
+                )
+              )
+            `)
+            .eq('feed_activities.user_id', userId)
+            .order('created_at', { ascending: false })
+            .range(currentOffset, currentOffset + pageSize - 1);
+
+          console.log('📬 useNotifications: Likes query response', {
+            dataLength: likesData?.length || 0,
+            error: likesError,
+            data: likesData
+          });
+
+          if (likesError) throw likesError;
+
+          if (likesData) {
+            // Get unique user IDs who liked
+            const likerIds = [...new Set(likesData.map(like => like.user_id))];
+
+            // Fetch liker profiles
+            const { data: profilesData } = await supabase
+              .from('user_profiles')
+              .select('id, username, profile_picture_url')
+              .in('id', likerIds);
+
+            const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+
+            // Transform likes to notification format
+            transformedData = likesData.map((like: any) => {
+              const activity = like.feed_activities;
+              const liker = profilesMap.get(like.user_id);
+
+              return {
+                id: like.id,
+                user_id: userId,
+                type: 'like' as NotificationType,
+                actor_id: like.user_id,
+                actor_username: liker?.username || 'Unknown',
+                actor_avatar: liker?.profile_picture_url,
+                activity_id: like.activity_id,
+                activity_type: activity?.activity_type || 'habit_completion',
+                activity_context: activity?.habits?.title ? `completed ${activity.habits.title}` : activity?.activity_type || '',
+                comment_text: null,
+                is_read: true, // Likes are always considered "seen"
+                created_at: like.created_at,
+              };
+            });
           }
-        }
 
-        // Order and paginate
-        query = query
-          .order('created_at', { ascending: false })
-          .range(currentOffset, currentOffset + pageSize - 1);
+          setHasMore((likesData?.length || 0) === pageSize);
+        } else if (filter === 'all') {
+          // For 'all', fetch from BOTH sources and merge
+          console.log('📬 useNotifications: Fetching ALL notifications (posts, comments, likes)');
 
-        const { data, error: fetchError } = await query;
+          // 1. Fetch posts and comments from in_app_notifications
+          const { data: notificationsData, error: notificationsError } = await supabase
+            .from('in_app_notifications')
+            .select(`
+              *,
+              actor:user_profiles!actor_id (
+                username,
+                profile_picture_url
+              )
+            `)
+            .eq('user_id', userId)
+            .neq('type', 'like')
+            .order('created_at', { ascending: false })
+            .range(currentOffset, currentOffset + pageSize - 1);
 
-        if (fetchError) throw fetchError;
+          console.log('📬 useNotifications: Notifications query response', {
+            dataLength: notificationsData?.length || 0,
+            error: notificationsError,
+            data: notificationsData
+          });
 
-        if (data) {
-          // Transform data to match InAppNotification interface
-          const transformedData: InAppNotification[] = data.map((item: any) => ({
+          if (notificationsError) throw notificationsError;
+
+          // 2. Fetch likes from activity_likes
+          const { data: likesData, error: likesError } = await supabase
+            .from('activity_likes')
+            .select(`
+              id,
+              activity_id,
+              user_id,
+              created_at,
+              feed_activities!inner (
+                id,
+                user_id,
+                activity_type,
+                habit_id,
+                habits (
+                  title
+                )
+              )
+            `)
+            .eq('feed_activities.user_id', userId)
+            .order('created_at', { ascending: false })
+            .range(currentOffset, currentOffset + pageSize - 1);
+
+          console.log('📬 useNotifications: Likes query response (for all)', {
+            dataLength: likesData?.length || 0,
+            error: likesError,
+            data: likesData
+          });
+
+          if (likesError) throw likesError;
+
+          // 3. Transform notifications from in_app_notifications
+          const notificationsTransformed = notificationsData?.map((item: any) => ({
             ...item,
             actor_username: item.actor?.username || 'Unknown',
             actor_avatar: item.actor?.profile_picture_url,
-          }));
+          })) || [];
 
-          if (reset) {
-            setNotifications(transformedData);
-            setOffset(transformedData.length);
-          } else {
-            setNotifications((prev) => [...prev, ...transformedData]);
-            setOffset((prev) => prev + transformedData.length);
+          // 4. Transform likes from activity_likes
+          let likesTransformed: InAppNotification[] = [];
+          if (likesData) {
+            // Get unique user IDs who liked
+            const likerIds = [...new Set(likesData.map(like => like.user_id))];
+
+            // Fetch liker profiles
+            const { data: profilesData } = await supabase
+              .from('user_profiles')
+              .select('id, username, profile_picture_url')
+              .in('id', likerIds);
+
+            const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+
+            likesTransformed = likesData.map((like: any) => {
+              const activity = like.feed_activities;
+              const liker = profilesMap.get(like.user_id);
+
+              return {
+                id: like.id,
+                user_id: userId,
+                type: 'like' as NotificationType,
+                actor_id: like.user_id,
+                actor_username: liker?.username || 'Unknown',
+                actor_avatar: liker?.profile_picture_url,
+                activity_id: like.activity_id,
+                activity_type: activity?.activity_type || 'habit_completion',
+                activity_context: activity?.habits?.title ? `completed ${activity.habits.title}` : activity?.activity_type || '',
+                comment_text: null,
+                is_read: true,
+                created_at: like.created_at,
+              };
+            });
           }
 
-          // Check if there are more notifications
-          setHasMore(transformedData.length === pageSize);
+          // 5. Merge and sort by created_at DESC
+          transformedData = [...notificationsTransformed, ...likesTransformed]
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+          console.log('📬 useNotifications: Merged results', {
+            notificationsCount: notificationsTransformed.length,
+            likesCount: likesTransformed.length,
+            totalCount: transformedData.length
+          });
+
+          setHasMore(
+            (notificationsData?.length || 0) === pageSize ||
+            (likesData?.length || 0) === pageSize
+          );
+        } else {
+          // For specific filters (posts or comments), query in_app_notifications only
+          const typeMap: Record<string, NotificationType> = {
+            posts: 'friend_post',
+            comments: 'comment',
+          };
+          const notificationType = typeMap[filter];
+
+          if (notificationType) {
+            console.log('📬 useNotifications: Applying filter:', notificationType);
+
+            const { data, error: fetchError } = await supabase
+              .from('in_app_notifications')
+              .select(`
+                *,
+                actor:user_profiles!actor_id (
+                  username,
+                  profile_picture_url
+                )
+              `)
+              .eq('user_id', userId)
+              .eq('type', notificationType)
+              .order('created_at', { ascending: false })
+              .range(currentOffset, currentOffset + pageSize - 1);
+
+            console.log('📬 useNotifications: Query response', {
+              dataLength: data?.length || 0,
+              error: fetchError,
+              data
+            });
+
+            if (fetchError) throw fetchError;
+
+            if (data) {
+              transformedData = data.map((item: any) => ({
+                ...item,
+                actor_username: item.actor?.username || 'Unknown',
+                actor_avatar: item.actor?.profile_picture_url,
+              }));
+
+              setHasMore(transformedData.length === pageSize);
+            }
+          }
+        }
+
+        // Set notifications state
+        if (reset) {
+          setNotifications(transformedData);
+          setOffset(transformedData.length);
+        } else {
+          setNotifications((prev) => [...prev, ...transformedData]);
+          setOffset((prev) => prev + transformedData.length);
         }
 
         // Fetch unread count separately (more efficient)

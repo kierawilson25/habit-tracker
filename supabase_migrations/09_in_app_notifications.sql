@@ -93,7 +93,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER on_activity_created_notify_friends
-  AFTER INSERT ON activities
+  AFTER INSERT ON feed_activities
   FOR EACH ROW
   EXECUTE FUNCTION notify_friend_activity();
 
@@ -105,7 +105,7 @@ CREATE OR REPLACE FUNCTION notify_activity_liked()
 RETURNS TRIGGER AS $$
 BEGIN
   -- Create notification for activity owner when liked (skip if user likes own activity)
-  IF NEW.user_id != (SELECT user_id FROM activities WHERE id = NEW.activity_id) THEN
+  IF NEW.user_id != (SELECT user_id FROM feed_activities WHERE id = NEW.activity_id) THEN
     INSERT INTO in_app_notifications (user_id, type, actor_id, activity_id, activity_type, activity_context)
     SELECT
       a.user_id,
@@ -118,7 +118,7 @@ BEGIN
         WHEN a.activity_type = 'gold_star_day' THEN 'earned a Gold Star Day'
         ELSE a.activity_type
       END
-    FROM activities a
+    FROM feed_activities a
     LEFT JOIN habits h ON h.id = a.habit_id
     INNER JOIN notification_preferences np ON np.user_id = a.user_id
     WHERE a.id = NEW.activity_id
@@ -131,7 +131,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER on_like_created_notify_owner
-  AFTER INSERT ON likes
+  AFTER INSERT ON activity_likes
   FOR EACH ROW
   EXECUTE FUNCTION notify_activity_liked();
 
@@ -143,7 +143,7 @@ CREATE OR REPLACE FUNCTION notify_activity_commented()
 RETURNS TRIGGER AS $$
 BEGIN
   -- Create notification for activity owner when commented (skip if user comments on own activity)
-  IF NEW.user_id != (SELECT user_id FROM activities WHERE id = NEW.activity_id) THEN
+  IF NEW.user_id != (SELECT user_id FROM feed_activities WHERE id = NEW.activity_id) THEN
     INSERT INTO in_app_notifications (user_id, type, actor_id, activity_id, activity_type, activity_context, comment_text)
     SELECT
       a.user_id,
@@ -157,7 +157,7 @@ BEGIN
         ELSE a.activity_type
       END,
       NEW.comment_text
-    FROM activities a
+    FROM feed_activities a
     LEFT JOIN habits h ON h.id = a.habit_id
     INNER JOIN notification_preferences np ON np.user_id = a.user_id
     WHERE a.id = NEW.activity_id
@@ -170,6 +170,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER on_comment_created_notify_owner
-  AFTER INSERT ON comments
+  AFTER INSERT ON activity_comments
   FOR EACH ROW
   EXECUTE FUNCTION notify_activity_commented();

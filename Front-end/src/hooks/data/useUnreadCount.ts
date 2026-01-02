@@ -80,6 +80,7 @@ export function useUnreadCount(
    */
   const fetchUnreadCount = useCallback(async () => {
     if (!userId) {
+      console.log('🔔 useUnreadCount: No userId, skipping fetch');
       setUnreadCount(0);
       return;
     }
@@ -88,19 +89,24 @@ export function useUnreadCount(
       setLoading(true);
       setError(null);
 
+      console.log('🔔 useUnreadCount: Fetching for userId:', userId);
+
       const { count, error: countError } = await supabase
         .from('in_app_notifications')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
         .eq('is_read', false);
 
+      console.log('🔔 useUnreadCount: Response -', { count, error: countError });
+
       if (countError) throw countError;
 
       setUnreadCount(count || 0);
+      console.log('🔔 useUnreadCount: Set unreadCount to:', count || 0);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to fetch unread count');
       setError(error);
-      console.error('Error fetching unread count:', error);
+      console.error('❌ useUnreadCount: Error fetching unread count:', error);
     } finally {
       setLoading(false);
     }

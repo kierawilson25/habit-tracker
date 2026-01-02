@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSupabaseAuth } from '@/hooks/auth/useSupabaseAuth';
 import { useNotifications } from '@/hooks/data/useNotifications';
@@ -44,6 +44,19 @@ export default function NotificationsPage() {
     pageSize: 20,
     autoFetch: true,
   });
+
+  // Auto-mark all as read when visiting notifications page
+  useEffect(() => {
+    if (user?.id && !loading && unreadCount > 0) {
+      // Wait a moment to let user see the page, then clear the badge
+      const timer = setTimeout(() => {
+        console.log('🔔 Auto-marking all notifications as read');
+        markAllAsRead();
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [user?.id]); // Only run on mount (when user is set)
 
   const handleNotificationClick = async (notification: InAppNotification) => {
     // Mark as read

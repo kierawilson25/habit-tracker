@@ -124,6 +124,14 @@ export function useFeedActivities(options: UseFeedActivitiesOptions = {}): UseFe
         throw fetchError;
       }
 
+      console.log('📊 useFeedActivities: Raw data from query', {
+        count: data?.length,
+        sample: data?.[0],
+        habitData: data?.[0]?.habit,
+        userData: data?.[0]?.user,
+        privacySetting: data?.[0]?.user?.habits_privacy
+      });
+
       // Apply privacy filtering
       const filteredData = (data || []).map((activity) => {
         // If the user has private habits and this is a habit completion, hide habit details
@@ -132,6 +140,7 @@ export function useFeedActivities(options: UseFeedActivitiesOptions = {}): UseFe
           activity.activity_type === 'habit_completion' &&
           activity.user_id !== userId
         ) {
+          console.log('🔒 Hiding habit details for private user:', activity.user?.username);
           return {
             ...activity,
             habit: null,
@@ -141,6 +150,12 @@ export function useFeedActivities(options: UseFeedActivitiesOptions = {}): UseFe
             },
           };
         }
+        console.log('🔓 Showing habit details for user:', {
+          username: activity.user?.username,
+          habit: activity.habit?.title,
+          privacy: activity.user?.habits_privacy,
+          activityType: activity.activity_type
+        });
         return activity;
       });
 

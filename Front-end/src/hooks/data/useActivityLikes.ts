@@ -104,7 +104,14 @@ export function useActivityLikes(options: UseActivityLikesOptions): UseActivityL
    * Toggle like (optimistic update)
    */
   const toggleLike = useCallback(async () => {
+    console.log('❤️ LIKE BUTTON CLICKED', {
+      activityId,
+      userId,
+      currentlyLiked: isLiked
+    });
+
     if (!userId) {
+      console.error('❌ No userId - user must log in');
       setError(new Error('Must be logged in to like'));
       return;
     }
@@ -115,31 +122,51 @@ export function useActivityLikes(options: UseActivityLikesOptions): UseActivityL
 
       // Optimistic update
       const wasLiked = isLiked;
+      console.log(`⚡ Optimistic update: ${wasLiked ? 'UNLIKING' : 'LIKING'}`);
       setIsLiked(!wasLiked);
       setLikeCount((prev) => (wasLiked ? prev - 1 : prev + 1));
 
       if (wasLiked) {
         // Unlike
-        const { error: deleteError } = await supabase
+        console.log('🗑️  UNLIKE: Deleting from activity_likes', {
+          activity_id: activityId,
+          user_id: userId
+        });
+
+        const { data, error: deleteError } = await supabase
           .from('activity_likes')
           .delete()
           .eq('activity_id', activityId)
-          .eq('user_id', userId);
+          .eq('user_id', userId)
+          .select();
+
+        console.log('🗑️  UNLIKE RESPONSE:', { data, error: deleteError });
 
         if (deleteError) throw deleteError;
       } else {
         // Like
-        const { error: insertError } = await supabase
+        console.log('➕ LIKE: Inserting into activity_likes', {
+          activity_id: activityId,
+          user_id: userId
+        });
+
+        const { data, error: insertError } = await supabase
           .from('activity_likes')
           .insert({
             activity_id: activityId,
             user_id: userId,
-          });
+          })
+          .select();
+
+        console.log('➕ LIKE RESPONSE:', { data, error: insertError });
 
         if (insertError) throw insertError;
+
+        console.log('✅ LIKE SUCCESS - Trigger should have fired on database');
       }
     } catch (err) {
       // Revert optimistic update on error
+      console.error('❌ LIKE FAILED - Reverting optimistic update', err);
       setIsLiked(!isLiked);
       setLikeCount((prev) => (isLiked ? prev + 1 : prev - 1));
 
@@ -148,6 +175,7 @@ export function useActivityLikes(options: UseActivityLikesOptions): UseActivityL
       console.error('Error toggling like:', error);
     } finally {
       setLoading(false);
+      console.log('✅ toggleLike completed');
     }
   }, [activityId, userId, isLiked, supabase]);
 
