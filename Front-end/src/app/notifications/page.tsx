@@ -47,14 +47,14 @@ export default function NotificationsPage() {
 
   // Auto-mark all as read when visiting notifications page
   useEffect(() => {
-    if (user?.id && !loading && unreadCount > 0) {
+    if (user?.id && !loading) {
       console.log('🔔 Auto-marking all notifications as read');
       markAllAsRead();
 
       // Trigger a custom event to notify AppHeader to refetch badge count
       window.dispatchEvent(new CustomEvent('notifications-marked-read'));
     }
-  }, [user?.id]); // Only run on mount (when user is set)
+  }, [user?.id, loading, markAllAsRead]); // Run when user is set and loading completes
 
   const handleNotificationClick = async (notification: InAppNotification) => {
     // Mark as read
