@@ -204,7 +204,7 @@ export function useNotifications(
                 activity_id: like.activity_id,
                 activity_type: activity?.activity_type || 'habit_completion',
                 activity_context: activity?.habits?.title ? `completed ${activity.habits.title}` : activity?.activity_type || '',
-                comment_text: null,
+                comment_text: undefined,
                 is_read: true, // Likes are always considered "seen"
                 created_at: like.created_at,
               };
@@ -304,7 +304,7 @@ export function useNotifications(
                 activity_id: like.activity_id,
                 activity_type: activity?.activity_type || 'habit_completion',
                 activity_context: activity?.habits?.title ? `completed ${activity.habits.title}` : activity?.activity_type || '',
-                comment_text: null,
+                comment_text: undefined,
                 is_read: true,
                 created_at: like.created_at,
               };
