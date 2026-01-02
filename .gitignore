@@ -42,3 +42,7 @@ next-env.d.ts
 
 # claude code
 .claude
+
+# supabase local development files
+supabase/
+!supabase_migrations/
