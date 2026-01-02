@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSupabaseAuth } from '@/hooks/auth/useSupabaseAuth';
 import { useNotifications } from '@/hooks/data/useNotifications';
@@ -28,6 +28,7 @@ export default function NotificationsPage() {
   });
 
   const [activeFilter, setActiveFilter] = useState<'all' | 'posts' | 'likes' | 'comments'>('all');
+  const hasMarkedAsRead = useRef(false);
 
   const {
     notifications,
@@ -47,14 +48,15 @@ export default function NotificationsPage() {
 
   // Auto-mark all as read when visiting notifications page
   useEffect(() => {
-    if (user?.id && !loading) {
+    if (user?.id && !loading && !hasMarkedAsRead.current) {
       console.log('🔔 Auto-marking all notifications as read');
+      hasMarkedAsRead.current = true;
       markAllAsRead();
 
       // Trigger a custom event to notify AppHeader to refetch badge count
       window.dispatchEvent(new CustomEvent('notifications-marked-read'));
     }
-  }, [user?.id, loading, markAllAsRead]); // Run when user is set and loading completes
+  }, [user?.id, loading]); // Run when user is set and loading completes
 
   const handleNotificationClick = async (notification: InAppNotification) => {
     // Mark as read
