@@ -166,6 +166,7 @@ export function useNotifications(
               )
             `)
             .eq('feed_activities.user_id', userId)
+            .neq('user_id', userId) // Exclude self-likes
             .order('created_at', { ascending: false })
             .range(currentOffset, currentOffset + pageSize - 1);
 
@@ -258,6 +259,7 @@ export function useNotifications(
               )
             `)
             .eq('feed_activities.user_id', userId)
+            .neq('user_id', userId) // Exclude self-likes
             .order('created_at', { ascending: false })
             .range(currentOffset, currentOffset + pageSize - 1);
 
