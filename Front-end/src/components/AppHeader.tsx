@@ -2,7 +2,10 @@
 import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useUnreadCount } from "@/hooks/data/useUnreadCount";
+import NotificationBadge from "./NotificationBadge";
+import { createClient } from "@/utils/supabase/client";
 
 // Type definitions
 interface NavItem {
@@ -17,6 +20,37 @@ export default function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [username, setUsername] = useState<string | null>(null);
+  const { unreadCount } = useUnreadCount({
+    userId: user?.id,
+    pollInterval: 3000 // Poll every 3 seconds for faster badge updates
+  });
+
+  const supabase = createClient();
+
+  // Fetch username from user_profiles
+  useEffect(() => {
+    const fetchUsername = async () => {
+      if (!user?.id) {
+        setUsername(null);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('username')
+        .eq('id', user.id)
+        .single();
+
+      if (!error && data?.username) {
+        setUsername(data.username);
+      } else {
+        setUsername(null);
+      }
+    };
+
+    fetchUsername();
+  }, [user?.id, supabase]);
 
   // Define your navigation structure
   const navItems: NavItem[] = [
@@ -24,7 +58,6 @@ export default function AppHeader() {
     { href: "/home", label: "Home", authRequired: true },
     { href: "/habits", label: "Habits", authRequired: true },
     { href: "/stats", label: "Stats", authRequired: true },
-    { href: "/friends", label: "Friends", authRequired: true },
     { href: "/feed", label: "Feed", authRequired: true },
     { href: "/profile", label: "Profile", authRequired: true },
     { href: "/sign-up", label: "Get Started", authRequired: false },
@@ -94,9 +127,39 @@ export default function AppHeader() {
           <div className="flex items-center justify-end space-x-4 flex-1">
             {user ? (
               <div className="flex items-center space-x-3">
-                <span className="text-gray-300 text-base hidden sm:block">
-                  {user.email}
-                </span>
+                {/* Notification Bell Icon */}
+                <Link
+                  href="/notifications"
+                  className="relative text-gray-300 hover:text-white transition-colors focus-green rounded-full p-2"
+                  aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                    />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <NotificationBadge
+                      count={unreadCount}
+                      className="absolute -top-0 -right-0"
+                    />
+                  )}
+                </Link>
+                <Link
+                  href="/profile"
+                  className="text-gray-300 hover:text-white transition-colors text-base hidden sm:block focus-green px-3 py-2 rounded"
+                >
+                  {username || user.email}
+                </Link>
                 <button
                   onClick={handleSignOut}
                   disabled={loading}
@@ -158,12 +221,16 @@ export default function AppHeader() {
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {item.label}
-                {item.isNew && (
-                  <span className="ml-2 bg-yellow-500 text-black text-[8px] font-bold px-1 py-0.5 rounded uppercase">
-                    New
-                  </span>
-                )}
+                <div className="flex items-center justify-between">
+                  <span>{item.label}</span>
+                  <div className="flex items-center gap-2">
+                    {item.isNew && (
+                      <span className="bg-yellow-500 text-black text-[8px] font-bold px-1 py-0.5 rounded uppercase">
+                        New
+                      </span>
+                    )}
+                  </div>
+                </div>
               </Link>
             ))}
           </div>
