@@ -142,6 +142,20 @@ export function useUnreadCount(
     };
   }, [userId, pollInterval, fetchUnreadCount]);
 
+  // Listen for notifications being marked as read
+  useEffect(() => {
+    const handleNotificationsRead = () => {
+      console.log('🔔 useUnreadCount: Received notifications-marked-read event, refetching...');
+      fetchUnreadCount();
+    };
+
+    window.addEventListener('notifications-marked-read', handleNotificationsRead);
+
+    return () => {
+      window.removeEventListener('notifications-marked-read', handleNotificationsRead);
+    };
+  }, [fetchUnreadCount]);
+
   return {
     unreadCount,
     loading,

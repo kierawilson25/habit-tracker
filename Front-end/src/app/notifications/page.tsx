@@ -48,13 +48,11 @@ export default function NotificationsPage() {
   // Auto-mark all as read when visiting notifications page
   useEffect(() => {
     if (user?.id && !loading && unreadCount > 0) {
-      // Wait a moment to let user see the page, then clear the badge
-      const timer = setTimeout(() => {
-        console.log('🔔 Auto-marking all notifications as read');
-        markAllAsRead();
-      }, 500);
+      console.log('🔔 Auto-marking all notifications as read');
+      markAllAsRead();
 
-      return () => clearTimeout(timer);
+      // Trigger a custom event to notify AppHeader to refetch badge count
+      window.dispatchEvent(new CustomEvent('notifications-marked-read'));
     }
   }, [user?.id]); // Only run on mount (when user is set)
 
