@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Button, H1, Container, StatCard, Loading } from "@/components";
 import { useSupabaseAuth, useHabits } from "@/hooks";
+import { getHabitCompletionMessage } from "@/utils/habitMessages";
 
 
 export default function HomePage() {
@@ -22,6 +23,7 @@ export default function HomePage() {
   const [weeklyProgress, setWeeklyProgress] = useState(0);
   const [avgHabitsPerDay, setAvgHabitsPerDay] = useState(0);
   const [encouragingMessage, setEncouragingMessage] = useState("");
+  const [dashboardMessage, setDashboardMessage] = useState({ title: "", message: "" });
   const [statsLoading, setStatsLoading] = useState(true);
 
   const encouragingMessages = [
@@ -201,6 +203,14 @@ const fetchUserData = async () => {
     }
   }, [user, habits, habitsLoading, supabase]);
 
+  // Update dashboard message based on completion
+  useEffect(() => {
+    if (habits.length > 0) {
+      const message = getHabitCompletionMessage(completedHabits, habits.length);
+      setDashboardMessage(message);
+    }
+  }, [completedHabits, habits.length]);
+
   // Calculate percentage for the progress circle
   const percentage = habits.length > 0 ? (completedHabits / habits.length) * 100 : 0;
   const circumference = 2 * Math.PI * 45; // radius is 45
@@ -300,23 +310,20 @@ const fetchUserData = async () => {
                 </div>
               </div>
 
-              {/* Motivational Text */}
+              {/* Unhinged Duolingo-Style Motivational Text */}
               <div className="text-center mt-4">
-                {percentage === 100 ? (
-                  <p className="text-green-400 font-bold text-lg">
-                    🎉 Perfect day! All habits completed! 
-                  </p>
-                ) : percentage >= 60 ? (
-                  <p className="text-green-400 font-medium">
-                    Great progress! Keep up the momentum! 
-                  </p>
-                ) : percentage > 0 ? (
-                  <p className="text-yellow-400 font-medium">
-                    Good start! You can do more! 
-                  </p>
+                {habits.length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-white font-bold text-lg">
+                      {dashboardMessage.title}
+                    </p>
+                    <p className="text-gray-300 font-medium">
+                      {dashboardMessage.message}
+                    </p>
+                  </div>
                 ) : (
                   <p className="text-gray-400 font-medium">
-                    Ready to begin your day? 
+                    Add some habits to get started!
                   </p>
                 )}
               </div>
