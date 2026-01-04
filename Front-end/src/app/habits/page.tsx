@@ -8,6 +8,7 @@ import "../../utils/styles/global.css";
 import { createClient } from "@/utils/supabase/client";
 import { Button, H1, HabitCell, StreakCell, PopupBanner, Loading } from "@/components";
 import { useStreakCalculation } from "@/hooks";
+import { getHabitCompletionMessage } from "@/utils/habitMessages";
 import type {
   Habit,
   HabitAnalysis,
@@ -26,44 +27,47 @@ export default function Home() {
   const [celebrationAnimating, setCelebrationAnimating] = useState(false);
   const [confetti, setConfetti] = useState<Array<{ id: number; left: number; delay: number; duration: number }>>([]);
   const [fetchedHabits, setFetchedHabits] = useState(false);
+  const [celebrationMessage, setCelebrationMessage] = useState<{ title: string; message: string; badge?: string; icon?: string }>({ title: "", message: "" });
 
   const supabase = createClient();
   const { calculateStreak, isCompletedToday: isHabitCompletedToday, getLastCompletionDate } = useStreakCalculation();
 
-  // Celebration effect
+  // Celebration effect - triggers for ALL completion levels with UNHINGED messages!
   useEffect(() => {
     const completedCount = habits.filter(h => h.completed).length;
     const totalCount = habits.length;
-    
-    if (totalCount > 0 && completedCount === totalCount && !showCelebration && !celebrationAnimating) {
+
+    if (totalCount > 0 && !showCelebration && !celebrationAnimating) {
+      // Get unhinged message based on completion level
+      const message = getHabitCompletionMessage(completedCount, totalCount);
+      setCelebrationMessage(message);
+
       setShowCelebration(true);
       setCelebrationAnimating(true);
-      
-      // Generate confetti
-      const newConfetti = Array.from({ length: 50 }, (_, i) => ({
-        id: i,
-        left: Math.random() * 100,
-        delay: Math.random() * 0.5,
-        duration: 2 + Math.random() * 1
-      }));
-      setConfetti(newConfetti);
-      
-      // Start fade out animation after 5 seconds (2 seconds longer)
+
+      // Only show confetti for 100% completion (Gold Star Day vibes only!)
+      if (completedCount === totalCount) {
+        const newConfetti = Array.from({ length: 50 }, (_, i) => ({
+          id: i,
+          left: Math.random() * 100,
+          delay: Math.random() * 0.5,
+          duration: 2 + Math.random() * 1
+        }));
+        setConfetti(newConfetti);
+      }
+
+      // Show message for 4 seconds
       setTimeout(() => {
         setShowCelebration(false);
-      }, 5000);
+      }, 4000);
 
-      // Fully hide after fade out animation completes (5s + 2s animation)
+      // Fully hide after fade out
       setTimeout(() => {
         setConfetti([]);
         setCelebrationAnimating(false);
-      }, 7000);
-    } else if (completedCount < totalCount && (showCelebration || celebrationAnimating)) {
-      setShowCelebration(false);
-      setConfetti([]);
-      setCelebrationAnimating(false);
+      }, 6000);
     }
-  }, [habits]);
+  }, [habits, showCelebration, celebrationAnimating]);
 
   const completeHabit = async (habitId: string, userId: string) => {
     const today = new Date().toLocaleDateString('en-CA');
@@ -576,14 +580,14 @@ const fetchHabitsFromDB = async (): Promise<void> => {
       <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center px-4 pb-20 gap-8 sm:p-20 sm:gap-16 font-[family-name:var(--font-geist-sans)] w-full">
         <main className="flex flex-col gap-8 row-start-2 items-center w-full max-w-4xl">
           <H1 text="Habits" />
-          {/* Celebration Banner */}
+          {/* Celebration Banner - Now with UNHINGED energy */}
           <PopupBanner
             isVisible={showCelebration}
             isAnimating={celebrationAnimating}
-            title="Congratulations!"
-            message={`You completed all ${totalCount} habit${totalCount !== 1 ? 's' : ''} today!`}
-            badge="Gold Star Day! ⭐"
-            icon="⭐"
+            title={celebrationMessage.title}
+            message={celebrationMessage.message}
+            badge={celebrationMessage.badge}
+            icon={celebrationMessage.icon}
           />
           {/* Habits List */}
           <div className="w-full flex justify-center px-2 sm:px-4">

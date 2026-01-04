@@ -4,6 +4,12 @@ import Avatar from './Avatar';
 import { ActivityIcon } from './ActivityIcon';
 import { LikeButton } from './LikeButton';
 import { CommentSection } from './CommentSection';
+import {
+  getHabitCompletionFeedMessage,
+  getGoldStarDayFeedMessage,
+  getStreakMilestoneFeedMessage,
+  getNewLongestStreakFeedMessage
+} from '@/utils/feedMessages';
 
 export interface FeedCardProps {
   /**
@@ -47,66 +53,29 @@ export const FeedCard = memo(function FeedCard({ activity, userId }: FeedCardPro
   const activityMessage = useMemo(() => {
     switch (activity_type) {
       case 'habit_completion':
-        if (habit?.title) {
-          return (
-            <>
-              completed <span className="font-semibold text-green-400">{habit.title}</span>
-            </>
-          );
-        } else {
-          // Private habit - show generic message with count if available
-          const totalToday = metadata?.total_today;
-          if (totalToday) {
-            return `checked off a habit (${totalToday}/5)`;
-          }
-          return 'checked off a habit';
-        }
+        const habitCompletionMsg = getHabitCompletionFeedMessage(habit?.title || undefined);
+        return habitCompletionMsg.message;
 
       case 'gold_star_day':
         const totalHabits = metadata?.total_habits || 5;
-        return (
-          <>
-            earned a <span className="font-semibold text-yellow-400">Gold Star Day</span>! ({totalHabits}+ habits)
-          </>
-        );
+        const goldStarMsg = getGoldStarDayFeedMessage(totalHabits);
+        return goldStarMsg.message;
 
       case 'streak_milestone':
         const milestoneCount = metadata?.streak_count || 0;
-        const habitTitle = habit?.title || metadata?.habit_title;
-        if (habitTitle) {
-          return (
-            <>
-              reached a <span className="font-semibold text-orange-400">{milestoneCount}-day streak</span> on {habitTitle}
-            </>
-          );
-        } else {
-          return (
-            <>
-              reached a <span className="font-semibold text-orange-400">{milestoneCount}-day streak</span>
-            </>
-          );
-        }
+        const habitTitle = habit?.title || metadata?.habit_title || undefined;
+        const milestoneMsg = getStreakMilestoneFeedMessage(milestoneCount, habitTitle);
+        return milestoneMsg.message;
 
       case 'new_longest_streak':
         const newStreakCount = metadata?.streak_count || 0;
         const prevLongest = metadata?.previous_longest || 0;
-        const longestHabitTitle = habit?.title || metadata?.habit_title;
-        if (longestHabitTitle) {
-          return (
-            <>
-              set a <span className="font-semibold text-purple-400">new longest streak</span> of {newStreakCount} days on {longestHabitTitle} (previous: {prevLongest})
-            </>
-          );
-        } else {
-          return (
-            <>
-              set a <span className="font-semibold text-purple-400">new longest streak</span> of {newStreakCount} days
-            </>
-          );
-        }
+        const longestHabitTitle = habit?.title || metadata?.habit_title || undefined;
+        const longestStreakMsg = getNewLongestStreakFeedMessage(newStreakCount, prevLongest, longestHabitTitle);
+        return longestStreakMsg.message;
 
       default:
-        return 'did something';
+        return 'did something (mysterious energy ✨)';
     }
   }, [activity_type, habit, metadata]);
 

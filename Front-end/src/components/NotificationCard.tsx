@@ -14,6 +14,12 @@
 import React from 'react';
 import type { InAppNotification, NotificationType } from '@/types/notification.types';
 import Avatar from './Avatar';
+import {
+  getFriendPostMessage,
+  getLikeMessage,
+  getCommentMessageWithText,
+  getCommentMessage
+} from '@/utils/notificationMessages';
 
 export interface NotificationCardProps {
   /**
@@ -52,18 +58,16 @@ function formatTimestamp(timestamp: string): string {
 function getNotificationMessage(notification: InAppNotification): string {
   switch (notification.type) {
     case 'friend_post':
-      return 'posted an activity';
+      return getFriendPostMessage().message;
     case 'like':
-      return 'liked your activity';
+      return getLikeMessage().message;
     case 'comment':
       if (notification.comment_text) {
-        const truncated = notification.comment_text.slice(0, 60);
-        const suffix = notification.comment_text.length > 60 ? '...' : '';
-        return `commented: "${truncated}${suffix}"`;
+        return getCommentMessageWithText(notification.comment_text).message;
       }
-      return 'commented on your activity';
+      return getCommentMessage().message;
     default:
-      return 'interacted with your activity';
+      return 'interacted with your activity ✨';
   }
 }
 
