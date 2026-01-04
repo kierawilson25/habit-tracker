@@ -52,6 +52,11 @@ export default function AppHeader() {
     fetchUsername();
   }, [user?.id, supabase]);
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
   // Define your navigation structure
   const navItems: NavItem[] = [
     { href: "/", label: "Home", authRequired: false},
