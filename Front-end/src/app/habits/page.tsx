@@ -8,7 +8,7 @@ import "../../utils/styles/global.css";
 import { createClient } from "@/utils/supabase/client";
 import { Button, H1, HabitCell, StreakCell, PopupBanner, Loading } from "@/components";
 import { useStreakCalculation } from "@/hooks";
-import { getHabitCompletionMessage } from "@/utils/habitMessages";
+import { getAllHabitsMessage } from "@/utils/habitMessages";
 import type {
   Habit,
   HabitAnalysis,
@@ -32,42 +32,44 @@ export default function Home() {
   const supabase = createClient();
   const { calculateStreak, isCompletedToday: isHabitCompletedToday, getLastCompletionDate } = useStreakCalculation();
 
-  // Celebration effect - triggers for ALL completion levels with UNHINGED messages!
+  // Celebration effect - only triggers at 100% completion
   useEffect(() => {
     const completedCount = habits.filter(h => h.completed).length;
     const totalCount = habits.length;
 
-    if (totalCount > 0 && !showCelebration && !celebrationAnimating) {
-      // Get unhinged message based on completion level
-      const message = getHabitCompletionMessage(completedCount, totalCount);
+    if (totalCount > 0 && completedCount === totalCount && !showCelebration && !celebrationAnimating) {
+      // Get fun Duolingo-style message for 100% completion
+      const message = getAllHabitsMessage(totalCount);
       setCelebrationMessage(message);
 
       setShowCelebration(true);
       setCelebrationAnimating(true);
 
-      // Only show confetti for 100% completion (Gold Star Day vibes only!)
-      if (completedCount === totalCount) {
-        const newConfetti = Array.from({ length: 50 }, (_, i) => ({
-          id: i,
-          left: Math.random() * 100,
-          delay: Math.random() * 0.5,
-          duration: 2 + Math.random() * 1
-        }));
-        setConfetti(newConfetti);
-      }
+      // Generate confetti
+      const newConfetti = Array.from({ length: 50 }, (_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        delay: Math.random() * 0.5,
+        duration: 2 + Math.random() * 1
+      }));
+      setConfetti(newConfetti);
 
-      // Show message for 4 seconds
+      // Start fade out animation after 5 seconds
       setTimeout(() => {
         setShowCelebration(false);
-      }, 4000);
+      }, 5000);
 
-      // Fully hide after fade out
+      // Fully hide after fade out animation completes
       setTimeout(() => {
         setConfetti([]);
         setCelebrationAnimating(false);
-      }, 6000);
+      }, 7000);
+    } else if (completedCount < totalCount && (showCelebration || celebrationAnimating)) {
+      setShowCelebration(false);
+      setConfetti([]);
+      setCelebrationAnimating(false);
     }
-  }, [habits, showCelebration, celebrationAnimating]);
+  }, [habits]);
 
   const completeHabit = async (habitId: string, userId: string) => {
     const today = new Date().toLocaleDateString('en-CA');
@@ -580,7 +582,7 @@ const fetchHabitsFromDB = async (): Promise<void> => {
       <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center px-4 pb-20 gap-8 sm:p-20 sm:gap-16 font-[family-name:var(--font-geist-sans)] w-full">
         <main className="flex flex-col gap-8 row-start-2 items-center w-full max-w-4xl">
           <H1 text="Habits" />
-          {/* Celebration Banner - Now with UNHINGED energy */}
+          {/* Celebration Banner - Gold Star Day (100% completion) */}
           <PopupBanner
             isVisible={showCelebration}
             isAnimating={celebrationAnimating}
