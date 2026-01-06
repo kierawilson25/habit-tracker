@@ -92,17 +92,45 @@ export default function FriendsPage() {
                     </Button>
                   </>
                 ) : friends.length === 0 ? (
-                  <>
-                    <p className="text-gray-400 mb-4">
-                      You don't have any friends yet
-                    </p>
+                  <div className="space-y-6">
+                    <div className="space-y-3">
+                      <p className="text-xl text-white font-semibold">
+                        Looking a little lonely in here... 👀
+                      </p>
+                      <p className="text-gray-400">
+                        But don't worry! Here's how to fix that:
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-900 border border-gray-700 rounded-lg p-5 space-y-4">
+                      <div className="space-y-2">
+                        <p className="text-green-400 font-medium flex items-center gap-2">
+                          <span className="text-xl">✨</span>
+                          Add me @kiki
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          We can keep each other motivated!
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <p className="text-green-400 font-medium flex items-center gap-2">
+                          <span className="text-xl">📲</span>
+                          Invite a friend
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          Send this app to someone you want to stay accountable with!
+                        </p>
+                      </div>
+                    </div>
+
                     <Button
                       onClick={() => router.push('/friends/requests')}
                       type="primary"
                     >
                       Find Friends
                     </Button>
-                  </>
+                  </div>
                 ) : null}
               </div>
             ) : (
