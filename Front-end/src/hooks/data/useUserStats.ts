@@ -174,20 +174,18 @@ export function useUserStats(options: UseUserStatsOptions = {}): UseUserStatsRet
 
       const totalCompletions = completions.length;
 
-      // Get unique dates (days with activity) - normalize to ISO format for consistent comparison
-      const completionDates = completions.map(c => new Date(c.completion_date).toISOString().split('T')[0]);
+      // Get unique dates (days with activity)
+      // Database dates are already in YYYY-MM-DD format, use them directly to avoid timezone issues
+      const completionDates = completions.map(c => c.completion_date);
       const uniqueDates = [...new Set(completionDates)];
       // uniqueDates is now in descending order (most recent first) since completions was ordered descending
       const totalActiveDays = uniqueDates.length;
 
-      // Today's date in ISO format
-      const today = new Date().toISOString().split('T')[0];
+      // Today's date in local timezone (YYYY-MM-DD format)
+      const today = new Date().toLocaleDateString('en-CA');
 
-      // Count completions today
-      const completedToday = completions.filter(c => {
-        const compDate = new Date(c.completion_date).toISOString().split('T')[0];
-        return compDate === today;
-      }).length;
+      // Count completions today (database dates are already in YYYY-MM-DD format)
+      const completedToday = completions.filter(c => c.completion_date === today).length;
 
       // Calculate current streak (consecutive days with at least 1 completion)
       let currentStreak = 0;
