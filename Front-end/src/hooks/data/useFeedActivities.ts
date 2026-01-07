@@ -134,13 +134,15 @@ export function useFeedActivities(options: UseFeedActivitiesOptions = {}): UseFe
 
       // Apply privacy filtering
       const filteredData = (data || []).map((activity) => {
-        // If the user has private habits and this is a habit completion, hide habit details
+        // If the user has private habits, hide habit details for ALL activity types
         if (
           activity.user?.habits_privacy === 'private' &&
-          activity.activity_type === 'habit_completion' &&
           activity.user_id !== userId
         ) {
-          console.log('🔒 Hiding habit details for private user:', activity.user?.username);
+          console.log('🔒 Hiding habit details for private user:', {
+            username: activity.user?.username,
+            activityType: activity.activity_type
+          });
           return {
             ...activity,
             habit: null,
