@@ -51,9 +51,14 @@ export const FeedCard = memo(function FeedCard({ activity, userId }: FeedCardPro
 
   // Get activity message based on type (memoized)
   const activityMessage = useMemo(() => {
+    // Check if habits are private - if so, don't show habit titles
+    const isPrivate = user?.habits_privacy === 'private';
+
     switch (activity_type) {
       case 'habit_completion':
-        const habitCompletionMsg = getHabitCompletionFeedMessage(habit?.title || undefined);
+        const habitCompletionMsg = getHabitCompletionFeedMessage(
+          isPrivate ? undefined : (habit?.title || undefined)
+        );
         return habitCompletionMsg.message;
 
       case 'gold_star_day':
@@ -63,21 +68,21 @@ export const FeedCard = memo(function FeedCard({ activity, userId }: FeedCardPro
 
       case 'streak_milestone':
         const milestoneCount = metadata?.streak_count || 0;
-        const habitTitle = habit?.title || metadata?.habit_title || undefined;
+        const habitTitle = isPrivate ? undefined : (habit?.title || metadata?.habit_title || undefined);
         const milestoneMsg = getStreakMilestoneFeedMessage(milestoneCount, habitTitle);
         return milestoneMsg.message;
 
       case 'new_longest_streak':
         const newStreakCount = metadata?.streak_count || 0;
         const prevLongest = metadata?.previous_longest || 0;
-        const longestHabitTitle = habit?.title || metadata?.habit_title || undefined;
+        const longestHabitTitle = isPrivate ? undefined : (habit?.title || metadata?.habit_title || undefined);
         const longestStreakMsg = getNewLongestStreakFeedMessage(newStreakCount, prevLongest, longestHabitTitle);
         return longestStreakMsg.message;
 
       default:
         return 'did something (mysterious energy ✨)';
     }
-  }, [activity_type, habit, metadata]);
+  }, [activity_type, habit, metadata, user]);
 
   // Toggle comments handler (memoized)
   const toggleComments = useCallback(() => {
