@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Button, H1, Container, StatCard, Loading } from "@/components";
-import { useSupabaseAuth, useHabits } from "@/hooks";
+import { useSupabaseAuth, useHabits, useUserStats } from "@/hooks";
 import { getHabitCompletionMessage } from "@/utils/habitMessages";
 
 
@@ -16,15 +16,16 @@ export default function HomePage() {
     autoFetch: true
   });
 
-  // State for user data and stats
+  const { stats, loading: statsLoading } = useUserStats({
+    userId: user?.id,
+    totalHabits: habits.length,
+    autoFetch: true
+  });
+
+  // State for UI messages
   const [userName, setUserName] = useState("");
-  const [completedHabits, setCompletedHabits] = useState(0);
-  const [currentStreak, setCurrentStreak] = useState(0);
-  const [weeklyProgress, setWeeklyProgress] = useState(0);
-  const [avgHabitsPerDay, setAvgHabitsPerDay] = useState(0);
   const [encouragingMessage, setEncouragingMessage] = useState("");
   const [dashboardMessage, setDashboardMessage] = useState({ title: "", message: "" });
-  const [statsLoading, setStatsLoading] = useState(true);
 
   const encouragingMessages = [
     "Every small step counts towards your goals! 🌟",
@@ -37,159 +38,6 @@ export default function HomePage() {
     "Every habit completed is a promise kept to yourself! 💚"
   ];
 
-  // Function to load data
-const fetchUserData = async () => {
-  try {
-    // user is provided by useSupabaseAuth hook
-    if (!user || habits.length === 0) {
-      setStatsLoading(false);
-      return;
-    }
-
-    // Get user name from metadata or use email as fallback
-    const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || "User";
-    setUserName(displayName);
-
-    // Get today's date in YYYY-MM-DD format
-    const today = new Date().toLocaleDateString('en-CA');
-
-    // Fetch today's completions from habit_completions table
-    const { data: todayCompletions, error: completionsError } = await supabase
-      .from("habit_completions")
-      .select("habit_id")
-      .eq("user_id", user.id)
-      .eq("completion_date", today);
-
-    if (completionsError) {
-      console.error("Failed to fetch today's completions:", completionsError.message);
-    }
-
-    // Create a Set of habit IDs that are completed today
-    const completedHabitIds = new Set(
-      todayCompletions?.map((completion: any) => completion.habit_id) || []
-    );
-
-    // Count how many habits are completed today using habits from useHabits hook
-    const completed = habits.filter((habit) =>
-      completedHabitIds.has(habit.id)
-    ).length;
-
-    // Calculate current streak for each habit by checking completion history
-    let maxStreak = 0;
-    for (const habit of habits) {
-      const { data: habitCompletions, error: habitError } = await supabase
-        .from("habit_completions")
-        .select("completion_date")
-        .eq("habit_id", habit.id)
-        .order("completion_date", { ascending: false });
-
-      if (!habitError && habitCompletions && habitCompletions.length > 0) {
-        const completionDates = habitCompletions.map((c: any) =>
-          new Date(c.completion_date).toISOString().split('T')[0]
-        );
-
-        let habitStreak = 0;
-        const mostRecentCompletion = completionDates[0];
-        const mostRecentDate = new Date(mostRecentCompletion);
-        const todayDate = new Date(today);
-        const daysSinceCompletion = Math.floor((todayDate.getTime() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24));
-
-        // Only count streak if completed today or yesterday
-        if (daysSinceCompletion <= 1) {
-          habitStreak = 1;
-          // Count consecutive days backward
-          for (let i = 1; i < completionDates.length; i++) {
-            const currentCompDate = new Date(completionDates[i - 1]);
-            const nextCompDate = new Date(completionDates[i]);
-            const daysDiff = Math.floor((currentCompDate.getTime() - nextCompDate.getTime()) / (1000 * 60 * 60 * 24));
-
-            if (daysDiff === 1) {
-              habitStreak++;
-            } else {
-              break;
-            }
-          }
-        }
-        maxStreak = Math.max(maxStreak, habitStreak);
-      }
-    }
-
-    setCompletedHabits(completed);
-    setCurrentStreak(maxStreak);
-
-    // Calculate weekly progress from habit_completions table
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-    const { data: weeklyCompletions, error: weeklyError } = await supabase
-      .from("habit_completions")
-      .select("completion_date, habit_id")
-      .eq("user_id", user.id)
-      .gte("completion_date", sevenDaysAgo.toISOString().split('T')[0]);
-
-    if (weeklyError) {
-      console.error("Failed to fetch weekly data:", weeklyError.message);
-    } else if (weeklyCompletions && habits.length > 0) {
-      // Group completions by date and count unique habits completed each day
-      const completionsByDate = weeklyCompletions.reduce((acc: any, completion: any) => {
-        const date = completion.completion_date;
-        if (!acc[date]) acc[date] = new Set();
-        acc[date].add(completion.habit_id);
-        return acc;
-      }, {});
-
-      // Calculate average daily completion rate for the week
-      const daysWithData = Object.keys(completionsByDate);
-      const totalHabitsCount = habits.length;
-      
-      if (daysWithData.length > 0 && totalHabitsCount > 0) {
-        const totalCompletionRate = daysWithData.reduce((sum: number, date: string) => {
-          const habitsCompletedThatDay = completionsByDate[date].size;
-          return sum + (habitsCompletedThatDay / totalHabitsCount);
-        }, 0);
-        
-        const avgCompletionRate = (totalCompletionRate / daysWithData.length) * 100;
-        setWeeklyProgress(Math.round(avgCompletionRate));
-      } else {
-        setWeeklyProgress(0);
-      }
-    }
-
-    // Calculate average habits completed per day from all historical data
-    const { data: allCompletions, error: avgError } = await supabase
-      .from("habit_completions")
-      .select("completion_date, habit_id")
-      .eq("user_id", user.id);
-
-    if (avgError) {
-      console.error("Failed to fetch completion data:", avgError.message);
-    } else if (allCompletions && allCompletions.length > 0) {
-      // Group by date and count unique habits per day
-      const completionsByDate = allCompletions.reduce((acc: any, completion: any) => {
-        const date = completion.completion_date;
-        if (!acc[date]) acc[date] = new Set();
-        acc[date].add(completion.habit_id);
-        return acc;
-      }, {});
-
-      const daysWithCompletions = Object.keys(completionsByDate);
-      const totalHabitsCompleted = daysWithCompletions.reduce((sum: number, date: string) => {
-        return sum + completionsByDate[date].size;
-      }, 0);
-
-      const avgPerDay = totalHabitsCompleted / daysWithCompletions.length;
-      setAvgHabitsPerDay(Math.round(avgPerDay * 10) / 10);
-    } else {
-      setAvgHabitsPerDay(0);
-    }
-
-    setStatsLoading(false);
-  } catch (error) {
-    console.error("Error in fetchUserData:", error);
-    setStatsLoading(false);
-  }
-};
-
   useEffect(() => {
     // Set random encouraging message
     const randomIndex = Math.floor(Math.random() * encouragingMessages.length);
@@ -197,22 +45,23 @@ const fetchUserData = async () => {
   }, []);
 
   useEffect(() => {
-    // Load data when user is available and habits have finished loading
-    if (user && !habitsLoading) {
-      fetchUserData();
+    // Get user name from metadata or use email as fallback
+    if (user) {
+      const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || "User";
+      setUserName(displayName);
     }
-  }, [user, habits, habitsLoading, supabase]);
+  }, [user]);
 
   // Update dashboard message based on completion
   useEffect(() => {
     if (habits.length > 0) {
-      const message = getHabitCompletionMessage(completedHabits, habits.length);
+      const message = getHabitCompletionMessage(stats.completed_today, habits.length);
       setDashboardMessage(message);
     }
-  }, [completedHabits, habits.length]);
+  }, [stats.completed_today, habits.length]);
 
   // Calculate percentage for the progress circle
-  const percentage = habits.length > 0 ? (completedHabits / habits.length) * 100 : 0;
+  const percentage = habits.length > 0 ? (stats.completed_today / habits.length) * 100 : 0;
   const circumference = 2 * Math.PI * 45; // radius is 45
   const strokeDasharray = circumference;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
@@ -281,7 +130,7 @@ const fetchUserData = async () => {
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-400">
-                      {completedHabits}
+                      {stats.completed_today}
                     </div>
                     <div className="text-sm text-gray-400">
                       of {habits.length}
@@ -293,7 +142,7 @@ const fetchUserData = async () => {
               {/* Progress Stats */}
               <div className="text-center space-y-2">
                 <p className="text-lg font-medium">
-                  {completedHabits} out of {habits.length} habits completed
+                  {stats.completed_today} out of {habits.length} habits completed
                 </p>
                 <p className="text-green-400 font-bold text-xl">
                   {Math.round(percentage)}% Complete
@@ -344,9 +193,9 @@ const fetchUserData = async () => {
 
           {/* Quick Stats Cards */}
           <div className="grid grid-cols-3 gap-4">
-            <StatCard value={currentStreak} label="Day Streak" color="green" />
-            <StatCard value={`${weeklyProgress}%`} label="This Week" color="blue" />
-            <StatCard value={avgHabitsPerDay} label="Avg Per Day" color="purple" />
+            <StatCard value={stats.current_streak} label="Day Streak" color="green" />
+            <StatCard value={`${stats.weekly_progress}%`} label="This Week" color="blue" />
+            <StatCard value={stats.avg_habits_per_day} label="Avg Per Day" color="purple" />
           </div>
         </div>
       </div>

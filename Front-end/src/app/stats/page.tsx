@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Button, H1, StreakCalendar, Container, StatCard, Loading } from "@/components";
-import { useSupabaseAuth } from "@/hooks";
+import { useSupabaseAuth, useHabits, useUserStats } from "@/hooks";
 
 
 export default function StatsPage() {
@@ -9,26 +9,29 @@ export default function StatsPage() {
     requireAuth: true,
     redirectTo: "/"
   });
-  
-  const [loading, setLoading] = useState(true);
+
+  const { habits, loading: habitsLoading } = useHabits({
+    userId: user?.id,
+    autoFetch: true
+  });
+
+  const { stats, loading: statsLoading } = useUserStats({
+    userId: user?.id,
+    totalHabits: habits.length,
+    autoFetch: true
+  });
+
   const [userName, setUserName] = useState("");
   const [contributionData, setContributionData] = useState<Record<string, number>>({});
-  const [totalDays, setTotalDays] = useState(0);
-  const [longestStreak, setLongestStreak] = useState(0);
-  const [currentStreak, setCurrentStreak] = useState(0);
-  const [goldStarDays, setGoldStarDays] = useState(0);
-  const [totalCompletions, setTotalCompletions] = useState(0);
-  const [avgHabitsPerDay, setAvgHabitsPerDay] = useState(0);
 
-  const fetchStatsData = async () => {
+  const fetchContributionData = async () => {
     try {
-      // user is provided by useSupabaseAuth hook
       if (!user) return;
 
       const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || "User";
       setUserName(displayName);
 
-      // Fetch all completions for the past 365 days
+      // Fetch all completions for the past 365 days (for calendar visualization)
       const oneYearAgo = new Date();
       oneYearAgo.setDate(oneYearAgo.getDate() - 365);
 
@@ -40,11 +43,10 @@ export default function StatsPage() {
 
       if (completionsError) {
         console.error("Failed to fetch completions:", completionsError.message);
-        setLoading(false);
         return;
       }
 
-      // Process completions into a date-based map
+      // Process completions into a date-based map for calendar visualization
       const dateMap: Record<string, Set<string>> = {};
       if (completions) {
         completions.forEach((completion: any) => {
@@ -63,84 +65,20 @@ export default function StatsPage() {
       });
 
       setContributionData(contributionMap);
-
-      // Calculate stats
-      const daysWithActivity = Object.keys(contributionMap).length;
-      setTotalDays(daysWithActivity);
-
-      const totalHabits = Object.values(contributionMap).reduce((sum: number, count: number) => sum + count, 0);
-      setTotalCompletions(totalHabits);
-      
-      // Count gold star days (days with 5 habits completed)
-      const goldDays = Object.values(contributionMap).filter((count: number) => count >= 5).length;
-      setGoldStarDays(goldDays);
-
-      // Calculate streaks
-      const sortedDates = Object.keys(contributionMap).sort().reverse();
-      let current = 0;
-      let longest = 0;
-      let temp = 0;
-      
-      const today = new Date().toISOString().split('T')[0];
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-      // Check if streak is active (today or yesterday has activity)
-      if (contributionMap[today] || contributionMap[yesterdayStr]) {
-        let checkDate = new Date();
-        while (true) {
-          const dateStr = checkDate.toISOString().split('T')[0];
-          if (contributionMap[dateStr]) {
-            current++;
-            checkDate.setDate(checkDate.getDate() - 1);
-          } else {
-            break;
-          }
-        }
-      }
-
-      // Calculate longest streak
-      for (let i = 0; i < sortedDates.length; i++) {
-        const currentDate = new Date(sortedDates[i]);
-        if (i === 0 || isConsecutiveDay(new Date(sortedDates[i - 1]), currentDate)) {
-          temp++;
-          longest = Math.max(longest, temp);
-        } else {
-          temp = 1;
-        }
-      }
-
-      setCurrentStreak(current);
-      setLongestStreak(longest);
-      
-      // Calculate average habits per day (only counting days with activity)
-      if (daysWithActivity > 0) {
-        const avg = totalHabits / daysWithActivity;
-        setAvgHabitsPerDay(Math.round(avg * 10) / 10);
-      }
-      
-      setLoading(false);
     } catch (error) {
-      console.error("Error in fetchStatsData:", error);
-      setLoading(false);
+      console.error("Error in fetchContributionData:", error);
     }
   };
 
-  const isConsecutiveDay = (date1: Date, date2: Date): boolean => {
-    const diff = Math.abs(date1.getTime() - date2.getTime());
-    return diff === 86400000; // 1 day in milliseconds
-  };
-
   useEffect(() => {
-    // Load data when user is available
+    // Load contribution data when user is available
     if (user) {
-      fetchStatsData();
+      fetchContributionData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  if (authLoading || loading) {
+  if (authLoading || habitsLoading || statsLoading) {
     return <Loading text="Loading your stats..." />
   }
 
@@ -159,12 +97,12 @@ export default function StatsPage() {
 
           {/* Stats Overview Cards */}
           <div className="grid grid-cols-3 gap-4">
-            <StatCard value={totalDays} label="Active Days" color="blue" />
-            <StatCard value={totalCompletions} label="Habits Completed" color="red" />
-            <StatCard value={currentStreak} label="Current Streak" color="purple" />
-            <StatCard value={longestStreak} label="Longest Streak" color="orange" />
-            <StatCard value={goldStarDays} label="Gold Star Days ⭐" color="yellow" />
-            <StatCard value={avgHabitsPerDay} label="Avg Per Day" color="pink" />
+            <StatCard value={stats.total_active_days} label="Active Days" color="blue" />
+            <StatCard value={stats.total_completions} label="Habits Completed" color="red" />
+            <StatCard value={stats.current_streak} label="Current Streak" color="purple" />
+            <StatCard value={stats.longest_streak} label="Longest Streak" color="orange" />
+            <StatCard value={stats.gold_star_days} label="Gold Star Days ⭐" color="yellow" />
+            <StatCard value={stats.avg_habits_per_day} label="Avg Per Day" color="pink" />
           </div>
 
           {/* Contribution Graph */}
