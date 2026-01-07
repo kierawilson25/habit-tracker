@@ -174,57 +174,76 @@ export function useUserStats(options: UseUserStatsOptions = {}): UseUserStatsRet
 
       const totalCompletions = completions.length;
 
-      // Get unique dates (days with activity)
-      const uniqueDates = [...new Set(completions.map(c => c.completion_date))].sort().reverse();
+      // Get unique dates (days with activity) - normalize to ISO format for consistent comparison
+      const completionDates = completions.map(c => new Date(c.completion_date).toISOString().split('T')[0]);
+      const uniqueDates = [...new Set(completionDates)];
+      // uniqueDates is now in descending order (most recent first) since completions was ordered descending
       const totalActiveDays = uniqueDates.length;
 
-      // Today's date
-      const today = new Date().toLocaleDateString('en-CA');
-      const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
+      // Today's date in ISO format
+      const today = new Date().toISOString().split('T')[0];
 
       // Count completions today
-      const completedToday = completions.filter(c => c.completion_date === today).length;
+      const completedToday = completions.filter(c => {
+        const compDate = new Date(c.completion_date).toISOString().split('T')[0];
+        return compDate === today;
+      }).length;
 
       // Calculate current streak (consecutive days with at least 1 completion)
       let currentStreak = 0;
-      if (uniqueDates[0] === today || uniqueDates[0] === yesterday) {
-        currentStreak = 1;
-        let checkDate = uniqueDates[0];
+      if (uniqueDates.length > 0) {
+        const mostRecentCompletion = uniqueDates[0];
+        const mostRecentDate = new Date(mostRecentCompletion);
+        const todayDate = new Date(today);
 
-        for (let i = 1; i < uniqueDates.length; i++) {
-          const prevDate = new Date(checkDate);
-          prevDate.setDate(prevDate.getDate() - 1);
-          const expectedDate = prevDate.toLocaleDateString('en-CA');
+        const daysDiff = Math.floor((todayDate.getTime() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24));
 
-          if (uniqueDates[i] === expectedDate) {
-            currentStreak++;
-            checkDate = uniqueDates[i];
-          } else {
-            break;
-          }
-        }
-      }
-
-      // Calculate longest streak in entire history
-      let longestStreak = 0;
-      let tempStreak = 0;
-      for (let i = 0; i < uniqueDates.length; i++) {
-        if (i === 0) {
-          tempStreak = 1;
+        // Streak is active if last completion was today or yesterday (0 or 1 days ago)
+        if (daysDiff > 1) {
+          currentStreak = 0; // Streak broken
         } else {
-          const prevDate = new Date(uniqueDates[i - 1]);
-          prevDate.setDate(prevDate.getDate() - 1);
-          const expectedDate = prevDate.toLocaleDateString('en-CA');
+          currentStreak = 1; // Start counting from most recent
 
-          if (uniqueDates[i] === expectedDate) {
-            tempStreak++;
-          } else {
-            longestStreak = Math.max(longestStreak, tempStreak);
-            tempStreak = 1;
+          // Count consecutive days backward from most recent
+          for (let i = 1; i < uniqueDates.length; i++) {
+            const currentDate = new Date(uniqueDates[i - 1]);
+            const nextDate = new Date(uniqueDates[i]);
+            const daysDifference = Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24));
+
+            if (daysDifference === 1) {
+              currentStreak++;
+            } else {
+              break; // Gap found, stop counting
+            }
           }
         }
       }
-      longestStreak = Math.max(longestStreak, tempStreak);
+
+      // Calculate longest streak in entire history using two-pointer approach
+      let longestStreak = 0;
+      let i = 0;
+
+      while (i < uniqueDates.length) {
+        let tempStreak = 1;
+        let j = i;
+
+        // Count consecutive days from this starting point
+        while (j < uniqueDates.length - 1) {
+          const currentDate = new Date(uniqueDates[j]);
+          const nextDate = new Date(uniqueDates[j + 1]);
+          const daysDiff = Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24));
+
+          if (daysDiff === 1) {
+            tempStreak++;
+            j++;
+          } else {
+            break; // Gap found
+          }
+        }
+
+        longestStreak = Math.max(longestStreak, tempStreak);
+        i = j + 1; // Move to next potential sequence start
+      }
 
       // Calculate gold star days (days with 5+ completions)
       const completionsByDate: Record<string, number> = {};
