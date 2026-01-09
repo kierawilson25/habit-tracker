@@ -13,3 +13,5 @@ export { useHabits } from './data/useHabits';
 export type { UseHabitsOptions, UseHabitsReturn } from './data/useHabits';
 export { useStreakCalculation } from './data/useStreakCalculation';
 export type { UseStreakCalculationReturn } from './data/useStreakCalculation';
+export { useUserStats } from './data/useUserStats';
+export type { UseUserStatsOptions, UseUserStatsReturn, UserStats } from './data/useUserStats';
