@@ -24,25 +24,7 @@ export default function HomePage() {
 
   // State for UI messages
   const [userName, setUserName] = useState("");
-  const [encouragingMessage, setEncouragingMessage] = useState("");
   const [dashboardMessage, setDashboardMessage] = useState({ title: "", message: "" });
-
-  const encouragingMessages = [
-    "Every small step counts towards your goals! 🌟",
-    "Consistency is the key to lasting change. Keep going! 💪",
-    "You're building the future you want, one habit at a time! 🚀",
-    "Progress, not perfection. You're doing amazing! ✨",
-    "Today is a new opportunity to grow stronger! 🌱",
-    "Your dedication today shapes tomorrow's success! 🎯",
-    "Small habits, big results. You've got this! 🔥",
-    "Every habit completed is a promise kept to yourself! 💚"
-  ];
-
-  useEffect(() => {
-    // Set random encouraging message
-    const randomIndex = Math.floor(Math.random() * encouragingMessages.length);
-    setEncouragingMessage(encouragingMessages[randomIndex]);
-  }, []);
 
   useEffect(() => {
     // Get user name from metadata or use email as fallback
@@ -81,18 +63,6 @@ export default function HomePage() {
             <p className="text-gray-400 text-center">
               Welcome back to your habit journey
             </p>
-          </Container>
-
-          {/* Encouraging Message Section */}
-          <Container>
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-green-600 rounded-full mb-4">
-                <span className="text-xl">💡</span>
-              </div>
-              <p className="text-lg text-green-400 font-medium">
-                {encouragingMessage}
-              </p>
-            </div>
           </Container>
 
           {/* Habits Progress Widget */}
