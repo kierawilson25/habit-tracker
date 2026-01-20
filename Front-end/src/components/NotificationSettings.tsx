@@ -161,6 +161,18 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({
               Get notified when someone comments on your activity
             </p>
           </div>
+
+          <div className="flex flex-col gap-2">
+            <Toggle
+              enabled={preferences?.notify_friend_requests ?? true}
+              onChange={(enabled) => handlePreferenceChange('notify_friend_requests', enabled)}
+              disabled={disabled}
+              label="Friend requests"
+            />
+            <p className="text-sm text-gray-400">
+              Get notified when someone sends you a friend request
+            </p>
+          </div>
         </div>
 
         <p className="text-sm text-gray-400">

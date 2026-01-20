@@ -27,7 +27,7 @@ export default function NotificationsPage() {
     redirectTo: '/login',
   });
 
-  const [activeFilter, setActiveFilter] = useState<'all' | 'posts' | 'likes' | 'comments'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'posts' | 'likes' | 'comments' | 'requests'>('all');
   const hasMarkedAsRead = useRef(false);
 
   const {
@@ -62,8 +62,14 @@ export default function NotificationsPage() {
     // Mark as read
     await markAsRead(notification.id);
 
-    // Navigate to feed with highlighted activity
-    router.push(`/feed?highlight=${notification.activity_id}`);
+    // Navigate based on notification type
+    if (notification.type === 'friend_request') {
+      // For friend requests, navigate to friend requests page
+      router.push('/friends/requests');
+    } else {
+      // For other notifications, navigate to feed with highlighted activity
+      router.push(`/feed?highlight=${notification.activity_id}`);
+    }
   };
 
   const handleMarkAllRead = async () => {
@@ -105,6 +111,7 @@ export default function NotificationsPage() {
                 { key: 'posts', label: 'Posts' },
                 { key: 'likes', label: 'Likes' },
                 { key: 'comments', label: 'Comments' },
+                { key: 'requests', label: 'Requests' },
               ].map((tab) => (
                 <button
                   key={tab.key}

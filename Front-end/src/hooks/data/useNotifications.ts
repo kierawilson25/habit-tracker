@@ -30,7 +30,7 @@ export interface UseNotificationsOptions {
    * Filter notifications by type
    * @default 'all'
    */
-  filter?: 'all' | 'posts' | 'likes' | 'comments';
+  filter?: 'all' | 'posts' | 'likes' | 'comments' | 'requests';
 
   /**
    * Number of notifications to fetch per page
@@ -328,10 +328,11 @@ export function useNotifications(
             (likesData?.length || 0) === pageSize
           );
         } else {
-          // For specific filters (posts or comments), query in_app_notifications only
+          // For specific filters (posts, comments, or requests), query in_app_notifications only
           const typeMap: Record<string, NotificationType> = {
             posts: 'friend_post',
             comments: 'comment',
+            requests: 'friend_request',
           };
           const notificationType = typeMap[filter];
 
