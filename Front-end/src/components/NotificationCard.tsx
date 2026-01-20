@@ -18,7 +18,8 @@ import {
   getFriendPostMessage,
   getLikeMessage,
   getCommentMessageWithText,
-  getCommentMessage
+  getCommentMessage,
+  getFriendRequestMessage
 } from '@/utils/notificationMessages';
 
 export interface NotificationCardProps {
@@ -66,6 +67,8 @@ function getNotificationMessage(notification: InAppNotification): string {
         return getCommentMessageWithText(notification.comment_text).message;
       }
       return getCommentMessage().message;
+    case 'friend_request':
+      return getFriendRequestMessage().message;
     default:
       return 'interacted with your activity ✨';
   }
@@ -82,6 +85,8 @@ function getNotificationIcon(type: NotificationType): React.JSX.Element {
       return <span className="text-xl" aria-label="Like">❤️</span>;
     case 'comment':
       return <span className="text-xl" aria-label="Comment">💬</span>;
+    case 'friend_request':
+      return <span className="text-xl" aria-label="Friend request">👋</span>;
   }
 }
 

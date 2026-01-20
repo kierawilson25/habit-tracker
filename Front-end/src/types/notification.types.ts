@@ -7,7 +7,7 @@
 /**
  * Type of in-app notification
  */
-export type NotificationType = 'friend_post' | 'like' | 'comment';
+export type NotificationType = 'friend_post' | 'like' | 'comment' | 'friend_request';
 
 /**
  * In-App Notification
@@ -143,6 +143,12 @@ export interface NotificationPreferences {
    * @default true
    */
   notify_comments: boolean;
+
+  /**
+   * Get notified when someone sends you a friend request
+   * @default true
+   */
+  notify_friend_requests: boolean;
 
   /**
    * Timestamp when preferences were created

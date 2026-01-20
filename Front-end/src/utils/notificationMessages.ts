@@ -70,3 +70,19 @@ export function getCommentMessage(): NotificationMessage {
 
   return messages[Math.floor(Math.random() * messages.length)];
 }
+
+/**
+ * Get a random message for friend request notifications
+ */
+export function getFriendRequestMessage(): NotificationMessage {
+  const messages: NotificationMessage[] = [
+    { message: 'sent you a friend request 👋' },
+    { message: 'wants to be friends! 🤝' },
+    { message: 'sent a friend request ✨' },
+    { message: 'wants to connect with you 🌟' },
+    { message: 'sent you a friend request 💫' },
+    { message: 'would like to be your friend 🎯' },
+  ];
+
+  return messages[Math.floor(Math.random() * messages.length)];
+}
