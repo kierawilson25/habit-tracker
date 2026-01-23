@@ -105,28 +105,30 @@ export default function NotificationsPage() {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex gap-2 mb-6 border-b border-gray-700" role="tablist">
-              {[
-                { key: 'all', label: 'All' },
-                { key: 'posts', label: 'Posts' },
-                { key: 'likes', label: 'Likes' },
-                { key: 'comments', label: 'Comments' },
-                { key: 'requests', label: 'Requests' },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  role="tab"
-                  aria-selected={activeFilter === tab.key}
-                  className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-[1px] focus-green ${
-                    activeFilter === tab.key
-                      ? 'text-green-400 border-green-400'
-                      : 'text-gray-400 border-transparent hover:text-gray-300'
-                  }`}
-                  onClick={() => setActiveFilter(tab.key as any)}
-                >
-                  {tab.label}
-                </button>
-              ))}
+            <div className="relative mb-6 border-b border-gray-700">
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth" role="tablist">
+                {[
+                  { key: 'all', label: 'All' },
+                  { key: 'posts', label: 'Posts' },
+                  { key: 'likes', label: 'Likes' },
+                  { key: 'comments', label: 'Comments' },
+                  { key: 'requests', label: 'Requests' },
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    role="tab"
+                    aria-selected={activeFilter === tab.key}
+                    className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-[1px] focus-green whitespace-nowrap flex-shrink-0 ${
+                      activeFilter === tab.key
+                        ? 'text-green-400 border-green-400'
+                        : 'text-gray-400 border-transparent hover:text-gray-300'
+                    }`}
+                    onClick={() => setActiveFilter(tab.key as any)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Loading State */}
