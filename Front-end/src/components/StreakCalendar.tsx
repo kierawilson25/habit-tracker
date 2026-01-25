@@ -11,6 +11,7 @@ export default function StreakCalendar({ contributionData }: StreakCalendarProps
   const [hoveredCount, setHoveredCount] = useState<number>(0);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipBelow, setTooltipBelow] = useState(false);
 
   // Generate array of last 365 days
   const generateLast365Days = () => {
@@ -86,8 +87,8 @@ export default function StreakCalendar({ contributionData }: StreakCalendarProps
           style={{
             left: `${tooltipPosition.x}px`,
             top: `${tooltipPosition.y}px`,
-            transform: 'translate(-50%, -100%)',
-            marginTop: '-8px'
+            transform: tooltipBelow ? 'translate(-50%, 0)' : 'translate(-50%, -100%)',
+            marginTop: tooltipBelow ? '0' : '-8px'
           }}
         >
           <div className="font-semibold">
@@ -97,14 +98,17 @@ export default function StreakCalendar({ contributionData }: StreakCalendarProps
             <div className="text-yellow-400 text-center">All 5 habits completed!</div>
           )}
           <div className="text-gray-400">{hoveredDate}</div>
+          {/* Arrow pointing to the tile */}
           <div
-            className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-full"
+            className="absolute left-1/2 transform -translate-x-1/2"
             style={{
+              [tooltipBelow ? 'top' : 'bottom']: 0,
+              [tooltipBelow ? 'transform' : 'transform']: tooltipBelow ? 'translate(-50%, -100%)' : 'translate(-50%, 100%)',
               width: 0,
               height: 0,
               borderLeft: '6px solid transparent',
               borderRight: '6px solid transparent',
-              borderTop: '6px solid #1f2937'
+              [tooltipBelow ? 'borderBottom' : 'borderTop']: '6px solid #1f2937'
             }}
           />
         </div>
@@ -176,12 +180,46 @@ export default function StreakCalendar({ contributionData }: StreakCalendarProps
                         onClick={(e) => {
                           e.stopPropagation();
                           const rect = e.currentTarget.getBoundingClientRect();
-                          const containerRect = e.currentTarget.closest('.bg-green-950\\/20')?.getBoundingClientRect();
-                          if (containerRect) {
+                          // Find the container (the div with rounded-lg class from Container component)
+                          const container = e.currentTarget.closest('.rounded-lg');
+
+                          if (container) {
+                            const containerRect = container.getBoundingClientRect();
+
+                            // Calculate tooltip position relative to the container
+                            const relativeX = rect.left - containerRect.left + rect.width / 2;
+                            const relativeY = rect.top - containerRect.top;
+
+                            // Estimate tooltip width based on content (count is passed as prop)
+                            const tooltipWidth = count === 5 ? 200 : 180;
+                            const tooltipHeight = count === 5 ? 70 : 60;
+
+                            // Calculate adjusted X position to keep tooltip in viewport
+                            let adjustedX = relativeX;
+                            const halfWidth = tooltipWidth / 2;
+
+                            // Keep tooltip within container bounds horizontally
+                            if (relativeX - halfWidth < 0) {
+                              adjustedX = halfWidth + 8;
+                            } else if (relativeX + halfWidth > containerRect.width) {
+                              adjustedX = containerRect.width - halfWidth - 8;
+                            }
+
+                            // Calculate adjusted Y position
+                            let adjustedY = relativeY;
+                            let showBelow = false;
+
+                            if (relativeY - tooltipHeight - 8 < 0) {
+                              // Show below if not enough space above
+                              adjustedY = relativeY + rect.height + 8;
+                              showBelow = true;
+                            }
+
                             setTooltipPosition({
-                              x: rect.left - containerRect.left + rect.width / 2,
-                              y: rect.top - containerRect.top
+                              x: adjustedX,
+                              y: adjustedY
                             });
+                            setTooltipBelow(showBelow);
                           }
                           setHoveredDate(displayDate);
                           setHoveredCount(count);
