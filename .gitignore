@@ -45,4 +45,10 @@ next-env.d.ts
 
 # supabase local development files
 supabase/
-!supabase_migrations/
+supabase_migrations/
+
+# utility scripts (personal admin tools)
+scripts/
+
+# test/debug pages
+Front-end/src/app/test-feed/
