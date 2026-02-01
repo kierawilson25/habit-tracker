@@ -1,0 +1,20 @@
+name: Send Daily Email Reminders
+
+on:
+  schedule:
+    # Run every day at 8 PM UTC (adjust as needed for different timezones)
+    # The function itself will check each user's timezone and reminder time
+    # Run every hour to catch all timezones
+    - cron: '0 * * * *'  # Every hour
+  workflow_dispatch:  # Allow manual triggering for testing
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Supabase Edge Function
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_FUNCTION_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json"
