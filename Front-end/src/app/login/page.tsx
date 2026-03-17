@@ -2,7 +2,7 @@
 import { useAuth } from "../../context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, use } from "react";
 import "../../utils/styles/global.css";
 import { H1, Button, TextBox, PageLayout, AlertBox, SecondaryLink } from '@/components';
 import { useForm } from '@/hooks';
@@ -14,7 +14,12 @@ interface LoginForm {
   password: string;
 }
 
-export default function LoginPage() {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ message?: string }>
+}) {
+  const params = use(searchParams);
   const { signIn, loading: authLoading } = useAuth();
   const router = useRouter();
   const [error, setError] = useState("");
@@ -48,12 +53,18 @@ export default function LoginPage() {
 
 
         <form onSubmit={handleSubmit}>
+          {params.message === 'password_reset_success' && (
+            <AlertBox type="success" className="mb-4">
+              Password reset successfully. Please log in.
+            </AlertBox>
+          )}
+
           {error && (
             <AlertBox type="error" className="mb-4">
               {error}
             </AlertBox>
           )}
-          
+
           <TextBox
             label="Email"
             type="email"
@@ -76,6 +87,12 @@ export default function LoginPage() {
             required
             showPasswordToggle
           />
+
+          <div style={{ textAlign: "right", marginBottom: "1rem", marginTop: "-0.5rem" }}>
+            <Link href="/forgot-password" style={{ fontSize: "0.875rem", color: "#16a34a" }}>
+              Forgot password?
+            </Link>
+          </div>
 
           {/* Large prominent login button */}
 
