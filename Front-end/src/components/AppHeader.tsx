@@ -214,7 +214,7 @@ export default function AppHeader() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-black-700 py-3">
+          <div className="md:hidden border-t border-black-700 py-3 bg-black absolute left-0 right-0 top-full shadow-lg z-50">
             {visibleNavItems.map((item) => (
               <Link
                 key={item.href}
